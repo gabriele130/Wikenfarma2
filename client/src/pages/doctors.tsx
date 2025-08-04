@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import DoctorModal from "@/components/modals/doctor-modal";
 
 export default function Doctors() {
   const { toast } = useToast();
@@ -17,6 +18,7 @@ export default function Doctors() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -37,9 +39,11 @@ export default function Doctors() {
     retry: false,
   });
 
+  const doctors = (doctorsData as any)?.customers || [];
+
   const deleteCustomerMutation = useMutation({
     mutationFn: async (customerId: string) => {
-      await apiRequest("DELETE", `/api/customers/${customerId}`);
+      await apiRequest(`/api/customers/${customerId}`, "DELETE");
     },
     onSuccess: () => {
       toast({
@@ -92,7 +96,10 @@ export default function Doctors() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <CardTitle>Anagrafica Medici</CardTitle>
-                <Button className="bg-primary hover:bg-blue-700">
+                <Button 
+                  className="bg-primary hover:bg-blue-700"
+                  onClick={() => setShowDoctorModal(true)}
+                >
                   <i className="fas fa-plus mr-2"></i>
                   Nuovo Medico
                 </Button>
@@ -115,7 +122,7 @@ export default function Doctors() {
                   <i className="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
                   <p className="text-gray-500">Caricamento medici...</p>
                 </div>
-              ) : !doctorsData?.customers?.length ? (
+              ) : !doctors.length ? (
                 <div className="text-center py-8">
                   <i className="fas fa-user-md text-4xl text-gray-300 mb-4"></i>
                   <p className="text-gray-500">Nessun medico trovato</p>
@@ -146,7 +153,7 @@ export default function Doctors() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {doctorsData.customers.map((doctor) => (
+                      {doctors.map((doctor: any) => (
                         <tr key={doctor.id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -211,6 +218,11 @@ export default function Doctors() {
           </Card>
         </div>
       </main>
+      
+      <DoctorModal 
+        open={showDoctorModal}
+        onOpenChange={setShowDoctorModal}
+      />
     </div>
   );
 }

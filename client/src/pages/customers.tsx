@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Plus } from "lucide-react";
+import CustomerModal from "@/components/modals/customer-modal";
 
 export default function Customers() {
   const { toast } = useToast();
@@ -19,6 +21,7 @@ export default function Customers() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -108,8 +111,11 @@ export default function Customers() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <CardTitle>Anagrafica Clienti</CardTitle>
-                <Button className="bg-primary hover:bg-blue-700">
-                  <i className="fas fa-plus mr-2"></i>
+                <Button 
+                  className="bg-primary hover:bg-blue-700"
+                  onClick={() => setShowCustomerModal(true)}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
                   Nuovo Cliente
                 </Button>
               </div>
@@ -233,6 +239,11 @@ export default function Customers() {
           </Card>
         </div>
       </main>
+      
+      <CustomerModal 
+        open={showCustomerModal}
+        onOpenChange={setShowCustomerModal}
+      />
     </div>
   );
 }
