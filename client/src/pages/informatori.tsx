@@ -77,7 +77,7 @@ export default function Informatori() {
 
   const createMutation = useMutation({
     mutationFn: async (data: InformatoreFormData) => {
-      return await apiRequest(`/api/informatori`, 'POST', data);
+      return await apiRequest('POST', `/api/informatori`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/informatori'] });

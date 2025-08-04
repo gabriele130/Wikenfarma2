@@ -61,7 +61,7 @@ export default function CustomerModal({ open, onOpenChange }: CustomerModalProps
 
   const createMutation = useMutation({
     mutationFn: async (data: CustomerFormData) => {
-      return await apiRequest(`/api/customers`, 'POST', data);
+      return await apiRequest('POST', `/api/customers`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/customers'] });

@@ -62,7 +62,7 @@ export default function DoctorModal({ open, onOpenChange }: DoctorModalProps) {
         ...data,
         type: "doctor" as const,
       };
-      return await apiRequest(`/api/customers`, 'POST', customerData);
+      return await apiRequest('POST', `/api/customers`, customerData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/customers'] });

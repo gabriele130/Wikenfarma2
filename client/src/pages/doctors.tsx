@@ -43,7 +43,7 @@ export default function Doctors() {
 
   const deleteCustomerMutation = useMutation({
     mutationFn: async (customerId: string) => {
-      await apiRequest(`/api/customers/${customerId}`, "DELETE");
+      await apiRequest("DELETE", `/api/customers/${customerId}`);
     },
     onSuccess: () => {
       toast({
