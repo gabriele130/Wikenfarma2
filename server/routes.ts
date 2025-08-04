@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertCustomerSchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema } from "@shared/schema";
+import { insertCustomerSchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertInformatoreSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -12,7 +12,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = (req.user as any).claims.sub;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -68,7 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log activity
       await storage.createActivityLog({
-        userId: req.user?.claims?.sub,
+        userId: (req.user as any)?.claims?.sub,
         action: 'create',
         entityType: 'customer',
         entityId: customer.id,
@@ -89,7 +89,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log activity
       await storage.createActivityLog({
-        userId: req.user?.claims?.sub,
+        userId: (req.user as any)?.claims?.sub,
         action: 'update',
         entityType: 'customer',
         entityId: customer.id,
@@ -109,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log activity
       await storage.createActivityLog({
-        userId: req.user?.claims?.sub,
+        userId: (req.user as any)?.claims?.sub,
         action: 'delete',
         entityType: 'customer',
         entityId: req.params.id,
@@ -155,7 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log activity
       await storage.createActivityLog({
-        userId: req.user?.claims?.sub,
+        userId: (req.user as any)?.claims?.sub,
         action: 'create',
         entityType: 'product',
         entityId: product.id,
@@ -207,7 +207,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log activity
       await storage.createActivityLog({
-        userId: req.user?.claims?.sub,
+        userId: (req.user as any)?.claims?.sub,
         action: 'create',
         entityType: 'order',
         entityId: order.id,
@@ -228,7 +228,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log activity
       await storage.createActivityLog({
-        userId: req.user?.claims?.sub,
+        userId: (req.user as any)?.claims?.sub,
         action: 'update',
         entityType: 'order',
         entityId: order.id,
@@ -290,6 +290,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching activity logs:", error);
       res.status(500).json({ message: "Failed to fetch activity logs" });
+    }
+  });
+
+  // Informatori routes
+  app.get('/api/informatori', isAuthenticated, async (req, res) => {
+    try {
+      const informatori = await storage.getInformatori();
+      res.json(informatori);
+    } catch (error) {
+      console.error("Error fetching informatori:", error);
+      res.status(500).json({ message: "Failed to fetch informatori" });
+    }
+  });
+
+  app.post('/api/informatori', isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertInformatoreSchema.parse(req.body);
+      const informatore = await storage.createInformatore(validatedData);
+      
+      // Log activity
+      await storage.createActivityLog({
+        userId: (req.user as any)?.claims?.sub,
+        action: 'create',
+        entityType: 'informatore',
+        entityId: informatore.id,
+        description: `Creato nuovo informatore: ${informatore.firstName} ${informatore.lastName}`,
+      });
+      
+      res.status(201).json(informatore);
+    } catch (error) {
+      console.error("Error creating informatore:", error);
+      res.status(500).json({ message: "Failed to create informatore" });
+    }
+  });
+
+  app.get('/api/informatori/:id/dashboard', async (req, res) => {
+    try {
+      const informatoreId = req.params.id;
+      const dashboard = await storage.getInformatoreDashboard(informatoreId);
+      res.json(dashboard);
+    } catch (error) {
+      console.error("Error fetching informatore dashboard:", error);
+      res.status(500).json({ message: "Failed to fetch informatore dashboard" });
     }
   });
 

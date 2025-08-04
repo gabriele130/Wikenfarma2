@@ -8,6 +8,7 @@ import {
   commissions,
   integrations,
   activityLogs,
+  informatori,
   type User,
   type UpsertUser,
   type Customer,
@@ -27,6 +28,8 @@ import {
   type InsertIntegration,
   type ActivityLog,
   type InsertActivityLog,
+  type Informatore,
+  type InsertInformatore,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, count, sum, and, gte, lte, ilike, or } from "drizzle-orm";
@@ -76,6 +79,23 @@ export interface IStorage {
   // Activity log operations
   createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
   getActivityLogs(limit?: number): Promise<ActivityLog[]>;
+
+  // Informatori operations
+  getInformatori(): Promise<Informatore[]>;
+  getInformatore(id: string): Promise<Informatore | undefined>;
+  createInformatore(informatore: InsertInformatore): Promise<Informatore>;
+  updateInformatore(id: string, informatore: Partial<InsertInformatore>): Promise<Informatore>;
+  getInformatoreDashboard(informatoreId: string): Promise<{
+    informatore: Informatore;
+    assignedDoctors: Customer[];
+    doctorOrders: OrderWithDetails[];
+    totalPoints: number;
+    monthlyStats: {
+      orders: number;
+      revenue: string;
+      points: number;
+    };
+  }>;
 
   // Dashboard metrics
   getDashboardMetrics(): Promise<{
@@ -452,6 +472,122 @@ export class DatabaseStorage implements IStorage {
       monthlyRevenue: monthlyRevenueResult[0].sum || "0",
       activeCustomers: activeCustomersResult[0].count,
       pendingShipments: pendingShipmentsResult[0].count,
+    };
+  }
+
+  // Informatori operations
+  async getInformatori(): Promise<Informatore[]> {
+    return db.select().from(informatori).orderBy(informatori.lastName, informatori.firstName);
+  }
+
+  async getInformatore(id: string): Promise<Informatore | undefined> {
+    const [informatore] = await db.select().from(informatori).where(eq(informatori.id, id));
+    return informatore;
+  }
+
+  async createInformatore(informatoreData: InsertInformatore): Promise<Informatore> {
+    const [informatore] = await db.insert(informatori).values(informatoreData).returning();
+    return informatore;
+  }
+
+  async updateInformatore(id: string, informatoreData: Partial<InsertInformatore>): Promise<Informatore> {
+    const [updatedInformatore] = await db
+      .update(informatori)
+      .set({ ...informatoreData, updatedAt: new Date() })
+      .where(eq(informatori.id, id))
+      .returning();
+    return updatedInformatore;
+  }
+
+  async getInformatoreDashboard(informatoreId: string): Promise<{
+    informatore: Informatore;
+    assignedDoctors: Customer[];
+    doctorOrders: OrderWithDetails[];
+    totalPoints: number;
+    monthlyStats: {
+      orders: number;
+      revenue: string;
+      points: number;
+    };
+  }> {
+    // Get informatore details
+    const informatore = await this.getInformatore(informatoreId);
+    if (!informatore) {
+      throw new Error("Informatore not found");
+    }
+
+    // Get assigned doctors (customers with type 'doctor' and matching informatoreId)
+    const assignedDoctors = await db.select()
+      .from(customers)
+      .where(and(
+        eq(customers.type, "doctor"),
+        eq(customers.informatoreId, informatoreId)
+      ));
+
+    // Get doctor orders
+    const doctorOrdersQuery = db
+      .select({
+        id: orders.id,
+        customerId: orders.customerId,
+        orderDate: orders.orderDate,
+        status: orders.status,
+        total: orders.total,
+        customerType: orders.customerType,
+        paymentMethod: orders.paymentMethod,
+        notes: orders.notes,
+        informatoreId: orders.informatoreId,
+        createdAt: orders.createdAt,
+        updatedAt: orders.updatedAt,
+        customerName: customers.companyName,
+        customerFirstName: customers.firstName,
+        customerLastName: customers.lastName,
+        items: orderItems,
+      })
+      .from(orders)
+      .leftJoin(customers, eq(orders.customerId, customers.id))
+      .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .where(eq(orders.informatoreId, informatoreId))
+      .orderBy(desc(orders.orderDate));
+
+    const doctorOrdersRaw = await doctorOrdersQuery;
+
+    // Group orders with their items
+    const ordersMap = new Map<string, OrderWithDetails>();
+    
+    doctorOrdersRaw.forEach((row) => {
+      if (!ordersMap.has(row.id)) {
+        ordersMap.set(row.id, {
+          ...row,
+          items: []
+        });
+      }
+      if (row.items) {
+        ordersMap.get(row.id)!.items.push(row.items);
+      }
+    });
+
+    const doctorOrders = Array.from(ordersMap.values());
+
+    // Calculate total points and monthly stats
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    
+    const totalPoints = doctorOrders.reduce((sum, order) => sum + (order.total * 0.01), 0); // 1% of order value as points
+    
+    const monthlyOrders = doctorOrders.filter(order => new Date(order.orderDate) >= startOfMonth);
+    const monthlyRevenue = monthlyOrders.reduce((sum, order) => sum + order.total, 0);
+    const monthlyPoints = monthlyOrders.reduce((sum, order) => sum + (order.total * 0.01), 0);
+
+    return {
+      informatore,
+      assignedDoctors,
+      doctorOrders,
+      totalPoints,
+      monthlyStats: {
+        orders: monthlyOrders.length,
+        revenue: monthlyRevenue.toString(),
+        points: monthlyPoints,
+      },
     };
   }
 }

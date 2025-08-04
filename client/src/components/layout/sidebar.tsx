@@ -8,6 +8,7 @@ const menuItems = [
   { path: "/orders/wholesale", label: "Ordini Grossisti", icon: "fas fa-warehouse", section: "orders" },
   { path: "/customers", label: "Clienti", icon: "fas fa-users", section: "registry" },
   { path: "/doctors", label: "Medici", icon: "fas fa-user-md", section: "registry" },
+  { path: "/informatori", label: "Informatori", icon: "fas fa-id-badge", section: "registry" },
   { path: "/inventory", label: "Magazzino", icon: "fas fa-boxes", section: "operations" },
   { path: "/shipping", label: "Spedizioni", icon: "fas fa-shipping-fast", section: "operations" },
   { path: "/commissions", label: "Provvigioni", icon: "fas fa-percentage", section: "operations" },
@@ -41,14 +42,14 @@ export default function Sidebar() {
           const isActive = location === item.path;
           return (
             <Link key={item.path} href={item.path}>
-              <a className={`flex items-center px-4 py-3 text-sm transition-colors rounded-lg ${
+              <div className={`flex items-center px-4 py-3 text-sm transition-colors rounded-lg cursor-pointer ${
                 isActive 
                   ? "text-primary bg-blue-50 border-l-4 border-primary font-medium" 
                   : "text-gray-700 hover:bg-gray-100"
               }`}>
                 <i className={`${item.icon} w-5 h-5 mr-3`}></i>
                 <span>{item.label}</span>
-              </a>
+              </div>
             </Link>
           );
         })}

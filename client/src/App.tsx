@@ -17,12 +17,17 @@ import Shipping from "@/pages/shipping";
 import Commissions from "@/pages/commissions";
 import Reports from "@/pages/reports";
 import Integrations from "@/pages/integrations";
+import Informatori from "@/pages/informatori";
+import InformatoreDashboard from "@/pages/informatore-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
   return (
     <Switch>
+      {/* Public route for informatore dashboard */}
+      <Route path="/informatore/:id" component={InformatoreDashboard} />
+      
       {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
       ) : (
@@ -38,6 +43,7 @@ function Router() {
           <Route path="/commissions" component={Commissions} />
           <Route path="/reports" component={Reports} />
           <Route path="/integrations" component={Integrations} />
+          <Route path="/informatori" component={Informatori} />
         </>
       )}
       <Route component={NotFound} />

@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 import OrderModal from "@/components/modals/order-modal";
 
 interface HeaderProps {
-  title: string;
-  subtitle: string;
+  title?: string;
+  subtitle?: string;
 }
 
-export default function Header({ title, subtitle }: HeaderProps) {
+export default function Header({ title = "Dashboard", subtitle = "Sistema Gestionale WikenFarma" }: HeaderProps) {
   const [showOrderModal, setShowOrderModal] = useState(false);
 
   return (

@@ -54,6 +54,7 @@ export const customers = pgTable("customers", {
   vatNumber: varchar("vat_number"),
   fiscalCode: varchar("fiscal_code"),
   loyaltyPoints: integer("loyalty_points").default(0),
+  informatoreId: varchar("informatore_id").references(() => informatori.id),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -142,6 +143,19 @@ export const integrations = pgTable("integrations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Informatori (Medical Representatives)
+export const informatori = pgTable("informatori", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  email: varchar("email").unique().notNull(),
+  phone: varchar("phone"),
+  area: varchar("area"), // Area geografica di competenza
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Activity logs
 export const activityLogs = pgTable("activity_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -155,9 +169,17 @@ export const activityLogs = pgTable("activity_logs", {
 });
 
 // Relations
-export const customersRelations = relations(customers, ({ many }) => ({
+export const customersRelations = relations(customers, ({ one, many }) => ({
   orders: many(orders),
   commissions: many(commissions),
+  informatore: one(informatori, {
+    fields: [customers.informatoreId],
+    references: [informatori.id],
+  }),
+}));
+
+export const informatoriRelations = relations(informatori, ({ many }) => ({
+  customers: many(customers),
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -257,6 +279,12 @@ export const insertActivityLogSchema = createInsertSchema(activityLogs).omit({
   createdAt: true,
 });
 
+export const insertInformatoreSchema = createInsertSchema(informatori).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -276,6 +304,8 @@ export type Integration = typeof integrations.$inferSelect;
 export type InsertIntegration = z.infer<typeof insertIntegrationSchema>;
 export type ActivityLog = typeof activityLogs.$inferSelect;
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+export type Informatore = typeof informatori.$inferSelect;
+export type InsertInformatore = z.infer<typeof insertInformatoreSchema>;
 
 // Order with relations
 export type OrderWithDetails = Order & {
