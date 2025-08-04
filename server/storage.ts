@@ -144,7 +144,7 @@ export class DatabaseStorage implements IStorage {
       );
     }
 
-    if (type) {
+    if (type && type !== "all") {
       whereConditions.push(eq(customers.type, type));
     }
 
@@ -249,11 +249,11 @@ export class DatabaseStorage implements IStorage {
     const offset = (page - 1) * limit;
     let whereConditions = [];
 
-    if (status) {
+    if (status && status !== "all") {
       whereConditions.push(eq(orders.status, status));
     }
 
-    if (customerType) {
+    if (customerType && customerType !== "all") {
       whereConditions.push(eq(orders.customerType, customerType));
     }
 

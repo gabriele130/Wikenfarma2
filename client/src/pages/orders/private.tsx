@@ -16,7 +16,7 @@ export default function OrdersPrivate() {
   const { isAuthenticated, isLoading } = useAuth();
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function OrdersPrivate() {
                       <SelectValue placeholder="Filtra per stato" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tutti gli stati</SelectItem>
+                      <SelectItem value="all">Tutti gli stati</SelectItem>
                       <SelectItem value="pending">In Attesa</SelectItem>
                       <SelectItem value="confirmed">Confermato</SelectItem>
                       <SelectItem value="processing">In Lavorazione</SelectItem>

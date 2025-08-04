@@ -15,7 +15,7 @@ export default function Shipping() {
   const { isAuthenticated, isLoading } = useAuth();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -157,7 +157,7 @@ export default function Shipping() {
                     <SelectValue placeholder="Filtra per stato" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti gli stati</SelectItem>
+                    <SelectItem value="all">Tutti gli stati</SelectItem>
                     <SelectItem value="pending">In Attesa</SelectItem>
                     <SelectItem value="shipped">Spedito</SelectItem>
                     <SelectItem value="in_transit">In Transito</SelectItem>
