@@ -4,6 +4,14 @@
 
 WikenFarma is a comprehensive pharmaceutical management system designed to centralize and automate various business operations including order management, customer relations, inventory control, and integrations with external services. The system handles multiple customer types (private customers, pharmacies, wholesalers, and doctors) and provides complete workflow automation from order placement to delivery tracking.
 
+### Latest Requirements (January 2025)
+- **WIKENSHIP**: Integration of private orders (WooCommerce + eBay) → GestLine frontier table + ODOO analytics
+- **Commission System**: 15% revenue-based for Informatori, point-based system for Doctors
+- **ISF Management**: Dipendenti (fixed salary) vs Liberi Professionisti (fixed + cut-off + percentage)
+- **Pharmacy Orders**: PharmaEVO integration with GestLine bridge + ODOO tagging
+- **Analytics Dashboard**: Multi-dimensional revenue analysis with temporal comparisons
+- **Shareable Medical Reports**: Read-only informatori dashboards with individual doctor tables
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

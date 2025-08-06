@@ -9,6 +9,8 @@ const menuItems = [
   { path: "/customers", label: "Clienti", icon: "fas fa-users", section: "registry" },
   { path: "/doctors", label: "Medici", icon: "fas fa-user-md", section: "registry" },
   { path: "/informatori", label: "Informatori", icon: "fas fa-id-badge", section: "registry" },
+  { path: "/wikenship", label: "WIKENSHIP", icon: "fas fa-sync-alt", section: "integration" },
+  { path: "/analytics", label: "Analytics", icon: "fas fa-chart-line", section: "integration" },
   { path: "/inventory", label: "Magazzino", icon: "fas fa-boxes", section: "operations" },
   { path: "/shipping", label: "Spedizioni", icon: "fas fa-shipping-fast", section: "operations" },
   { path: "/commissions", label: "Provvigioni", icon: "fas fa-percentage", section: "operations" },
@@ -20,6 +22,7 @@ const sections = {
   main: "",
   orders: "Gestione Ordini",
   registry: "Anagrafiche",
+  integration: "Integrazioni Avanzate",
   operations: "Operazioni",
   analysis: "Analisi",
 };

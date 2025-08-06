@@ -307,10 +307,161 @@ export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type Informatore = typeof informatori.$inferSelect;
 export type InsertInformatore = z.infer<typeof insertInformatoreSchema>;
 
+// WIKENSHIP frontier table for GestLine integration
+export const wikenshipOrders = pgTable("wikenship_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orderId: varchar("order_id").notNull().unique(),
+  source: varchar("source", { enum: ["woocommerce", "ebay", "direct"] }).notNull(),
+  customerId: varchar("customer_id").references(() => customers.id),
+  informatoreId: varchar("informatore_id").references(() => informatori.id),
+  doctorId: varchar("doctor_id").references(() => customers.id),
+  totalAmount: decimal("total_amount").notNull(),
+  netAmount: decimal("net_amount").notNull(),
+  vatAmount: decimal("vat_amount").notNull(),
+  commissionAmount: decimal("commission_amount"),
+  gestlineStatus: varchar("gestline_status", { enum: ["pending", "sent", "processed", "error"] }).default("pending"),
+  odooStatus: varchar("odoo_status", { enum: ["pending", "sent", "processed", "error"] }).default("pending"),
+  alertGenerated: boolean("alert_generated").default(false),
+  orderData: jsonb("order_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+});
+
+// Doctor point system for commissions
+export const doctorPoints = pgTable("doctor_points", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  doctorId: varchar("doctor_id").references(() => customers.id).notNull(),
+  informatoreId: varchar("informatore_id").references(() => informatori.id),
+  orderId: varchar("order_id").references(() => wikenshipOrders.id),
+  points: decimal("points").notNull(),
+  pointsType: varchar("points_type", { enum: ["order", "bonus", "malus", "visit"] }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// PharmaEVO integration for pharmacy orders
+export const pharmaevoOrders = pgTable("pharmaevo_orders", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  orderId: varchar("order_id").notNull().unique(),
+  pharmacyId: varchar("pharmacy_id").references(() => customers.id),
+  totalAmount: decimal("total_amount").notNull(),
+  iqviaData: jsonb("iqvia_data"),
+  gestlineStatus: varchar("gestline_status", { enum: ["pending", "sent", "processed", "error"] }).default("pending"),
+  odooStatus: varchar("odoo_status", { enum: ["pending", "sent", "processed", "error"] }).default("pending"),
+  odooTags: varchar("odoo_tags").array().default(sql`ARRAY['Farm']`),
+  createdAt: timestamp("created_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+});
+
+// Advanced commission calculations for informatori
+export const advancedCommissions = pgTable("advanced_commissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  informatoreId: varchar("informatore_id").references(() => informatori.id).notNull(),
+  month: integer("month").notNull(),
+  year: integer("year").notNull(),
+  baseSalary: decimal("base_salary"),
+  iqviaCommission: decimal("iqvia_commission"),
+  wikenshipCommission: decimal("wikenship_commission"),
+  directSalesCommission: decimal("direct_sales_commission"),
+  bonusAmount: decimal("bonus_amount"),
+  malusAmount: decimal("malus_amount"),
+  cutOffReduction: decimal("cut_off_reduction"),
+  visitTargetBonus: decimal("visit_target_bonus"),
+  growthBonus: decimal("growth_bonus"), // 100€ for 5%+ growth
+  capoAreaCommission: decimal("capo_area_commission"),
+  totalCommission: decimal("total_commission").notNull(),
+  calculationData: jsonb("calculation_data"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Analytics data for advanced reporting
+export const analyticsData = pgTable("analytics_data", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  informatoreId: varchar("informatore_id").references(() => informatori.id),
+  doctorId: varchar("doctor_id").references(() => customers.id),
+  productCode: varchar("product_code"),
+  period: varchar("period").notNull(), // YYYY-MM format
+  revenue: decimal("revenue").notNull(),
+  orderCount: integer("order_count").notNull(),
+  growthRate: decimal("growth_rate"), // Percentage growth
+  dataSource: varchar("data_source", { enum: ["wikenship", "pharmaevo", "gestline", "iqvia"] }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Bonus/Malus management for admins
+export const bonusMalus = pgTable("bonus_malus", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  informatoreId: varchar("informatore_id").references(() => informatori.id).notNull(),
+  type: varchar("type", { enum: ["bonus", "malus"] }).notNull(),
+  amount: decimal("amount").notNull(),
+  description: text("description").notNull(),
+  month: integer("month").notNull(),
+  year: integer("year").notNull(),
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Medical visit tracking for ISF performance
+export const medicalVisits = pgTable("medical_visits", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  informatoreId: varchar("informatore_id").references(() => informatori.id).notNull(),
+  doctorId: varchar("doctor_id").references(() => customers.id).notNull(),
+  visitDate: timestamp("visit_date").notNull(),
+  notes: text("notes"),
+  productsDiscussed: varchar("products_discussed").array(),
+  followUpRequired: boolean("follow_up_required").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Users table is already defined above with role management
+
+// New insert schemas and types
+export const insertWikenshipOrderSchema = createInsertSchema(wikenshipOrders).omit({
+  id: true,
+  createdAt: true,
+  processedAt: true,
+});
+
+export const insertAdvancedCommissionSchema = createInsertSchema(advancedCommissions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertBonusMalusSchema = createInsertSchema(bonusMalus).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Extended types
+export type WikenshipOrder = typeof wikenshipOrders.$inferSelect;
+export type InsertWikenshipOrder = z.infer<typeof insertWikenshipOrderSchema>;
+export type AdvancedCommission = typeof advancedCommissions.$inferSelect;
+export type InsertAdvancedCommission = z.infer<typeof insertAdvancedCommissionSchema>;
+export type BonusMalus = typeof bonusMalus.$inferSelect;
+export type InsertBonusMalus = z.infer<typeof insertBonusMalusSchema>;
+export type DoctorPoints = typeof doctorPoints.$inferSelect;
+export type PharmaevoOrder = typeof pharmaevoOrders.$inferSelect;
+export type AnalyticsData = typeof analyticsData.$inferSelect;
+export type MedicalVisit = typeof medicalVisits.$inferSelect;
+
 // Order with relations
 export type OrderWithDetails = Order & {
   customer?: Customer;
   items?: (OrderItem & { product?: Product })[];
   shipment?: Shipment;
   commission?: Commission;
+};
+
+// Advanced order analytics
+export type OrderAnalytics = {
+  totalRevenue: number;
+  orderCount: number;
+  averageOrderValue: number;
+  growthRate: number;
+  topProducts: Array<{ code: string; revenue: number; count: number }>;
+  periodComparison: {
+    current: { revenue: number; orders: number };
+    previous: { revenue: number; orders: number };
+    growth: number;
+  };
 };

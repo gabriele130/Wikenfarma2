@@ -336,6 +336,238 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // WIKENSHIP Routes - Orders from WooCommerce/eBay → GestLine
+  app.get("/api/wikenship/orders", isAuthenticated, async (req, res) => {
+    try {
+      const { status, source, page = 1, limit = 20 } = req.query;
+      const orders = await storage.getWikenshipOrders({
+        status: status as string,
+        source: source as string,
+        page: Number(page),
+        limit: Number(limit),
+      });
+      res.json(orders);
+    } catch (error) {
+      console.error("Failed to fetch wikenship orders:", error);
+      res.status(500).json({ message: "Failed to fetch wikenship orders" });
+    }
+  });
+
+  app.post("/api/wikenship/orders", isAuthenticated, async (req, res) => {
+    try {
+      const orderData = req.body;
+      const order = await storage.createWikenshipOrder(orderData);
+      
+      // Trigger GestLine and ODOO integration
+      await storage.processWikenshipOrder(order.id);
+      
+      res.json(order);
+    } catch (error) {
+      console.error("Failed to create wikenship order:", error);
+      res.status(500).json({ message: "Failed to create wikenship order" });
+    }
+  });
+
+  app.post("/api/wikenship/process-batch", isAuthenticated, async (req, res) => {
+    try {
+      const { orderIds } = req.body;
+      const results = await storage.processBatchWikenshipOrders(orderIds);
+      res.json(results);
+    } catch (error) {
+      console.error("Failed to process batch orders:", error);
+      res.status(500).json({ message: "Failed to process batch orders" });
+    }
+  });
+
+  // PharmaEVO Routes - Pharmacy orders integration
+  app.get("/api/pharmaevo/orders", isAuthenticated, async (req, res) => {
+    try {
+      const { status, page = 1, limit = 20 } = req.query;
+      const orders = await storage.getPharmaevoOrders({
+        status: status as string,
+        page: Number(page),
+        limit: Number(limit),
+      });
+      res.json(orders);
+    } catch (error) {
+      console.error("Failed to fetch pharmaevo orders:", error);
+      res.status(500).json({ message: "Failed to fetch pharmaevo orders" });
+    }
+  });
+
+  app.post("/api/pharmaevo/sync", isAuthenticated, async (req, res) => {
+    try {
+      const syncResult = await storage.syncPharmaevoOrders();
+      res.json(syncResult);
+    } catch (error) {
+      console.error("Failed to sync pharmaevo orders:", error);
+      res.status(500).json({ message: "Failed to sync pharmaevo orders" });
+    }
+  });
+
+  // Advanced Commission System
+  app.get("/api/commissions/advanced/:informatoreId", isAuthenticated, async (req, res) => {
+    try {
+      const { informatoreId } = req.params;
+      const { year, month } = req.query;
+      const commissions = await storage.getAdvancedCommissions(informatoreId, {
+        year: year ? Number(year) : new Date().getFullYear(),
+        month: month ? Number(month) : undefined,
+      });
+      res.json(commissions);
+    } catch (error) {
+      console.error("Failed to fetch advanced commissions:", error);
+      res.status(500).json({ message: "Failed to fetch advanced commissions" });
+    }
+  });
+
+  app.post("/api/commissions/calculate", isAuthenticated, async (req, res) => {
+    try {
+      const { informatoreId, year, month } = req.body;
+      const commission = await storage.calculateAdvancedCommission(informatoreId, year, month);
+      res.json(commission);
+    } catch (error) {
+      console.error("Failed to calculate commission:", error);
+      res.status(500).json({ message: "Failed to calculate commission" });
+    }
+  });
+
+  // Analytics Routes - Multi-dimensional reporting
+  app.get("/api/analytics/revenue", isAuthenticated, async (req, res) => {
+    try {
+      const { informatoreId, period, productCode, comparison } = req.query;
+      const analytics = await storage.getRevenueAnalytics({
+        informatoreId: informatoreId as string,
+        period: period as string,
+        productCode: productCode as string,
+        comparison: comparison === 'true',
+      });
+      res.json(analytics);
+    } catch (error) {
+      console.error("Failed to fetch revenue analytics:", error);
+      res.status(500).json({ message: "Failed to fetch revenue analytics" });
+    }
+  });
+
+  app.get("/api/analytics/growth", isAuthenticated, async (req, res) => {
+    try {
+      const { period, type = "revenue" } = req.query;
+      const growthData = await storage.getGrowthAnalytics({
+        period: period as string,
+        type: type as string,
+      });
+      res.json(growthData);
+    } catch (error) {
+      console.error("Failed to fetch growth analytics:", error);
+      res.status(500).json({ message: "Failed to fetch growth analytics" });
+    }
+  });
+
+  app.get("/api/analytics/top-performers", isAuthenticated, async (req, res) => {
+    try {
+      const { period, metric = "revenue", limit = 10 } = req.query;
+      const topPerformers = await storage.getTopPerformers({
+        period: period as string,
+        metric: metric as string,
+        limit: Number(limit),
+      });
+      res.json(topPerformers);
+    } catch (error) {
+      console.error("Failed to fetch top performers:", error);
+      res.status(500).json({ message: "Failed to fetch top performers" });
+    }
+  });
+
+  // Bonus/Malus Management (Admin only)
+  app.get("/api/bonus-malus", isAuthenticated, async (req, res) => {
+    try {
+      const { informatoreId, year, month } = req.query;
+      const bonusMalus = await storage.getBonusMalus({
+        informatoreId: informatoreId as string,
+        year: year ? Number(year) : undefined,
+        month: month ? Number(month) : undefined,
+      });
+      res.json(bonusMalus);
+    } catch (error) {
+      console.error("Failed to fetch bonus/malus:", error);
+      res.status(500).json({ message: "Failed to fetch bonus/malus" });
+    }
+  });
+
+  app.post("/api/bonus-malus", isAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      const bonusMalusData = { ...req.body, createdBy: userId };
+      const bonusMalus = await storage.createBonusMalus(bonusMalusData);
+      res.json(bonusMalus);
+    } catch (error) {
+      console.error("Failed to create bonus/malus:", error);
+      res.status(500).json({ message: "Failed to create bonus/malus" });
+    }
+  });
+
+  // Medical Visit Tracking
+  app.get("/api/visits", isAuthenticated, async (req, res) => {
+    try {
+      const { informatoreId, doctorId, startDate, endDate } = req.query;
+      const visits = await storage.getMedicalVisits({
+        informatoreId: informatoreId as string,
+        doctorId: doctorId as string,
+        startDate: startDate as string,
+        endDate: endDate as string,
+      });
+      res.json(visits);
+    } catch (error) {
+      console.error("Failed to fetch medical visits:", error);
+      res.status(500).json({ message: "Failed to fetch medical visits" });
+    }
+  });
+
+  app.post("/api/visits", isAuthenticated, async (req, res) => {
+    try {
+      const visit = await storage.createMedicalVisit(req.body);
+      res.json(visit);
+    } catch (error) {
+      console.error("Failed to create medical visit:", error);
+      res.status(500).json({ message: "Failed to create medical visit" });
+    }
+  });
+
+  // ISF Dashboard - Shareable read-only access
+  app.get("/api/informatori/:informatoreId/dashboard", async (req, res) => {
+    try {
+      const { informatoreId } = req.params;
+      const { shareToken } = req.query;
+      
+      // Verify share token or authentication
+      const isValid = shareToken 
+        ? await storage.validateShareToken(informatoreId, shareToken as string)
+        : req.isAuthenticated();
+        
+      if (!isValid) {
+        return res.status(401).json({ message: "Unauthorized access to dashboard" });
+      }
+      
+      const dashboard = await storage.getInformatoreDashboard(informatoreId);
+      res.json(dashboard);
+    } catch (error) {
+      console.error("Failed to fetch informatore dashboard:", error);
+      res.status(500).json({ message: "Failed to fetch informatore dashboard" });
+    }
+  });
+
+  app.post("/api/informatori/:informatoreId/share", isAuthenticated, async (req, res) => {
+    try {
+      const { informatoreId } = req.params;
+      const { doctorId, expiresIn = "30d" } = req.body;
+      const shareLink = await storage.generateShareLink(informatoreId, doctorId, expiresIn);
+      res.json(shareLink);
+    } catch (error) {
+      console.error("Failed to generate share link:", error);
+      res.status(500).json({ message: "Failed to generate share link" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

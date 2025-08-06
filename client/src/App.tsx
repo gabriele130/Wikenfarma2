@@ -19,6 +19,8 @@ import Reports from "@/pages/reports";
 import Integrations from "@/pages/integrations";
 import Informatori from "@/pages/informatori";
 import InformatoreDashboard from "@/pages/informatore-dashboard";
+import Wikenship from "@/pages/wikenship";
+import Analytics from "@/pages/analytics";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -44,6 +46,8 @@ function Router() {
           <Route path="/reports" component={Reports} />
           <Route path="/integrations" component={Integrations} />
           <Route path="/informatori" component={Informatori} />
+          <Route path="/wikenship" component={Wikenship} />
+          <Route path="/analytics" component={Analytics} />
         </>
       )}
       <Route component={NotFound} />
