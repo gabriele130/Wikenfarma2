@@ -1,416 +1,242 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import Sidebar from "@/components/layout/sidebar";
-import Header from "@/components/layout/header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  LineChart, 
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer
-} from 'recharts';
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  BarChart3, 
-  PieChart as PieChartIcon, 
-  Users,
-  Euro,
-  Calendar,
-  Target
-} from "lucide-react";
-
-interface AnalyticsData {
-  totalRevenue: number;
-  orderCount: number;
-  averageOrderValue: number;
-  growthRate: number;
-  topProducts: Array<{ code: string; revenue: number; count: number }>;
-  periodComparison: {
-    current: { revenue: number; orders: number };
-    previous: { revenue: number; orders: number };
-    growth: number;
-  };
-}
-
-interface TopPerformer {
-  id: string;
-  name: string;
-  revenue: number;
-  orders: number;
-  growth: number;
-  type: "informatore" | "product" | "doctor";
-}
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
+import { Button } from "../components/ui/button"
+import { BarChart3, TrendingUp, PieChart, Calendar, Package, Users } from "lucide-react"
 
 export default function Analytics() {
-  const [selectedPeriod, setSelectedPeriod] = useState("current-month");
-  const [selectedInformatore, setSelectedInformatore] = useState<string>("all");
-  const [comparisonEnabled, setComparisonEnabled] = useState(true);
-
-  const { data: revenueData, isLoading: loadingRevenue } = useQuery<AnalyticsData>({
-    queryKey: ['/api/analytics/revenue', selectedInformatore, selectedPeriod, comparisonEnabled],
-  });
-
-  const { data: topPerformers, isLoading: loadingPerformers } = useQuery<TopPerformer[]>({
-    queryKey: ['/api/analytics/top-performers', selectedPeriod, 'revenue', 10],
-  });
-
-  const { data: growthData, isLoading: loadingGrowth } = useQuery<any[]>({
-    queryKey: ['/api/analytics/growth', selectedPeriod, 'revenue'],
-  });
-
-  const formatCurrency = (value: number) => `€${value.toLocaleString('it-IT')}`;
-  const formatPercentage = (value: number) => `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
-
-  if (loadingRevenue || loadingPerformers || loadingGrowth) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
-            <BarChart3 className="text-white text-2xl" />
-          </div>
-          <p className="text-gray-600">Caricamento analytics...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        <Header title="Analytics" subtitle="Analisi avanzate fatturato e performance ISF" />
-        
-        <div className="p-6">
-          {/* Filters */}
-          <div className="flex gap-4 mb-6">
-            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Periodo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="current-month">Mese Corrente</SelectItem>
-                <SelectItem value="last-month">Mese Precedente</SelectItem>
-                <SelectItem value="current-quarter">Quadrimestre Corrente</SelectItem>
-                <SelectItem value="current-year">Anno Corrente</SelectItem>
-                <SelectItem value="last-year">Anno Precedente</SelectItem>
-                <SelectItem value="all-time">Sempre</SelectItem>
-              </SelectContent>
-            </Select>
+    <div className="min-h-screen bg-gray-50">
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
+          <p className="mt-2 text-gray-600">
+            Dashboard multi-dimensionale con confronti temporali avanzati
+          </p>
+        </div>
 
-            <Select value={selectedInformatore} onValueChange={setSelectedInformatore}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Informatore" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tutti gli ISF</SelectItem>
-                <SelectItem value="mario-rossi">Mario Rossi</SelectItem>
-                <SelectItem value="giulia-bianchi">Giulia Bianchi</SelectItem>
-                <SelectItem value="luca-verdi">Luca Verdi</SelectItem>
-              </SelectContent>
-            </Select>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Ricavi Totali</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">€342,560</div>
+              <p className="text-xs text-muted-foreground">+12.5% vs mese scorso</p>
+            </CardContent>
+          </Card>
 
-            <Button
-              variant={comparisonEnabled ? "default" : "outline"}
-              onClick={() => setComparisonEnabled(!comparisonEnabled)}
-            >
-              <Calendar className="w-4 h-4 mr-2" />
-              Confronto Periodi
-            </Button>
-          </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Performance ISF</CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">87.3%</div>
+              <p className="text-xs text-muted-foreground">Target raggiungimento</p>
+            </CardContent>
+          </Card>
 
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                  <Euro className="w-4 h-4" />
-                  Fatturato Totale
-                </CardTitle>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold">
-                    {formatCurrency(revenueData?.totalRevenue || 0)}
-                  </span>
-                  {revenueData?.periodComparison && (
-                    <Badge variant={revenueData.periodComparison.growth > 0 ? "default" : "destructive"}>
-                      {revenueData.periodComparison.growth > 0 ? (
-                        <TrendingUp className="w-3 h-3 mr-1" />
-                      ) : (
-                        <TrendingDown className="w-3 h-3 mr-1" />
-                      )}
-                      {formatPercentage(revenueData.periodComparison.growth)}
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-            </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Nuovi Clienti</CardTitle>
+              <PieChart className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">156</div>
+              <p className="text-xs text-muted-foreground">+23% acquisizione</p>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                  <Target className="w-4 h-4" />
-                  Ordini
-                </CardTitle>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold">{revenueData?.orderCount || 0}</span>
-                  {revenueData?.periodComparison && (
-                    <Badge variant="secondary">
-                      {revenueData.periodComparison.current.orders} vs {revenueData.periodComparison.previous.orders}
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-            </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Conversione</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">24.7%</div>
+              <p className="text-xs text-muted-foreground">Lead to customer</p>
+            </CardContent>
+          </Card>
+        </div>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" />
-                  Scontrino Medio
-                </CardTitle>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold">
-                    {formatCurrency(revenueData?.averageOrderValue || 0)}
-                  </span>
-                  <Badge variant="outline">
-                    Media
-                  </Badge>
-                </div>
-              </CardHeader>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4" />
-                  Crescita
-                </CardTitle>
-                <div className="flex items-center justify-between">
-                  <span className="text-2xl font-bold">
-                    {formatPercentage(revenueData?.growthRate || 0)}
-                  </span>
-                  <Badge variant={
-                    (revenueData?.growthRate || 0) >= 5 ? "default" :
-                    (revenueData?.growthRate || 0) > 0 ? "secondary" :
-                    "destructive"
-                  }>
-                    {(revenueData?.growthRate || 0) >= 5 && (
-                      <>
-                        <Target className="w-3 h-3 mr-1" />
-                        Bonus 100€
-                      </>
-                    )}
-                  </Badge>
-                </div>
-              </CardHeader>
-            </Card>
-          </div>
-
-          <Tabs defaultValue="revenue-analysis" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="revenue-analysis">Analisi Fatturato</TabsTrigger>
-              <TabsTrigger value="product-performance">Performance Prodotti</TabsTrigger>
-              <TabsTrigger value="isf-comparison">Confronto ISF</TabsTrigger>
-              <TabsTrigger value="growth-trends">Trend Crescita</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="revenue-analysis" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Revenue Chart */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Fatturato per Codice</CardTitle>
-                    <CardDescription>
-                      I 10 prodotti più venduti nel periodo selezionato
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={revenueData?.topProducts || []}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="code" />
-                        <YAxis tickFormatter={(value) => `€${value}`} />
-                        <Tooltip formatter={(value) => [formatCurrency(Number(value)), "Fatturato"]} />
-                        <Bar dataKey="revenue" fill="#0088FE" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                {/* Top Performers */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Top Performers</CardTitle>
-                    <CardDescription>
-                      I migliori ISF per fatturato del periodo
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {topPerformers?.slice(0, 5).map((performer, index) => (
-                        <div key={performer.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
-                              {index + 1}
-                            </div>
-                            <div>
-                              <p className="font-medium">{performer.name}</p>
-                              <p className="text-sm text-gray-600">{performer.orders} ordini</p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold">{formatCurrency(performer.revenue)}</p>
-                            <Badge variant={performer.growth > 0 ? "default" : "destructive"} className="text-xs">
-                              {formatPercentage(performer.growth)}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="product-performance" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Performance Prodotti</CardTitle>
-                  <CardDescription>
-                    Analisi dettagliata vendite per singolo codice prodotto
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ResponsiveContainer width="100%" height={400}>
-                      <PieChart>
-                        <Pie
-                          data={revenueData?.topProducts || []}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ code, value }) => `${code}: €${value}`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="revenue"
-                        >
-                          {(revenueData?.topProducts || []).map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(value) => [formatCurrency(Number(value)), "Fatturato"]} />
-                      </PieChart>
-                    </ResponsiveContainer>
-
-                    <div className="space-y-3">
-                      <h3 className="font-semibold text-lg">Codici Alto-Fatturanti</h3>
-                      {revenueData?.topProducts?.slice(0, 8).map((product, index) => (
-                        <div key={product.code} className="flex justify-between items-center p-2 border rounded">
-                          <span className="font-mono text-sm">{product.code}</span>
-                          <div className="text-right">
-                            <div className="font-semibold">{formatCurrency(product.revenue)}</div>
-                            <div className="text-xs text-gray-600">{product.count} ordini</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Analisi Ricavi per Fonte</CardTitle>
+              <CardDescription>Distribuzione fatturato per canale di vendita</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
+                    <span>WIKENSHIP (WooCommerce/eBay)</span>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="isf-comparison" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Confronto ISF</CardTitle>
-                  <CardDescription>
-                    Comparazione performance tra informatori scientifici
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <BarChart data={topPerformers?.filter(p => p.type === "informatore") || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis tickFormatter={(value) => `€${value}`} />
-                      <Tooltip formatter={(value) => [formatCurrency(Number(value)), "Fatturato"]} />
-                      <Bar dataKey="revenue" fill="#00C49F" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="growth-trends" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Trend di Crescita</CardTitle>
-                  <CardDescription>
-                    Andamento fatturato negli ultimi 12 mesi con confronti temporali
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={400}>
-                    <LineChart data={growthData || []}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="period" />
-                      <YAxis tickFormatter={(value) => `€${value}`} />
-                      <Tooltip formatter={(value) => [formatCurrency(Number(value)), "Fatturato"]} />
-                      <Line type="monotone" dataKey="current" stroke="#0088FE" strokeWidth={2} name="Periodo Corrente" />
-                      <Line type="monotone" dataKey="previous" stroke="#FF8042" strokeWidth={2} name="Periodo Precedente" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-
-              {/* Growth Insights */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-gray-600">
-                      Codici in Crescita (Mese)
-                    </CardTitle>
-                    <div className="text-2xl font-bold text-green-600">12</div>
-                  </CardHeader>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-gray-600">
-                      Codici in Calo (Mese)
-                    </CardTitle>
-                    <div className="text-2xl font-bold text-red-600">3</div>
-                  </CardHeader>
-                </Card>
-
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-gray-600">
-                      All-Time Peak
-                    </CardTitle>
-                    <div className="text-2xl font-bold">€47,892</div>
-                    <div className="text-xs text-gray-600">Marzo 2024</div>
-                  </CardHeader>
-                </Card>
+                  <div className="font-bold">€145,230 (42.4%)</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                    <span>PharmaEVO (Farmacie)</span>
+                  </div>
+                  <div className="font-bold">€127,890 (37.3%)</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-purple-600 rounded-full"></div>
+                    <span>Vendita Diretta</span>
+                  </div>
+                  <div className="font-bold">€52,340 (15.3%)</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-orange-600 rounded-full"></div>
+                    <span>Partnership Medici</span>
+                  </div>
+                  <div className="font-bold">€17,100 (5.0%)</div>
+                </div>
               </div>
-            </TabsContent>
-          </Tabs>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Trend Mensile</CardTitle>
+              <CardDescription>Comparazione ultimi 6 mesi</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Gennaio 2025</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-24 h-2 bg-gray-200 rounded">
+                      <div className="w-20 h-2 bg-blue-600 rounded"></div>
+                    </div>
+                    <span className="text-sm font-medium">€298,450</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Dicembre 2024</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-24 h-2 bg-gray-200 rounded">
+                      <div className="w-24 h-2 bg-green-600 rounded"></div>
+                    </div>
+                    <span className="text-sm font-medium">€342,560</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Novembre 2024</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-24 h-2 bg-gray-200 rounded">
+                      <div className="w-16 h-2 bg-blue-600 rounded"></div>
+                    </div>
+                    <span className="text-sm font-medium">€267,890</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top ISF Performance</CardTitle>
+              <CardDescription>Classifica informatori scientifici</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-medium">Marco Rossi</div>
+                    <div className="text-sm text-gray-600">Nord Italia</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-green-600">€89,450</div>
+                    <div className="text-sm text-gray-600">142% target</div>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-medium">Laura Bianchi</div>
+                    <div className="text-sm text-gray-600">Centro Italia</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-green-600">€76,230</div>
+                    <div className="text-sm text-gray-600">125% target</div>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="font-medium">Giuseppe Verde</div>
+                    <div className="text-sm text-gray-600">Sud Italia</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-blue-600">€65,890</div>
+                    <div className="text-sm text-gray-600">108% target</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Prodotti Best Seller</CardTitle>
+              <CardDescription>Top 5 prodotti per volume</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm">Cardioaspirin 100mg</span>
+                  <span className="font-medium">2,347 unità</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm">Tachipirina 1000mg</span>
+                  <span className="font-medium">1,892 unità</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm">Moment Act 400mg</span>
+                  <span className="font-medium">1,567 unità</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm">Bentelan 4mg</span>
+                  <span className="font-medium">1,234 unità</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm">Voltaren Gel</span>
+                  <span className="font-medium">989 unità</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Azioni Rapide</CardTitle>
+              <CardDescription>Report e operazioni frequenti</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button className="w-full justify-start" variant="outline">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Report Vendite
+              </Button>
+              <Button className="w-full justify-start" variant="outline">
+                <Users className="h-4 w-4 mr-2" />
+                Analisi Clienti
+              </Button>
+              <Button className="w-full justify-start" variant="outline">
+                <Package className="h-4 w-4 mr-2" />
+                Performance Prodotti
+              </Button>
+              <Button className="w-full justify-start" variant="outline">
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Forecast Vendite
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
-  );
+  )
 }
