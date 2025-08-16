@@ -16,6 +16,14 @@ import {
   Pill
 } from 'lucide-react'
 
+// Import delle pagine
+import Dashboard from './pages/dashboard'
+import Analytics from './pages/analytics'
+import WikishipPage from './pages/wikenship'
+import PharmaevoPage from './pages/pharmaevo'
+import InformatoriPage from './pages/informatori'
+import CustomersPage from './pages/customers'
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -50,6 +58,9 @@ function Navigation() {
               </Link>
               <Link href="/informatori" className="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                 Informatori
+              </Link>
+              <Link href="/customers" className="border-transparent text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                Clienti
               </Link>
             </div>
           </div>
@@ -272,37 +283,25 @@ function Dashboard() {
   )
 }
 
-function WikishipPage() {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">WIKENSHIP - Gestione Ordini Privati</h1>
-        <Card>
-          <CardHeader>
-            <CardTitle>Integrazione WooCommerce/eBay → GestLine + ODOO</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Modulo WIKENSHIP in fase di implementazione...</p>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
-  )
-}
+// Import delle pagine dalle loro posizioni corrette
+import WikishipPage from './pages/wikenship'
+import PharmaEvoPage from './pages/pharmaevo'
+import AnalyticsPage from './pages/analytics'
+import InformatoriPage from './pages/informatori'
+import CustomersPage from './pages/customers'
 
-function PharmaEvoPage() {
+function InventoryPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">PharmaEVO - Bridge Farmacie</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Inventario</h1>
         <Card>
           <CardHeader>
-            <CardTitle>Integrazione con dati IQVIA e tagging automatico</CardTitle>
+            <CardTitle>Controllo magazzino con soglie automatiche e riordini</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>Modulo PharmaEVO in fase di implementazione...</p>
+            <p>Modulo Inventario in fase di implementazione...</p>
           </CardContent>
         </Card>
       </main>
@@ -317,6 +316,10 @@ function App() {
         <Route path="/" component={Dashboard} />
         <Route path="/wikenship" component={WikishipPage} />
         <Route path="/pharmaevo" component={PharmaEvoPage} />
+        <Route path="/analytics" component={AnalyticsPage} />
+        <Route path="/informatori" component={InformatoriPage} />
+        <Route path="/customers" component={CustomersPage} />
+        <Route path="/inventory" component={InventoryPage} />
         <Route>
           <div className="min-h-screen bg-gray-50 flex items-center justify-center">
             <Card>
