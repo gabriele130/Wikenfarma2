@@ -1,5 +1,4 @@
 export function isAuthenticated(): boolean {
-  // Placeholder authentication check
   return true;
 }
 
@@ -13,4 +12,8 @@ export function getCurrentUser() {
 
 export function logout() {
   window.location.href = '/api/logout';
+}
+
+export function isUnauthorizedError(error: any): boolean {
+  return error?.status === 401 || error?.message?.includes('Unauthorized');
 }
