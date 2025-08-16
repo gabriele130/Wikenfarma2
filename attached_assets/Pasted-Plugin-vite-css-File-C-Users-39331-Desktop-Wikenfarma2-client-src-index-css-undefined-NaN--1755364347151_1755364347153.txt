@@ -1,0 +1,83 @@
+Plugin: vite:css
+  File: C:/Users/39331/Desktop/Wikenfarma2/client/src/index.css:undefined:NaN
+      at Module._resolveFilename (node:internal/modules/cjs/loader:1405:15)
+      at require.resolve (node:internal/modules/helpers:145:19)
+      at _resolve (C:\Users\39331\Desktop\Wikenfarma2\node_modules\jiti\dist\jiti.js:1:241814)
+      at jiti (C:\Users\39331\Desktop\Wikenfarma2\node_modules\jiti\dist\jiti.js:1:244531)
+      at C:\Users\39331\Desktop\Wikenfarma2\tailwind.config.ts:89:13
+      at evalModule (C:\Users\39331\Desktop\Wikenfarma2\node_modules\jiti\dist\jiti.js:1:247313)
+      at jiti (C:\Users\39331\Desktop\Wikenfarma2\node_modules\jiti\dist\jiti.js:1:245241)
+      at C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\lib\load-config.js:52:26
+      at loadConfig (C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\lib\load-config.js:62:6)
+      at getTailwindConfig (C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\lib\setupTrackingContext.js:71:116)
+      at C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\lib\setupTrackingContext.js:100:92
+      at C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\processTailwindFeatures.js:46:11
+      at plugins (C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\plugin.js:38:69)
+      at LazyResult.runOnRoot (C:\Users\39331\Desktop\Wikenfarma2\node_modules\postcss\lib\lazy-result.js:361:16)
+      at LazyResult.runAsync (C:\Users\39331\Desktop\Wikenfarma2\node_modules\postcss\lib\lazy-result.js:290:26)
+      at LazyResult.async (C:\Users\39331\Desktop\Wikenfarma2\node_modules\postcss\lib\lazy-result.js:192:30)
+      at LazyResult.then (C:\Users\39331\Desktop\Wikenfarma2\node_modules\postcss\lib\lazy-result.js:436:17)
+19:12:10 [vite] Internal server error: Failed to resolve import "recharts" from "client/src/pages/analytics.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/39331/Desktop/Wikenfarma2/client/src/pages/analytics.tsx:23:7
+  38 |    Cell,
+  39 |    ResponsiveContainer
+  40 |  } from "recharts";
+     |          ^
+  41 |  import {
+  42 |    TrendingUp,
+      at TransformPluginContext._formatError (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49258:41)
+      at TransformPluginContext.error (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49253:16)
+      at normalizeUrl (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64291:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64423:39
+      at async Promise.all (index 12)
+      at async TransformPluginContext.transform (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64350:7)
+      at async PluginContainer.transform (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49099:18)
+      at async loadAndTransform (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:51977:27)
+      at async viteTransformMiddleware (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:62105:24)
+19:12:10 [vite] Pre-transform error: Failed to resolve import "@radix-ui/react-tabs" from "client/src/components/ui/tabs.tsx". Does the file exist?
+19:12:10 [vite] Pre-transform error: Failed to resolve import "@radix-ui/react-select" from "client/src/components/ui/select.tsx". Does the file exist?
+19:12:11 [vite] Internal server error: [postcss] Cannot find module 'tailwindcss-animate'
+Require stack:
+- C:\Users\39331\Desktop\Wikenfarma2\tailwind.config.ts
+  Plugin: vite:css
+  File: C:/Users/39331/Desktop/Wikenfarma2/client/src/index.css:undefined:NaN
+      at Module._resolveFilename (node:internal/modules/cjs/loader:1405:15)
+      at require.resolve (node:internal/modules/helpers:145:19)
+      at _resolve (C:\Users\39331\Desktop\Wikenfarma2\node_modules\jiti\dist\jiti.js:1:241814)
+      at jiti (C:\Users\39331\Desktop\Wikenfarma2\node_modules\jiti\dist\jiti.js:1:244531)
+      at C:\Users\39331\Desktop\Wikenfarma2\tailwind.config.ts:89:13
+      at evalModule (C:\Users\39331\Desktop\Wikenfarma2\node_modules\jiti\dist\jiti.js:1:247313)
+      at jiti (C:\Users\39331\Desktop\Wikenfarma2\node_modules\jiti\dist\jiti.js:1:245241)
+      at C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\lib\load-config.js:52:26
+      at loadConfig (C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\lib\load-config.js:62:6)
+      at getTailwindConfig (C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\lib\setupTrackingContext.js:71:116)
+      at C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\lib\setupTrackingContext.js:100:92
+      at C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\processTailwindFeatures.js:46:11
+      at plugins (C:\Users\39331\Desktop\Wikenfarma2\node_modules\tailwindcss\lib\plugin.js:38:69)
+      at LazyResult.runOnRoot (C:\Users\39331\Desktop\Wikenfarma2\node_modules\postcss\lib\lazy-result.js:361:16)
+      at LazyResult.runAsync (C:\Users\39331\Desktop\Wikenfarma2\node_modules\postcss\lib\lazy-result.js:290:26)
+      at LazyResult.async (C:\Users\39331\Desktop\Wikenfarma2\node_modules\postcss\lib\lazy-result.js:192:30)
+      at LazyResult.then (C:\Users\39331\Desktop\Wikenfarma2\node_modules\postcss\lib\lazy-result.js:436:17)
+19:12:11 [vite] Internal server error: Failed to resolve import "recharts" from "client/src/pages/analytics.tsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: C:/Users/39331/Desktop/Wikenfarma2/client/src/pages/analytics.tsx:23:7
+  38 |    Cell,
+  39 |    ResponsiveContainer
+  40 |  } from "recharts";
+     |          ^
+  41 |  import {
+  42 |    TrendingUp,
+      at TransformPluginContext._formatError (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49258:41)
+      at TransformPluginContext.error (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49253:16)
+      at normalizeUrl (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64291:23)
+      at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+      at async file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64423:39
+      at async Promise.all (index 12)
+      at async TransformPluginContext.transform (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:64350:7)
+      at async PluginContainer.transform (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:49099:18)
+      at async loadAndTransform (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:51977:27)
+      at async viteTransformMiddleware (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/vite/dist/node/chunks/dep-C6uTJdX2.js:62105:24)
+19:12:11 [vite] Pre-transform error: Failed to resolve import "@radix-ui/react-select" from "client/src/components/ui/select.tsx". Does the file exist?
+19:12:11 [vite] Pre-transform error: Failed to resolve import "@radix-ui/react-tabs" from "client/src/components/ui/tabs.tsx". Does the file exist?
