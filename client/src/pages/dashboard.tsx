@@ -1,5 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card"
 import { Button } from "../components/ui/button"
+import Sidebar from "../components/layout/sidebar"
+import Header from "../components/layout/header"
+import { Link } from "wouter"
 import { 
   TrendingUp, 
   TrendingDown,
@@ -25,49 +28,50 @@ import {
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/5 to-cyan-600/10"></div>
-        <div className="relative max-w-7xl mx-auto px-6 py-12">
-          <div className="text-center mb-12">
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-lg opacity-30 animate-pulse"></div>
-                <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-4 rounded-2xl">
-                  <Pill className="h-12 w-12 text-white" />
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        <Header title="Dashboard Principale" subtitle="Centro di controllo sistema WikenFarma" />
+        
+        <div className="p-6">
+          {/* Welcome Section */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 mb-8 border border-slate-200/50 shadow-xl">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-6">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-lg opacity-30 animate-pulse"></div>
+                  <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-2xl">
+                    <Pill className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-700 via-purple-700 to-indigo-700 bg-clip-text text-transparent mb-3">
+                Benvenuto in WikenFarma
+              </h1>
+              <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-6">
+                Sistema Gestionale Farmaceutico di Nuova Generazione
+              </p>
+              <div className="flex items-center justify-center space-x-8">
+                <div className="text-center">
+                  <div className="text-xl font-bold text-slate-900">6</div>
+                  <div className="text-sm text-slate-600">Moduli Attivi</div>
+                </div>
+                <div className="h-6 w-px bg-slate-300"></div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-green-600">98.7%</div>
+                  <div className="text-sm text-slate-600">Uptime</div>
+                </div>
+                <div className="h-6 w-px bg-slate-300"></div>
+                <div className="text-center">
+                  <div className="text-xl font-bold text-blue-600">24/7</div>
+                  <div className="text-sm text-slate-600">Monitoraggio</div>
                 </div>
               </div>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-700 via-purple-700 to-indigo-700 bg-clip-text text-transparent mb-4">
-              WikenFarma
-            </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Sistema Gestionale Farmaceutico di Nuova Generazione
-            </p>
-            <div className="flex items-center justify-center space-x-8 mt-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-slate-900">5</div>
-                <div className="text-sm text-slate-600">Moduli Attivi</div>
-              </div>
-              <div className="h-8 w-px bg-slate-300"></div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">98.7%</div>
-                <div className="text-sm text-slate-600">Uptime</div>
-              </div>
-              <div className="h-8 w-px bg-slate-300"></div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">24/7</div>
-                <div className="text-sm text-slate-600">Monitoraggio</div>
-              </div>
-            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Stats Overview */}
-      <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="bg-white/70 backdrop-blur border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -159,17 +163,16 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
+          </div>
 
-      {/* Main Modules Grid */}
-      <div className="max-w-7xl mx-auto px-6 pb-12">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">Moduli Sistema</h2>
-          <p className="text-slate-600">Accesso rapido alle funzionalità principali</p>
-        </div>
+          {/* Main Modules Grid */}
+          <div className="mb-8">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Moduli Sistema</h2>
+              <p className="text-slate-600">Accesso rapido alle funzionalità principali</p>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* WIKENSHIP Module */}
           <Card className="group bg-white/70 backdrop-blur border-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -201,10 +204,12 @@ export default function Dashboard() {
                   <span className="text-slate-500">Ordini oggi:</span>
                   <span className="font-medium text-slate-900">127</span>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
-                  Accedi al Modulo
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link href="/wikenship">
+                  <Button className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
+                    Accedi al Modulo
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -240,10 +245,12 @@ export default function Dashboard() {
                   <span className="text-slate-500">Farmacie collegate:</span>
                   <span className="font-medium text-slate-900">89</span>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
-                  Accedi al Modulo
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link href="/pharmaevo">
+                  <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
+                    Accedi al Modulo
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -279,10 +286,12 @@ export default function Dashboard() {
                   <span className="text-slate-500">Report generati:</span>
                   <span className="font-medium text-slate-900">1,247</span>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
-                  Accedi al Modulo
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link href="/analytics">
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
+                    Accedi al Modulo
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -315,10 +324,12 @@ export default function Dashboard() {
                   <span className="text-slate-500">Performance media:</span>
                   <span className="font-medium text-green-600">91.7%</span>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
-                  Accedi al Modulo
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link href="/informatori">
+                  <Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
+                    Accedi al Modulo
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -351,10 +362,12 @@ export default function Dashboard() {
                   <span className="text-slate-500">Tasso retention:</span>
                   <span className="font-medium text-green-600">94.2%</span>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
-                  Accedi al Modulo
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link href="/customers">
+                  <Button className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white border-0 group-hover:shadow-lg transition-all duration-300">
+                    Accedi al Modulo
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
@@ -392,8 +405,10 @@ export default function Dashboard() {
               </Button>
             </CardContent>
           </Card>
+            </div>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

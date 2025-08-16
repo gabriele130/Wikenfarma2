@@ -2,9 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Route, Switch, Link } from 'wouter'
 import { Pill } from 'lucide-react'
 
-// Import delle pagine
+// Import delle pagine e componenti layout
 import Dashboard from './pages/dashboard'
 import Analytics from './pages/analytics'
+import Sidebar from './components/layout/sidebar'
+import Header from './components/layout/header'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -79,83 +81,106 @@ function Navigation() {
 
 function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center">
-      <Navigation />
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-slate-900 mb-4">404 - Pagina Non Trovata</h1>
-        <p className="text-slate-600 mb-8">La pagina che stai cercando non esiste.</p>
-        <Link href="/" className="text-blue-600 hover:text-blue-800 font-medium">
-          Torna alla Dashboard
-        </Link>
-      </div>
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        <Header title="Pagina Non Trovata" subtitle="Error 404" />
+        <div className="p-6 flex items-center justify-center h-full">
+          <div className="text-center bg-white/60 backdrop-blur-sm rounded-2xl p-12">
+            <h1 className="text-4xl font-bold text-slate-900 mb-4">404</h1>
+            <p className="text-slate-600 mb-8">La pagina che stai cercando non esiste.</p>
+            <Link href="/" className="text-blue-600 hover:text-blue-800 font-medium">
+              Torna alla Dashboard
+            </Link>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
 
 function WikishipPlaceholder() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Navigation />
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-slate-900 mb-4">WIKENSHIP</h1>
-        <p className="text-slate-600">Modulo in fase di sviluppo...</p>
-      </div>
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        <Header title="WIKENSHIP" subtitle="Integrazione WooCommerce/eBay → GestLine + ODOO" />
+        <div className="p-6">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-slate-900 mb-4">Modulo WIKENSHIP</h1>
+            <p className="text-slate-600">Modulo in fase di sviluppo...</p>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
 
 function PharmaevoPlaceholder() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Navigation />
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-slate-900 mb-4">PharmaEVO</h1>
-        <p className="text-slate-600">Modulo in fase di sviluppo...</p>
-      </div>
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        <Header title="PharmaEVO" subtitle="Bridge farmacie con dati IQVIA e tagging automatico" />
+        <div className="p-6">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-slate-900 mb-4">Modulo PharmaEVO</h1>
+            <p className="text-slate-600">Modulo in fase di sviluppo...</p>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
 
 function InformatoriPlaceholder() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Navigation />
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-slate-900 mb-4">Gestione Informatori</h1>
-        <p className="text-slate-600">Modulo in fase di sviluppo...</p>
-      </div>
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        <Header title="Gestione ISF" subtitle="Sistema completo Informatori Scientifici con commissioni" />
+        <div className="p-6">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-slate-900 mb-4">Gestione Informatori</h1>
+            <p className="text-slate-600">Modulo in fase di sviluppo...</p>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
 
 function CustomersPlaceholder() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Navigation />
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-slate-900 mb-4">Gestione Clienti</h1>
-        <p className="text-slate-600">Modulo in fase di sviluppo...</p>
-      </div>
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        <Header title="Gestione Clienti" subtitle="CRM unificato per privati, farmacie, grossisti e medici" />
+        <div className="p-6">
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 text-center">
+            <h1 className="text-2xl font-bold text-slate-900 mb-4">Gestione Clienti</h1>
+            <p className="text-slate-600">Modulo in fase di sviluppo...</p>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
 
 function AnalyticsWithNav() {
   return (
-    <div>
-      <Navigation />
-      <Analytics />
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">
+        <Header title="Analytics" subtitle="Dashboard avanzate e business intelligence" />
+        <Analytics />
+      </main>
     </div>
   )
 }
 
 function DashboardWithNav() {
-  return (
-    <div>
-      <Navigation />
-      <Dashboard />
-    </div>
-  )
+  return <Dashboard />
 }
 
 export default function App() {
