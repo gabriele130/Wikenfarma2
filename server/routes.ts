@@ -1,28 +1,18 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupCustomAuth, authenticateToken, requireRole, requireUserType } from "./customAuth";
 import { insertCustomerSchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertInformatoreSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Custom Auth middleware and routes
+  setupCustomAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = (req.user as any).claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Protected API routes use authenticateToken middleware
 
   // Dashboard metrics
-  app.get('/api/dashboard/metrics', isAuthenticated, async (req, res) => {
+  app.get('/api/dashboard/metrics', authenticateToken, async (req, res) => {
     try {
       const metrics = await storage.getDashboardMetrics();
       res.json(metrics);
@@ -33,7 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Customer routes
-  app.get('/api/customers', isAuthenticated, async (req, res) => {
+  app.get('/api/customers', authenticateToken, async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -48,7 +38,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/customers/:id', isAuthenticated, async (req, res) => {
+  app.get('/api/customers/:id', authenticateToken, async (req, res) => {
     try {
       const customer = await storage.getCustomer(req.params.id);
       if (!customer) {
@@ -61,7 +51,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/customers', isAuthenticated, async (req, res) => {
+  app.post('/api/customers', authenticateToken, async (req, res) => {
     try {
       const validatedData = insertCustomerSchema.parse(req.body);
       const customer = await storage.createCustomer(validatedData);
@@ -82,7 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/customers/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/customers/:id', authenticateToken, async (req, res) => {
     try {
       const validatedData = insertCustomerSchema.partial().parse(req.body);
       const customer = await storage.updateCustomer(req.params.id, validatedData);
@@ -103,7 +93,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/customers/:id', isAuthenticated, async (req, res) => {
+  app.delete('/api/customers/:id', authenticateToken, async (req, res) => {
     try {
       await storage.deleteCustomer(req.params.id);
       
@@ -124,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Product routes
-  app.get('/api/products', isAuthenticated, async (req, res) => {
+  app.get('/api/products', authenticateToken, async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -138,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/products/low-stock', isAuthenticated, async (req, res) => {
+  app.get('/api/products/low-stock', authenticateToken, async (req, res) => {
     try {
       const products = await storage.getLowStockProducts();
       res.json(products);
@@ -148,7 +138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/products', isAuthenticated, async (req, res) => {
+  app.post('/api/products', authenticateToken, async (req, res) => {
     try {
       const validatedData = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(validatedData);
@@ -170,7 +160,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Order routes
-  app.get('/api/orders', isAuthenticated, async (req, res) => {
+  app.get('/api/orders', authenticateToken, async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -185,7 +175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/orders/recent', isAuthenticated, async (req, res) => {
+  app.get('/api/orders/recent', authenticateToken, async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 5;
       const orders = await storage.getRecentOrders(limit);
@@ -196,7 +186,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/orders', isAuthenticated, async (req, res) => {
+  app.post('/api/orders', authenticateToken, async (req, res) => {
     try {
       const orderSchema = insertOrderSchema.extend({
         items: z.array(insertOrderItemSchema)
@@ -221,7 +211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/orders/:id', isAuthenticated, async (req, res) => {
+  app.put('/api/orders/:id', authenticateToken, async (req, res) => {
     try {
       const validatedData = insertOrderSchema.partial().parse(req.body);
       const order = await storage.updateOrder(req.params.id, validatedData);
@@ -243,7 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Shipment routes
-  app.get('/api/shipments', isAuthenticated, async (req, res) => {
+  app.get('/api/shipments', authenticateToken, async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -257,7 +247,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Commission routes
-  app.get('/api/commissions', isAuthenticated, async (req, res) => {
+  app.get('/api/commissions', authenticateToken, async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -271,7 +261,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Integration routes
-  app.get('/api/integrations', isAuthenticated, async (req, res) => {
+  app.get('/api/integrations', authenticateToken, async (req, res) => {
     try {
       const integrations = await storage.getIntegrations();
       res.json(integrations);
@@ -282,7 +272,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity log routes
-  app.get('/api/activity-logs', isAuthenticated, async (req, res) => {
+  app.get('/api/activity-logs', authenticateToken, async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const logs = await storage.getActivityLogs(limit);
@@ -294,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Informatori routes
-  app.get('/api/informatori', isAuthenticated, async (req, res) => {
+  app.get('/api/informatori', authenticateToken, async (req, res) => {
     try {
       const informatori = await storage.getInformatori();
       res.json(informatori);
@@ -304,7 +294,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/informatori', isAuthenticated, async (req, res) => {
+  app.post('/api/informatori', authenticateToken, async (req, res) => {
     try {
       const validatedData = insertInformatoreSchema.parse(req.body);
       const informatore = await storage.createInformatore(validatedData);
@@ -337,7 +327,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // WIKENSHIP Routes - Orders from WooCommerce/eBay → GestLine
-  app.get("/api/wikenship/orders", isAuthenticated, async (req, res) => {
+  app.get("/api/wikenship/orders", authenticateToken, async (req, res) => {
     try {
       const { status, source, page = 1, limit = 20 } = req.query;
       const orders = await storage.getWikenshipOrders({
@@ -353,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wikenship/orders", isAuthenticated, async (req, res) => {
+  app.post("/api/wikenship/orders", authenticateToken, async (req, res) => {
     try {
       const orderData = req.body;
       const order = await storage.createWikenshipOrder(orderData);
@@ -368,7 +358,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wikenship/process-batch", isAuthenticated, async (req, res) => {
+  app.post("/api/wikenship/process-batch", authenticateToken, async (req, res) => {
     try {
       const { orderIds } = req.body;
       const results = await storage.processBatchWikenshipOrders(orderIds);
@@ -380,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // PharmaEVO Routes - Pharmacy orders integration
-  app.get("/api/pharmaevo/orders", isAuthenticated, async (req, res) => {
+  app.get("/api/pharmaevo/orders", authenticateToken, async (req, res) => {
     try {
       const { status, page = 1, limit = 20 } = req.query;
       const orders = await storage.getPharmaevoOrders({
@@ -395,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/pharmaevo/sync", isAuthenticated, async (req, res) => {
+  app.post("/api/pharmaevo/sync", authenticateToken, async (req, res) => {
     try {
       const syncResult = await storage.syncPharmaevoOrders();
       res.json(syncResult);
@@ -406,7 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Advanced Commission System
-  app.get("/api/commissions/advanced/:informatoreId", isAuthenticated, async (req, res) => {
+  app.get("/api/commissions/advanced/:informatoreId", authenticateToken, async (req, res) => {
     try {
       const { informatoreId } = req.params;
       const { year, month } = req.query;
@@ -421,7 +411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/commissions/calculate", isAuthenticated, async (req, res) => {
+  app.post("/api/commissions/calculate", authenticateToken, async (req, res) => {
     try {
       const { informatoreId, year, month } = req.body;
       const commission = await storage.calculateAdvancedCommission(informatoreId, year, month);
@@ -433,7 +423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analytics Routes - Multi-dimensional reporting
-  app.get("/api/analytics/revenue", isAuthenticated, async (req, res) => {
+  app.get("/api/analytics/revenue", authenticateToken, async (req, res) => {
     try {
       const { informatoreId, period, productCode, comparison } = req.query;
       const analytics = await storage.getRevenueAnalytics({
@@ -449,7 +439,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/growth", isAuthenticated, async (req, res) => {
+  app.get("/api/analytics/growth", authenticateToken, async (req, res) => {
     try {
       const { period, type = "revenue" } = req.query;
       const growthData = await storage.getGrowthAnalytics({
@@ -463,7 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/analytics/top-performers", isAuthenticated, async (req, res) => {
+  app.get("/api/analytics/top-performers", authenticateToken, async (req, res) => {
     try {
       const { period, metric = "revenue", limit = 10 } = req.query;
       const topPerformers = await storage.getTopPerformers({
@@ -479,7 +469,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Bonus/Malus Management (Admin only)
-  app.get("/api/bonus-malus", isAuthenticated, async (req, res) => {
+  app.get("/api/bonus-malus", authenticateToken, async (req, res) => {
     try {
       const { informatoreId, year, month } = req.query;
       const bonusMalus = await storage.getBonusMalus({
@@ -494,7 +484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/bonus-malus", isAuthenticated, async (req, res) => {
+  app.post("/api/bonus-malus", authenticateToken, async (req, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const bonusMalusData = { ...req.body, createdBy: userId };
@@ -507,7 +497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Medical Visit Tracking
-  app.get("/api/visits", isAuthenticated, async (req, res) => {
+  app.get("/api/visits", authenticateToken, async (req, res) => {
     try {
       const { informatoreId, doctorId, startDate, endDate } = req.query;
       const visits = await storage.getMedicalVisits({
@@ -523,7 +513,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/visits", isAuthenticated, async (req, res) => {
+  app.post("/api/visits", authenticateToken, async (req, res) => {
     try {
       const visit = await storage.createMedicalVisit(req.body);
       res.json(visit);
@@ -542,7 +532,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Verify share token or authentication
       const isValid = shareToken 
         ? await storage.validateShareToken(informatoreId, shareToken as string)
-        : req.isAuthenticated();
+        : req.authenticateToken();
         
       if (!isValid) {
         return res.status(401).json({ message: "Unauthorized access to dashboard" });
@@ -556,7 +546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/informatori/:informatoreId/share", isAuthenticated, async (req, res) => {
+  app.post("/api/informatori/:informatoreId/share", authenticateToken, async (req, res) => {
     try {
       const { informatoreId } = req.params;
       const { doctorId, expiresIn = "30d" } = req.body;

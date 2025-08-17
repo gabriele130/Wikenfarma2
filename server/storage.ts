@@ -10,7 +10,7 @@ import {
   activityLogs,
   informatori,
   type User,
-  type UpsertUser,
+  type InsertUser,
   type Customer,
   type InsertCustomer,
   type Product,
@@ -35,9 +35,12 @@ import { db } from "./db";
 import { eq, desc, count, sum, and, gte, lte, ilike, or } from "drizzle-orm";
 
 export interface IStorage {
-  // User operations (mandatory for Replit Auth)
+  // User operations (custom auth)
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  updateUserLastLogin(id: string): Promise<void>;
 
   // Customer operations
   getCustomers(page?: number, limit?: number, search?: string, type?: string): Promise<{ customers: Customer[]; total: number }>;
@@ -113,19 +116,36 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values(userData)
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
-          updatedAt: new Date(),
-        },
+      .values({
+        ...userData,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .returning();
     return user;
+  }
+
+  async updateUserLastLogin(id: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        lastLogin: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id));
   }
 
   // Customer operations
