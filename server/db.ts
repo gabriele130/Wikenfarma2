@@ -8,7 +8,7 @@ config();
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
-    "DATABASE_URL must be set. Create a .env file with your database URL or provision a database.",
+    "DATABASE_URL richiesto. Crea un file .env con l'URL del database o configura le variabili d'ambiente.",
   );
 }
 
