@@ -1,0 +1,46 @@
+PS C:\Users\39331\Desktop\Wikenfarma2> npm run dev
+
+> rest-express@1.0.0 dev
+> cross-env NODE_ENV=development HOST=127.0.0.1 PORT=5000 tsx server/index.ts
+
+9:58:06 PM [express] serving on http://127.0.0.1:5000
+Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme        
+9:58:35 PM [express] GET /api/auth/user 403 in 4ms :: {"message":"Token non valido"}
+Registration error: PostgresError: relation "users" does not exist
+    at ErrorResponse (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/postgres/src/connection.js:794:26)
+    at handle (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/postgres/src/connection.js:480:6)
+    at TLSSocket.data (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:507:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '175',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+9:59:05 PM [express] POST /api/auth/register 500 in 974ms :: {"message":"Errore durante la registraz…
+Registration error: PostgresError: relation "users" does not exist
+    at ErrorResponse (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/postgres/src/connection.js:794:26)
+    at handle (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/postgres/src/connection.js:480:6)
+    at TLSSocket.data (file:///C:/Users/39331/Desktop/Wikenfarma2/node_modules/postgres/src/connection.js:315:9)
+    at TLSSocket.emit (node:events:507:28)
+    at addChunk (node:internal/streams/readable:559:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+    at Readable.push (node:internal/streams/readable:390:5)
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:189:23) {
+  severity_local: 'ERROR',
+  severity: 'ERROR',
+  code: '42P01',
+  position: '175',
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+9:59:08 PM [express] POST /api/auth/register 500 in 85ms :: {"message":"Errore durante la registrazi…

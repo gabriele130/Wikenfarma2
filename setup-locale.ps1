@@ -30,9 +30,25 @@ Write-Host "1. Crea un account su https://neon.tech"
 Write-Host "2. Crea un nuovo progetto PostgreSQL"
 Write-Host "3. Copia l'URL di connessione"
 Write-Host "4. Sostituisci DATABASE_URL nel file .env"
+Write-Host "5. Esegui migrazione database: npx drizzle-kit push"
 Write-Host ""
 
+# Setup database
+Write-Host ""
+Write-Host "=== SETUP DATABASE ===" -ForegroundColor Magenta
+$setupDb = Read-Host "Vuoi eseguire la migrazione del database ora? (s/n)"
+if ($setupDb -eq "s") {
+    Write-Host "Esecuzione migrazione database..." -ForegroundColor Green
+    try {
+        npx drizzle-kit push --yes
+        Write-Host "✅ Migrazione completata!" -ForegroundColor Green
+    } catch {
+        Write-Host "⚠️ Errore durante la migrazione. Verifica DATABASE_URL nel file .env" -ForegroundColor Red
+    }
+}
+
 # Avvio applicazione
+Write-Host ""
 $avvio = Read-Host "Vuoi avviare l'applicazione ora? (s/n)"
 if ($avvio -eq "s") {
     Write-Host "Avvio WikenFarma..." -ForegroundColor Green
@@ -41,9 +57,9 @@ if ($avvio -eq "s") {
     npx cross-env NODE_ENV=development tsx server/index.ts
 } else {
     Write-Host ""
-    Write-Host "Per avviare WikenFarma esegui uno di questi comandi:" -ForegroundColor Green
-    Write-Host "  npm run dev" -ForegroundColor White
-    Write-Host "  npx cross-env NODE_ENV=development tsx server/index.ts" -ForegroundColor White
+    Write-Host "Per completare il setup:" -ForegroundColor Green
+    Write-Host "  1. npx drizzle-kit push (crea tabelle database)" -ForegroundColor White
+    Write-Host "  2. npm run dev (avvia applicazione)" -ForegroundColor White
     Write-Host ""
-    Write-Host "Ricordati di configurare il DATABASE_URL nel file .env" -ForegroundColor Yellow
+    Write-Host "⚠️ IMPORTANTE: Prima di avviare verifica DATABASE_URL nel file .env" -ForegroundColor Yellow
 }
