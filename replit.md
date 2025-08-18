@@ -2,15 +2,9 @@
 
 ## Overview
 
-WikenFarma is a comprehensive pharmaceutical management system designed to centralize and automate various business operations including order management, customer relations, inventory control, and integrations with external services. The system handles multiple customer types (private customers, pharmacies, wholesalers, and doctors) and provides complete workflow automation from order placement to delivery tracking.
+WikenFarma is a comprehensive pharmaceutical management system designed to centralize and automate various business operations. The application manages private orders, pharmacy and wholesaler operations, customer databases (doctors, pharmacies, wholesalers), inventory management, shipments, commissions, and integrations with external systems like eBay, Gestline, Odoo, GLS, PharmaEVO, and various ecommerce platforms.
 
-### Latest Requirements (January 2025)
-- **WIKENSHIP**: Integration of private orders (WooCommerce + eBay) → GestLine frontier table + ODOO analytics
-- **Commission System**: 15% revenue-based for Informatori, point-based system for Doctors
-- **ISF Management**: Dipendenti (fixed salary) vs Liberi Professionisti (fixed + cut-off + percentage)
-- **Pharmacy Orders**: PharmaEVO integration with GestLine bridge + ODOO tagging
-- **Analytics Dashboard**: Multi-dimensional revenue analysis with temporal comparisons
-- **Shareable Medical Reports**: Read-only informatori dashboards with individual doctor tables
+The system provides advanced reporting for marketing analysis and management control, with specialized features for pharmaceutical sales representatives (ISF - Informatori Scientifici del Farmaco) including commission tracking and territory management.
 
 ## User Preferences
 
@@ -19,80 +13,69 @@ Preferred communication style: Simple, everyday language.
 ## System Architecture
 
 ### Frontend Architecture
-- **Framework**: React with TypeScript using Vite as the build tool
-- **UI Library**: Shadcn/UI components built on Radix UI primitives
-- **Styling**: Tailwind CSS with custom design system variables
-- **Routing**: Wouter for client-side navigation
-- **State Management**: TanStack Query for server state management and caching
-- **Forms**: React Hook Form with Zod validation
-
-The frontend follows a component-based architecture with a clear separation between UI components, pages, and business logic. The design system uses CSS variables for theming and provides both light and dark mode support.
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite for fast development and optimized builds
+- **Routing**: Wouter for client-side routing
+- **State Management**: TanStack React Query for server state management
+- **UI Framework**: Custom component library using Radix UI primitives with Tailwind CSS
+- **Styling**: Tailwind CSS with CSS custom properties for theming
+- **Form Handling**: React Hook Form with Zod validation
 
 ### Backend Architecture
 - **Runtime**: Node.js with TypeScript
-- **Framework**: Express.js for REST API endpoints
-- **Database ORM**: Drizzle ORM with PostgreSQL
-- **Authentication**: Custom JWT-based authentication system (completely independent from Replit)
-- **Database**: External PostgreSQL database with dedicated connection
-- **File Structure**: Monolithic structure with separate client/server/shared directories
-
-The backend implements a RESTful API pattern with middleware for authentication, logging, and error handling. The authentication system is completely custom using JWT tokens and bcrypt password hashing. The shared directory contains common schemas and types used by both frontend and backend.
+- **Framework**: Express.js for REST API
+- **Authentication**: Custom JWT-based authentication system with session storage
+- **Database ORM**: Drizzle ORM for type-safe database operations
+- **API Design**: RESTful endpoints with consistent error handling and response formatting
 
 ### Database Design
-- **Primary Database**: Neon PostgreSQL (serverless, optimized for Replit compatibility)
-- **Schema Management**: Drizzle Kit for migrations and schema management
-- **Key Entities**:
-  - Users (authentication and roles)
-  - Customers (private, pharmacy, wholesaler, doctor types)
-  - Products (inventory management)
-  - Orders and OrderItems (multi-type order processing)
-  - Shipments (delivery tracking)
-  - Commissions (ISF and sales tracking)
-  - Integrations (external service status)
-  - Activity Logs (audit trail)
+- **Primary Database**: PostgreSQL with connection pooling
+- **Session Storage**: PostgreSQL-based session store using connect-pg-simple
+- **Schema Management**: Drizzle migrations with TypeScript schema definitions
+- **Key Entities**: Users, Customers, Products, Orders, Shipments, Commissions, Integrations, Activity Logs, Informatori
 
 ### Authentication & Authorization
-- **Provider**: Custom JWT-based authentication (completely independent from Replit)
-- **Session Storage**: PostgreSQL-based session store with connect-pg-simple
-- **Security**: JWT tokens with bcrypt password hashing, HTTP-only cookies
-- **User Roles**: Role-based access control (user, admin, manager, informatore)
-- **Database**: External PostgreSQL database for all authentication data
+- **Authentication Method**: Custom JWT implementation with session fallback
+- **User Types**: Standard users and Informatori (pharmaceutical sales representatives)
+- **Role-Based Access**: Admin, manager, and user roles with route-level protection
+- **Session Management**: Express sessions with PostgreSQL storage for reliability
 
-The authentication system is completely custom-built using JWT tokens, bcrypt for password hashing, and PostgreSQL for user data storage. No external OAuth providers are used, ensuring complete independence and control over user authentication.
-
-### API Architecture
-- **Pattern**: RESTful API with consistent error handling
-- **Validation**: Zod schemas for request/response validation
-- **Middleware**: Request logging, authentication checks, and error handling
-- **File Uploads**: Integration with Google Cloud Storage and Uppy
+### Code Organization
+- **Monorepo Structure**: Shared TypeScript schemas between client and server
+- **Path Aliases**: Configured for clean imports (@/ for client, @shared for shared code)
+- **Type Safety**: End-to-end TypeScript with Zod validation schemas
+- **Component Architecture**: Reusable UI components with consistent design patterns
 
 ## External Dependencies
 
-### Core Services
-- **Neon PostgreSQL**: Serverless database with automatic scaling and Replit compatibility
-- **Custom Authentication**: JWT-based authentication system with bcrypt password hashing
-- **Google Cloud Storage**: File and document storage
+### Database & Infrastructure
+- **PostgreSQL**: Primary database (recommended providers: Neon, Supabase, Railway, ElephantSQL)
+- **Neon Database**: Serverless PostgreSQL with @neondatabase/serverless client
 
-### Planned Integrations
-The system is designed to integrate with multiple external services:
-- **eBay**: E-commerce platform integration
-- **Gestline**: ERP system integration
-- **Odoo**: Business management suite
-- **GLS**: Shipping and logistics provider
-- **PharmaEVO**: Pharmaceutical industry-specific system
-- **Email Services**: Newsletter and communication automation
-- **WhatsApp**: Customer communication channel
+### UI & Design System
+- **Radix UI**: Comprehensive set of UI primitives (@radix-ui/react-*)
+- **Tailwind CSS**: Utility-first CSS framework with custom design tokens
+- **Lucide React**: Icon library for consistent iconography
+
+### Third-Party Integrations
+- **Google Cloud Storage**: File storage and management (@google-cloud/storage)
+- **Uppy**: File upload handling (@uppy/core, @uppy/dashboard, @uppy/aws-s3)
 
 ### Development Tools
-- **Build System**: Vite with ESBuild for production builds
-- **Type Checking**: TypeScript with strict configuration
-- **Code Quality**: ESLint and Prettier (implied from standard setup)
-- **Development**: Hot module replacement and runtime error overlay
+- **Replit Integration**: Development environment optimizations and error handling
+- **ESBuild**: Fast bundling for production builds
+- **TSX**: TypeScript execution for development server
 
-### UI/UX Libraries
-- **Component Library**: Radix UI primitives for accessibility
-- **Icons**: Font Awesome integration
-- **File Upload**: Uppy with AWS S3 and Google Cloud Storage adapters
-- **Styling**: Tailwind CSS with PostCSS processing
+### External APIs & Services
+- **eBay Integration**: Automated order processing from eBay marketplace
+- **Gestline**: ERP system integration for order management
+- **Odoo**: Business management software integration
+- **GLS**: Shipping and logistics provider integration
+- **PharmaEVO**: Pharmaceutical industry-specific integrations
+- **IQVIA Data**: Healthcare data analytics integration
+- **Email & WhatsApp**: Communication automation systems
 
-The architecture prioritizes modularity, type safety, and integration capabilities to support the complex workflow requirements of pharmaceutical business operations.
+### Analytics & Monitoring
+- **Recharts**: Data visualization library for analytics dashboards
+- **Commission Tracking**: Automated calculation and reporting for sales representatives
+- **Activity Logging**: Comprehensive audit trail for all system operations
