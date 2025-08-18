@@ -36,12 +36,16 @@ npx drizzle-kit push
 
 ### 5. Avvia Applicazione
 ```bash
-# Su Windows (usa cross-env per compatibilità)
+# Su Windows (configurazione automatica localhost)
 npm run dev
 
 # Oppure direttamente:
 npx cross-env NODE_ENV=development tsx server/index.ts
 ```
+
+**Nota:** L'applicazione si avvia automaticamente su:
+- 🖥️ **Windows locale**: `http://localhost:5000`
+- ☁️ **Replit produzione**: `http://0.0.0.0:5000`
 
 L'applicazione sarà disponibile su: http://localhost:5000
 
