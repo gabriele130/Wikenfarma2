@@ -10,6 +10,14 @@ The system provides advanced reporting for marketing analysis and management con
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (August 2025)
+
+- ✅ **Windows Cross-Platform Support**: Resolved ENOTSUP networking errors by implementing IPv4 binding (127.0.0.1) for Windows development environment
+- ✅ **PostgreSQL Session Management**: Fixed session store conflicts by creating dedicated `user_sessions` table, eliminating `IDX_session_expire` errors
+- ✅ **Database Migration**: Successfully configured Neon PostgreSQL with automatic table creation via Drizzle migrations
+- ✅ **User Registration**: Confirmed working user authentication system with Windows localhost environment
+- ✅ **Cross-env Integration**: Added Windows PowerShell script support with automatic database setup and application launch
+
 ## System Architecture
 
 ### Frontend Architecture

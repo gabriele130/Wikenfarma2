@@ -122,8 +122,8 @@ export class DatabaseStorage implements IStorage {
     // Create the session store for Neon database
     this.sessionStore = new PostgresSessionStore({
       conString: process.env.DATABASE_URL,
-      createTableIfMissing: true,
-      tableName: 'session'
+      createTableIfMissing: false, // Non creare automaticamente per evitare conflitti
+      tableName: 'user_sessions'
     });
   }
 
