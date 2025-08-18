@@ -36,7 +36,8 @@ Write-Host ""
 $avvio = Read-Host "Vuoi avviare l'applicazione ora? (s/n)"
 if ($avvio -eq "s") {
     Write-Host "Avvio WikenFarma..." -ForegroundColor Green
-    Write-Host "Usando cross-env per compatibilità Windows..." -ForegroundColor Cyan
+    Write-Host "Configurazione IPv4 per Windows..." -ForegroundColor Cyan
+    Write-Host "Server disponibile su: http://127.0.0.1:5000" -ForegroundColor Yellow
     npx cross-env NODE_ENV=development tsx server/index.ts
 } else {
     Write-Host ""

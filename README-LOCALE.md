@@ -44,7 +44,7 @@ npx cross-env NODE_ENV=development tsx server/index.ts
 ```
 
 **Nota:** L'applicazione si avvia automaticamente su:
-- 🖥️ **Windows locale**: `http://localhost:5000`
+- 🖥️ **Windows locale**: `http://127.0.0.1:5000` (IPv4 per compatibilità)
 - ☁️ **Replit produzione**: `http://0.0.0.0:5000`
 
 L'applicazione sarà disponibile su: http://localhost:5000
