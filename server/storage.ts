@@ -19,7 +19,6 @@ import {
   type InsertOrder,
   type OrderItem,
   type InsertOrderItem,
-  type OrderWithDetails,
   type Shipment,
   type InsertShipment,
   type Commission,
@@ -33,6 +32,10 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, count, sum, and, gte, lte, ilike, or } from "drizzle-orm";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User operations (custom auth)
@@ -41,6 +44,9 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserLastLogin(id: string): Promise<void>;
+  
+  // Session store
+  sessionStore: session.SessionStore;
 
   // Customer operations
   getCustomers(page?: number, limit?: number, search?: string, type?: string): Promise<{ customers: Customer[]; total: number }>;
