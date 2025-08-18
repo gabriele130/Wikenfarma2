@@ -22,11 +22,11 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   
-  // Set up authorization header
+  // Set up authorization header for custom auth (no Replit dependencies)
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
+    const token = localStorage.getItem("wikenfarma_token");
     if (token) {
-      // You can add axios interceptor or similar here if needed
+      // Custom authentication token handling
     }
   }, []);
 
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: getQueryFn({ 
       on401: "returnNull",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        Authorization: `Bearer ${localStorage.getItem("wikenfarma_token")}`,
       }
     }),
     retry: false,

@@ -32,13 +32,14 @@ The frontend follows a component-based architecture with a clear separation betw
 - **Runtime**: Node.js with TypeScript
 - **Framework**: Express.js for REST API endpoints
 - **Database ORM**: Drizzle ORM with PostgreSQL
-- **Authentication**: Replit-based OAuth with session management
+- **Authentication**: Custom JWT-based authentication system (completely independent from Replit)
+- **Database**: External PostgreSQL database with dedicated connection
 - **File Structure**: Monolithic structure with separate client/server/shared directories
 
-The backend implements a RESTful API pattern with middleware for authentication, logging, and error handling. The shared directory contains common schemas and types used by both frontend and backend.
+The backend implements a RESTful API pattern with middleware for authentication, logging, and error handling. The authentication system is completely custom using JWT tokens and bcrypt password hashing. The shared directory contains common schemas and types used by both frontend and backend.
 
 ### Database Design
-- **Primary Database**: PostgreSQL via Neon Database
+- **Primary Database**: External PostgreSQL database (independent from Replit)
 - **Schema Management**: Drizzle Kit for migrations and schema management
 - **Key Entities**:
   - Users (authentication and roles)
@@ -51,12 +52,13 @@ The backend implements a RESTful API pattern with middleware for authentication,
   - Activity Logs (audit trail)
 
 ### Authentication & Authorization
-- **Provider**: Replit OAuth integration
-- **Session Storage**: PostgreSQL-based session store
-- **Security**: HTTP-only cookies with secure flags
-- **User Roles**: Role-based access control (user, admin, manager)
+- **Provider**: Custom JWT-based authentication (completely independent from Replit)
+- **Session Storage**: PostgreSQL-based session store with connect-pg-simple
+- **Security**: JWT tokens with bcrypt password hashing, HTTP-only cookies
+- **User Roles**: Role-based access control (user, admin, manager, informatore)
+- **Database**: External PostgreSQL database for all authentication data
 
-The authentication system integrates with Replit's OAuth service and maintains user sessions in the database for scalability and persistence.
+The authentication system is completely custom-built using JWT tokens, bcrypt for password hashing, and PostgreSQL for user data storage. No external OAuth providers are used, ensuring complete independence and control over user authentication.
 
 ### API Architecture
 - **Pattern**: RESTful API with consistent error handling
@@ -67,8 +69,8 @@ The authentication system integrates with Replit's OAuth service and maintains u
 ## External Dependencies
 
 ### Core Services
-- **Neon Database**: PostgreSQL hosting with serverless architecture
-- **Replit Authentication**: OAuth provider for user management
+- **External PostgreSQL**: Dedicated database hosting completely independent from Replit
+- **Custom Authentication**: JWT-based authentication system with bcrypt password hashing
 - **Google Cloud Storage**: File and document storage
 
 ### Planned Integrations
