@@ -8,11 +8,13 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Custom PostgreSQL connection (no Replit dependencies)
+// PostgreSQL connection optimized for Replit environment
 const client = postgres(process.env.DATABASE_URL, { 
-  max: 20,
+  max: 5,
   idle_timeout: 20,
-  max_lifetime: 60 * 30
+  max_lifetime: 60 * 30,
+  connect_timeout: 10,
+  onnotice: () => {}, // Disable notices to reduce log noise
 });
 
 export const db = drizzle(client, { schema });
