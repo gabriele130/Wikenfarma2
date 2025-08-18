@@ -36,7 +36,11 @@ npx drizzle-kit push
 
 ### 5. Avvia Applicazione
 ```bash
+# Su Windows (usa cross-env per compatibilità)
 npm run dev
+
+# Oppure direttamente:
+npx cross-env NODE_ENV=development tsx server/index.ts
 ```
 
 L'applicazione sarà disponibile su: http://localhost:5000

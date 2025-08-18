@@ -36,9 +36,13 @@ Write-Host ""
 $avvio = Read-Host "Vuoi avviare l'applicazione ora? (s/n)"
 if ($avvio -eq "s") {
     Write-Host "Avvio WikenFarma..." -ForegroundColor Green
-    npm run dev
+    Write-Host "Usando cross-env per compatibilità Windows..." -ForegroundColor Cyan
+    npx cross-env NODE_ENV=development tsx server/index.ts
 } else {
     Write-Host ""
-    Write-Host "Per avviare WikenFarma esegui: npm run dev" -ForegroundColor Green
+    Write-Host "Per avviare WikenFarma esegui uno di questi comandi:" -ForegroundColor Green
+    Write-Host "  npm run dev" -ForegroundColor White
+    Write-Host "  npx cross-env NODE_ENV=development tsx server/index.ts" -ForegroundColor White
+    Write-Host ""
     Write-Host "Ricordati di configurare il DATABASE_URL nel file .env" -ForegroundColor Yellow
 }
