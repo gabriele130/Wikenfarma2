@@ -8,12 +8,13 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// PostgreSQL connection optimized for Replit environment
+// PostgreSQL connection optimized for Neon database
 const client = postgres(process.env.DATABASE_URL, { 
-  max: 5,
+  max: 10,
   idle_timeout: 20,
   max_lifetime: 60 * 30,
-  connect_timeout: 10,
+  connect_timeout: 30,
+  ssl: 'require',
   onnotice: () => {}, // Disable notices to reduce log noise
 });
 

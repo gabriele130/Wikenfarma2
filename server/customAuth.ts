@@ -19,12 +19,13 @@ declare global {
 const JWT_SECRET = process.env.JWT_SECRET || 'wikenfarma-secret-key-2025';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'wikenfarma-session-secret';
 
-// PostgreSQL session store optimized for Replit environment
+// PostgreSQL session store optimized for Neon database
 const pgPool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  connectionTimeoutMillis: 10000,
+  connectionTimeoutMillis: 30000,
   idleTimeoutMillis: 30000,
-  max: 5,
+  max: 10,
+  ssl: { rejectUnauthorized: false },
 });
 const PostgresSessionStore = connectPgSimple(session);
 

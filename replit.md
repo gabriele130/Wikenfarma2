@@ -39,7 +39,7 @@ The frontend follows a component-based architecture with a clear separation betw
 The backend implements a RESTful API pattern with middleware for authentication, logging, and error handling. The authentication system is completely custom using JWT tokens and bcrypt password hashing. The shared directory contains common schemas and types used by both frontend and backend.
 
 ### Database Design
-- **Primary Database**: External PostgreSQL database (independent from Replit)
+- **Primary Database**: Neon PostgreSQL (serverless, optimized for Replit compatibility)
 - **Schema Management**: Drizzle Kit for migrations and schema management
 - **Key Entities**:
   - Users (authentication and roles)
@@ -69,7 +69,7 @@ The authentication system is completely custom-built using JWT tokens, bcrypt fo
 ## External Dependencies
 
 ### Core Services
-- **External PostgreSQL**: Dedicated database hosting completely independent from Replit
+- **Neon PostgreSQL**: Serverless database with automatic scaling and Replit compatibility
 - **Custom Authentication**: JWT-based authentication system with bcrypt password hashing
 - **Google Cloud Storage**: File and document storage
 
