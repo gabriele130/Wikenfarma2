@@ -18,6 +18,13 @@ import OrderDetailsPage from "./pages/orders/order-details";
 import NotFoundPage from "./pages/not-found";
 import BusinessIntelligencePage from "./pages/business-intelligence";
 import SystemPage from "./pages/system";
+import AnalyticsPage from "./pages/analytics";
+import ReportsPage from "./pages/reports";
+import CommissionsPage from "./pages/commissions";
+import IntegrationsPage from "./pages/integrations";
+import ShippingPage from "./pages/shipping";
+import InformatoriPage from "./pages/informatori";
+import DoctorsPage from "./pages/doctors";
 
 // Utils
 import { queryClient } from "./lib/queryClient";
@@ -117,6 +124,76 @@ function AppContent() {
             component={SystemPage} 
             title="Sistema" 
             subtitle="Configurazione e monitoraggio del sistema" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/analytics" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={AnalyticsPage} 
+            title="Analytics" 
+            subtitle="Metriche e performance dettagliate" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/reports" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={ReportsPage} 
+            title="Reports" 
+            subtitle="Reportistica avanzata e documenti" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/commissions" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={CommissionsPage} 
+            title="Commissioni" 
+            subtitle="Calcolo compensi ISF e agenti" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/integrations" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={IntegrationsPage} 
+            title="Integrazioni" 
+            subtitle="eBay, GestLine, PharmaEVO" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/shipping" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={ShippingPage} 
+            title="Spedizioni" 
+            subtitle="Logistica e tracking" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/informatori" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={InformatoriPage} 
+            title="Informatori" 
+            subtitle="Gestione ISF e rappresentanti" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/doctors" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={DoctorsPage} 
+            title="Medici" 
+            subtitle="Database medici e specialisti" 
           />
         )} 
       />
