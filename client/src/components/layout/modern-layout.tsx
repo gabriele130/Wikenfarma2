@@ -9,19 +9,53 @@ interface ModernLayoutProps {
 }
 
 export function ModernLayout({ children, title, subtitle }: ModernLayoutProps) {
-  const [sidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => window.innerWidth < 1024 // Chiusa per default su mobile
+  );
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
+  // Gestione resize per mobile
+  useState(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024 && sidebarCollapsed) {
+        // Su desktop, espandi automaticamente se era collassata
+        setSidebarCollapsed(false);
+      }
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  });
 
   return (
-    <div className="h-screen flex bg-slate-50">
+    <div className="h-screen flex bg-slate-50 relative">
+      {/* Mobile Overlay */}
+      {!sidebarCollapsed && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+          onClick={() => setSidebarCollapsed(true)}
+        />
+      )}
+      
       {/* Sidebar */}
-      <div className={`${sidebarCollapsed ? 'w-16' : 'w-72'} transition-all duration-300 flex-shrink-0`}>
-        <ModernSidebar />
+      <div className={`${sidebarCollapsed ? 'w-16' : 'w-72'} transition-all duration-300 flex-shrink-0 relative z-50 lg:relative lg:z-auto ${
+        sidebarCollapsed ? 'lg:block' : 'fixed lg:relative inset-y-0 left-0'
+      }`}>
+        <ModernSidebar isCollapsed={sidebarCollapsed} onToggle={toggleSidebar} />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <ModernHeader title={title} subtitle={subtitle} />
+        <ModernHeader 
+          title={title} 
+          subtitle={subtitle} 
+          onToggleSidebar={toggleSidebar}
+          isSidebarCollapsed={sidebarCollapsed}
+        />
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6">

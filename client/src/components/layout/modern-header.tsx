@@ -11,7 +11,10 @@ import {
   Sun,
   User,
   ChevronDown,
-  ShoppingCart
+  ShoppingCart,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -27,11 +30,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 interface ModernHeaderProps {
   title?: string;
   subtitle?: string;
+  onToggleSidebar?: () => void;
+  isSidebarCollapsed?: boolean;
 }
 
 export default function ModernHeader({ 
   title = "Dashboard", 
-  subtitle = "Panoramica del sistema" 
+  subtitle = "Panoramica del sistema",
+  onToggleSidebar,
+  isSidebarCollapsed = false
 }: ModernHeaderProps) {
   const { user, logoutMutation } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
@@ -56,8 +63,20 @@ export default function ModernHeader({
   return (
     <header className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm">
       <div className="flex items-center justify-between">
-        {/* Titolo e Breadcrumb */}
-        <div className="flex-1 min-w-0">
+        {/* Mobile Menu Button & Titolo */}
+        <div className="flex items-center space-x-4 flex-1 min-w-0">
+          {onToggleSidebar && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleSidebar}
+              className="lg:hidden p-2"
+              data-testid="mobile-menu-button"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
+          <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
             <h1 className="text-2xl font-bold text-slate-900 truncate">
               {title}
@@ -68,9 +87,10 @@ export default function ModernHeader({
               </Badge>
             )}
           </div>
-          <p className="text-sm text-slate-500 mt-1 truncate">
-            {subtitle}
-          </p>
+            <p className="text-sm text-slate-500 mt-1 truncate">
+              {subtitle}
+            </p>
+          </div>
         </div>
 
         {/* Barra di ricerca */}
@@ -87,6 +107,20 @@ export default function ModernHeader({
 
         {/* Azioni Header */}
         <div className="flex items-center space-x-3">
+          {/* Toggle Sidebar Desktop */}
+          {onToggleSidebar && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleSidebar}
+              className="hidden lg:flex p-2 hover:bg-slate-100"
+              data-testid="desktop-sidebar-toggle"
+              title={isSidebarCollapsed ? "Espandi sidebar" : "Comprimi sidebar"}
+            >
+              {isSidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            </Button>
+          )}
+
           {/* Pulsante Ricerca Mobile */}
           <Button
             variant="ghost"
