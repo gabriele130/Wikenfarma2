@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import ModernSidebar from "./modern-sidebar";
 import ModernHeader from "./modern-header";
 
@@ -18,17 +18,19 @@ export function ModernLayout({ children, title, subtitle }: ModernLayoutProps) {
   };
 
   // Gestione resize per mobile
-  useState(() => {
+  React.useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024 && sidebarCollapsed) {
+      if (window.innerWidth >= 1024) {
         // Su desktop, espandi automaticamente se era collassata
-        setSidebarCollapsed(false);
+        if (sidebarCollapsed && window.innerWidth >= 1024) {
+          setSidebarCollapsed(false);
+        }
       }
     };
     
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  });
+  }, [sidebarCollapsed]);
 
   return (
     <div className="h-screen flex bg-slate-50 relative">

@@ -107,20 +107,6 @@ export default function ModernHeader({
 
         {/* Azioni Header */}
         <div className="flex items-center space-x-4">
-          {/* Toggle Sidebar Desktop */}
-          {onToggleSidebar && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleSidebar}
-              className="hidden lg:flex p-2.5 hover:bg-slate-100 rounded-lg"
-              data-testid="desktop-sidebar-toggle"
-              title={isSidebarCollapsed ? "Espandi sidebar" : "Comprimi sidebar"}
-            >
-              {isSidebarCollapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-            </Button>
-          )}
-
           {/* Pulsante Ricerca Mobile */}
           <Button
             variant="ghost"

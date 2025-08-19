@@ -21,7 +21,9 @@ import {
   User,
   HelpCircle,
   Menu,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -236,26 +238,54 @@ export default function ModernSidebar({ isCollapsed = false, onToggle }: ModernS
   return (
     <div className={`${isCollapsed ? 'w-16' : 'w-72'} h-full bg-white border-r border-slate-200 flex flex-col shadow-sm transition-all duration-300`}>
       {/* Header con Logo */}
-      <div className={`${isCollapsed ? 'p-3' : 'p-6'} border-b border-slate-200`}>
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-            <Pill className="h-5 w-5 text-white" />
+      <div className={`${isCollapsed ? 'p-3' : 'p-6'} border-b border-slate-200 relative`}>
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+              <Pill className="h-5 w-5 text-white" />
+            </div>
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg font-bold text-slate-900 truncate">WikenFarma</h1>
+                <p className="text-xs text-slate-500 truncate">Sistema Gestionale Farmaceutico</p>
+              </div>
+            )}
           </div>
-          {!isCollapsed && (
-            <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-bold text-slate-900 truncate">WikenFarma</h1>
-              <p className="text-xs text-slate-500 truncate">Sistema Gestionale Farmaceutico</p>
+
+          {/* Toggle Button accanto al logo */}
+          {onToggle && (
+            <div className={`${isCollapsed ? 'absolute -right-3 top-1/2 -translate-y-1/2' : ''}`}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggle}
+                className={`${
+                  isCollapsed 
+                    ? 'w-6 h-6 p-0 bg-white border border-slate-200 shadow-sm hover:bg-slate-50 rounded-full' 
+                    : 'p-1.5 h-auto hover:bg-slate-100 rounded-lg'
+                } transition-all duration-200`}
+                data-testid="sidebar-toggle"
+                title={isCollapsed ? "Espandi sidebar" : "Comprimi sidebar"}
+              >
+                {isCollapsed ? (
+                  <ChevronRight className="h-3 w-3 text-slate-600" />
+                ) : (
+                  <ChevronLeft className="h-4 w-4 text-slate-400" />
+                )}
+              </Button>
             </div>
           )}
-          {onToggle && (
+
+          {/* Mobile Close Button (solo su mobile quando aperta) */}
+          {onToggle && !isCollapsed && (
             <Button
               variant="ghost"
               size="sm"
               onClick={onToggle}
-              className={`${isCollapsed ? 'absolute top-3 right-3 lg:hidden' : 'p-1 h-6 w-6 lg:hidden'}`}
-              data-testid="sidebar-toggle"
+              className="lg:hidden p-1.5 h-auto hover:bg-slate-100 rounded-lg ml-2"
+              data-testid="sidebar-mobile-close"
             >
-              {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
+              <X className="h-4 w-4 text-slate-400" />
             </Button>
           )}
         </div>
