@@ -70,7 +70,7 @@ export default function ModernHeader({
               variant="ghost"
               size="sm"
               onClick={onToggleSidebar}
-              className="lg:hidden p-2"
+              className="lg:hidden p-2.5 hover:bg-slate-100 rounded-lg mr-2"
               data-testid="mobile-menu-button"
             >
               <Menu className="h-5 w-5" />
@@ -106,14 +106,14 @@ export default function ModernHeader({
         </div>
 
         {/* Azioni Header */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-4">
           {/* Toggle Sidebar Desktop */}
           {onToggleSidebar && (
             <Button
               variant="ghost"
               size="sm"
               onClick={onToggleSidebar}
-              className="hidden lg:flex p-2 hover:bg-slate-100"
+              className="hidden lg:flex p-2.5 hover:bg-slate-100 rounded-lg"
               data-testid="desktop-sidebar-toggle"
               title={isSidebarCollapsed ? "Espandi sidebar" : "Comprimi sidebar"}
             >
@@ -125,7 +125,7 @@ export default function ModernHeader({
           <Button
             variant="ghost"
             size="sm"
-            className="md:hidden p-2"
+            className="md:hidden p-2.5 hover:bg-slate-100 rounded-lg"
             data-testid="mobile-search"
           >
             <Search className="h-4 w-4" />
@@ -133,7 +133,7 @@ export default function ModernHeader({
 
           {/* Nuovo Ordine - Quick Action */}
           <Button
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm px-4 py-2"
             data-testid="new-order-button"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -146,7 +146,7 @@ export default function ModernHeader({
               <Button
                 variant="ghost"
                 size="sm"
-                className="relative p-2 hover:bg-slate-100"
+                className="relative p-2.5 hover:bg-slate-100 rounded-lg"
                 data-testid="notifications-button"
               >
                 <Bell className="h-5 w-5" />
@@ -191,7 +191,7 @@ export default function ModernHeader({
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex items-center space-x-2 px-3 py-2 h-auto hover:bg-slate-100"
+                className="flex items-center space-x-2 px-3 py-2 h-auto hover:bg-slate-100 rounded-lg ml-2"
                 data-testid="user-menu-button"
               >
                 <Avatar className="h-8 w-8">
