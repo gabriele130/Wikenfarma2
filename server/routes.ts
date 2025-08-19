@@ -574,6 +574,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Search endpoint - Global search with case insensitive matching
+  app.get('/api/search', async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      
+      if (!query || query.trim().length < 1) {
+        return res.json([]);
+      }
+      
+      const results = await storage.globalSearch(query.trim());
+      res.json(results);
+    } catch (error) {
+      console.error('Search error:', error);
+      res.status(500).json({ error: 'Errore durante la ricerca' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

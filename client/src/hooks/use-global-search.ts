@@ -17,8 +17,8 @@ export function useGlobalSearch(query: string) {
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 300);
+      setDebouncedQuery(query.trim());
+    }, 200); // Reduced debounce time for faster response
 
     return () => clearTimeout(timer);
   }, [query]);
@@ -30,7 +30,7 @@ export function useGlobalSearch(query: string) {
   } = useQuery<SearchResult[]>({
     queryKey: ["/api/search", debouncedQuery],
     queryFn: async () => {
-      if (!debouncedQuery || debouncedQuery.length < 2) {
+      if (!debouncedQuery || debouncedQuery.length < 1) {
         return [];
       }
       
@@ -40,13 +40,14 @@ export function useGlobalSearch(query: string) {
       }
       return response.json();
     },
-    enabled: debouncedQuery.length >= 2,
+    enabled: debouncedQuery.length >= 1, // Start searching from first character
   });
 
   return {
     results,
-    isLoading,
+    isLoading: isLoading && debouncedQuery.length >= 1,
     error,
     hasResults: results.length > 0,
+    query: debouncedQuery,
   };
 }
