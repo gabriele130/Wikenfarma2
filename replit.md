@@ -13,6 +13,22 @@ The frontend is built with modern React 18 using TypeScript for type-safe user i
 
 The UI framework consists of a custom component library built on Radix UI primitives with Tailwind CSS for styling. The design system uses CSS custom properties for advanced theming capabilities. Form handling is managed through React Hook Form with Zod validation for robust and type-safe form processing.
 
+### Current Application Routes
+The application includes the following protected routes with proper navigation:
+- `/` - Dashboard (panoramica sistema WikenFarma)
+- `/customers` - Gestione Clienti (farmacie, grossisti, medici)
+- `/inventory` - Inventario (prodotti e scorte)
+- `/orders` - Ordini (gestione ordini e transazioni)
+- `/business-intelligence` - Business Intelligence (analisi avanzate)
+- `/analytics` - Analytics (metriche e performance)
+- `/reports` - Reports (reportistica avanzata)
+- `/commissions` - Commissioni (calcolo compensi ISF)
+- `/integrations` - Integrazioni (eBay, GestLine, PharmaEVO)
+- `/shipping` - Spedizioni (logistica e tracking)
+- `/informatori` - Informatori (gestione ISF)
+- `/doctors` - Medici (database medici e specialisti)
+- `/system` - Sistema (configurazione e monitoraggio)
+
 ## Backend Architecture
 The backend runs on Node.js with TypeScript for type-safe server-side development. Express.js provides the REST API framework with modular middleware architecture. The system implements a custom JWT-based authentication system with session storage fallback.
 
