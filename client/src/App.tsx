@@ -6,10 +6,10 @@ import { useEffect } from "react";
 // Auth
 import { AuthProvider, useAuth } from "./hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
-import { AuthLayout } from "./components/layout/auth-layout";
+import { ModernLayout } from "./components/layout/modern-layout";
 
 // Pages
-import DashboardPage from "./pages/dashboard";
+import ModernDashboard from "./pages/modern-dashboard";
 import AuthPage from "./pages/auth-page";
 import CustomersPage from "./pages/customers";
 import ProductsPage from "./pages/inventory";
@@ -20,11 +20,19 @@ import NotFoundPage from "./pages/not-found";
 // Utils
 import { queryClient } from "./lib/queryClient";
 
-function ProtectedPageWrapper({ component: Component }: { component: () => React.JSX.Element }) {
+function ProtectedPageWrapper({ 
+  component: Component, 
+  title, 
+  subtitle 
+}: { 
+  component: () => React.JSX.Element;
+  title?: string;
+  subtitle?: string;
+}) {
   return (
-    <AuthLayout>
+    <ModernLayout title={title} subtitle={subtitle}>
       <Component />
-    </AuthLayout>
+    </ModernLayout>
   );
 }
 
@@ -42,23 +50,53 @@ function AppContent() {
     <Switch>
       <ProtectedRoute 
         path="/" 
-        component={() => <ProtectedPageWrapper component={DashboardPage} />} 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={ModernDashboard} 
+            title="Dashboard" 
+            subtitle="Panoramica sistema WikenFarma" 
+          />
+        )} 
       />
       <ProtectedRoute 
         path="/customers" 
-        component={() => <ProtectedPageWrapper component={CustomersPage} />} 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={CustomersPage} 
+            title="Gestione Clienti" 
+            subtitle="Farmacie, grossisti e medici" 
+          />
+        )} 
       />
       <ProtectedRoute 
         path="/inventory" 
-        component={() => <ProtectedPageWrapper component={ProductsPage} />} 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={ProductsPage} 
+            title="Inventario" 
+            subtitle="Gestione prodotti e scorte" 
+          />
+        )} 
       />
       <ProtectedRoute 
         path="/orders" 
-        component={() => <ProtectedPageWrapper component={OrdersPage} />} 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={OrdersPage} 
+            title="Ordini" 
+            subtitle="Gestione ordini e transazioni" 
+          />
+        )} 
       />
       <ProtectedRoute 
         path="/orders/:id" 
-        component={() => <ProtectedPageWrapper component={OrderDetailsPage} />} 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={OrderDetailsPage} 
+            title="Dettaglio Ordine" 
+            subtitle="Informazioni complete ordine" 
+          />
+        )} 
       />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFoundPage} />
