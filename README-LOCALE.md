@@ -12,8 +12,7 @@ npm install
 # Copia il template di configurazione
 copy .env.local .env
 
-# Oppure usa PowerShell
-.\setup-locale.ps1
+# Configura manualmente le variabili necessarie
 ```
 
 ### 3. Configura Database
