@@ -22,6 +22,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Global search
+  app.get('/api/search', authenticateToken, async (req, res) => {
+    try {
+      const query = req.query.q as string;
+      if (!query || query.length < 2) {
+        return res.json([]);
+      }
+      
+      const results = await storage.globalSearch(query);
+      res.json(results);
+    } catch (error) {
+      console.error("Error performing search:", error);
+      res.status(500).json({ message: "Failed to perform search" });
+    }
+  });
+
   // Customer routes
   app.get('/api/customers', authenticateToken, async (req, res) => {
     try {
