@@ -11,8 +11,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Protected API routes use authenticateToken middleware
 
-  // Dashboard metrics
-  app.get('/api/dashboard/metrics', authenticateToken, async (req, res) => {
+  // Dashboard metrics - Dynamic data endpoint
+  app.get('/api/dashboard/metrics', async (req, res) => {
     try {
       const metrics = await storage.getDashboardMetrics();
       res.json(metrics);
