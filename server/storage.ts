@@ -31,7 +31,7 @@ import {
   type InsertInformatore,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, count, sum, and, gte, lte, ilike, or } from "drizzle-orm";
+import { eq, desc, count, sum, and, gte, lte, ilike, or, sql } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 
@@ -46,7 +46,7 @@ export interface IStorage {
   updateUserLastLogin(id: string): Promise<void>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any;
 
   // Customer operations
   getCustomers(page?: number, limit?: number, search?: string, type?: string): Promise<{ customers: Customer[]; total: number }>;
@@ -113,6 +113,9 @@ export interface IStorage {
     activeCustomers: number;
     pendingShipments: number;
   }>;
+  
+  // Search operations
+  globalSearch(query: string): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -881,6 +884,73 @@ export class DatabaseStorage implements IStorage {
   async validateShareToken(informatoreId: string, token: string): Promise<boolean> {
     // In production, this would check against a database
     return token.startsWith('share_');
+  }
+  
+  // Global search implementation
+  async globalSearch(query: string): Promise<any[]> {
+    const searchTerm = `%${query.toLowerCase()}%`;
+    
+    const [customerResults, productResults, orderResults] = await Promise.all([
+      // Search customers
+      db.select({
+        id: customers.id,
+        type: sql<string>`'customer'`,
+        title: sql<string>`COALESCE(${customers.companyName}, CONCAT(${customers.firstName}, ' ', ${customers.lastName}))`,
+        subtitle: customers.email,
+        icon: sql<string>`'users'`,
+        route: sql<string>`'/customers'`
+      })
+      .from(customers)
+      .where(and(
+        eq(customers.isActive, true),
+        or(
+          ilike(customers.firstName, searchTerm),
+          ilike(customers.lastName, searchTerm),
+          ilike(customers.companyName, searchTerm),
+          ilike(customers.email, searchTerm)
+        )
+      ))
+      .limit(5),
+
+      // Search products
+      db.select({
+        id: products.id,
+        type: sql<string>`'product'`,
+        title: products.name,
+        subtitle: products.code,
+        icon: sql<string>`'package'`,
+        route: sql<string>`'/inventory'`
+      })
+      .from(products)
+      .where(and(
+        eq(products.isActive, true),
+        or(
+          ilike(products.name, searchTerm),
+          ilike(products.code, searchTerm),
+          ilike(products.description, searchTerm)
+        )
+      ))
+      .limit(5),
+
+      // Search orders
+      db.select({
+        id: orders.id,
+        type: sql<string>`'order'`,
+        title: orders.orderNumber,
+        subtitle: sql<string>`CONCAT('€', ${orders.total})`,
+        icon: sql<string>`'shopping-cart'`,
+        route: sql<string>`'/orders'`
+      })
+      .from(orders)
+      .where(ilike(orders.orderNumber, searchTerm))
+      .limit(5)
+    ]);
+
+    return [
+      ...customerResults,
+      ...productResults, 
+      ...orderResults
+    ];
   }
 }
 

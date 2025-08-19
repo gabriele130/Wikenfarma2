@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useGlobalSearch, type SearchResult } from "../../hooks/use-global-search";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +16,9 @@ import {
   ShoppingCart,
   Menu,
   PanelLeftClose,
-  PanelLeftOpen
+  PanelLeftOpen,
+  Users,
+  Package
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -42,6 +46,11 @@ export default function ModernHeader({
 }: ModernHeaderProps) {
   const { user, logoutMutation } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [, setLocation] = useLocation();
+  
+  const { results, isLoading } = useGlobalSearch(searchQuery);
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -49,7 +58,21 @@ export default function ModernHeader({
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
-    // Qui si implementerebbe il dark mode
+  };
+  
+  const handleSearchResultClick = (result: SearchResult) => {
+    setLocation(result.route);
+    setShowSearchResults(false);
+    setSearchQuery("");
+  };
+  
+  const getResultIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'users': return <Users className="h-4 w-4" />;
+      case 'package': return <Package className="h-4 w-4" />;
+      case 'shopping-cart': return <ShoppingCart className="h-4 w-4" />;
+      default: return <Search className="h-4 w-4" />;
+    }
   };
 
   const notifications = [
@@ -101,7 +124,58 @@ export default function ModernHeader({
               placeholder="Cerca clienti, prodotti, ordini..."
               className="pl-10 bg-slate-50 border-slate-200 focus:bg-white focus:border-blue-300"
               data-testid="global-search"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSearchResults(e.target.value.length >= 2);
+              }}
+              onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+              onBlur={() => setTimeout(() => setShowSearchResults(false), 200)}
             />
+            
+            {/* Risultati Ricerca */}
+            {showSearchResults && (results.length > 0 || isLoading) && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                {isLoading ? (
+                  <div className="p-4 text-center text-slate-500">
+                    <Search className="h-4 w-4 animate-spin mx-auto mb-2" />
+                    Ricerca in corso...
+                  </div>
+                ) : results.length > 0 ? (
+                  <div className="p-2">
+                    {results.map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleSearchResultClick(result)}
+                        className="w-full flex items-center space-x-3 p-3 hover:bg-slate-50 rounded-lg text-left transition-colors"
+                        data-testid={`search-result-${result.type}-${result.id}`}
+                      >
+                        <div className="flex-shrink-0 text-slate-400">
+                          {getResultIcon(result.icon)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-900 truncate">
+                            {result.title}
+                          </p>
+                          {result.subtitle && (
+                            <p className="text-xs text-slate-500 truncate">
+                              {result.subtitle}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-400 capitalize">
+                          {result.type}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-slate-500">
+                    Nessun risultato trovato
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

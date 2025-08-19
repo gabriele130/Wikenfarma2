@@ -16,6 +16,8 @@ import ProductsPage from "./pages/inventory";
 import OrdersPage from "./pages/orders/orders-list";
 import OrderDetailsPage from "./pages/orders/order-details";
 import NotFoundPage from "./pages/not-found";
+import BusinessIntelligencePage from "./pages/business-intelligence";
+import SystemPage from "./pages/system";
 
 // Utils
 import { queryClient } from "./lib/queryClient";
@@ -95,6 +97,26 @@ function AppContent() {
             component={OrderDetailsPage} 
             title="Dettaglio Ordine" 
             subtitle="Informazioni complete ordine" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/business-intelligence" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={BusinessIntelligencePage} 
+            title="Business Intelligence" 
+            subtitle="Analisi avanzate e insights per il business" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/system" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={SystemPage} 
+            title="Sistema" 
+            subtitle="Configurazione e monitoraggio del sistema" 
           />
         )} 
       />
