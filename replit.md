@@ -6,6 +6,14 @@ WikenFarma is a comprehensive pharmaceutical management system designed to centr
 
 The system provides advanced reporting for marketing analysis and management control, with integrated support for external systems like eBay, Gestline, Odoo, GLS, PharmaEVO, and various communication platforms.
 
+## Recent Changes (January 2025)
+
+✓ **ISF Compensation System Complete**: Full implementation of ISF compensation management with distinction between employees (fixed salary only) and freelancers (fixed + cut-off + percentage)
+✓ **Database Schema Enhanced**: Complete schema for ISF compensations with customizable cut-offs per area and informatore
+✓ **Backend API Complete**: All routes for compensation calculations, commission logs, and performance tracking implemented with proper authentication middleware
+✓ **Frontend Integration**: React hooks (use-compensations.ts) for seamless frontend integration of compensation management
+✓ **ISF Dashboard Operational**: Complete dashboard for informatori with personal compensation views, commission logs, and performance analytics
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

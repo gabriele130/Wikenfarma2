@@ -22,6 +22,7 @@ import ReportsPage from "./pages/reports";
 import CommissionsPage from "./pages/commissions";
 import IntegrationsPage from "./pages/integrations";
 import InformatoriPage from "./pages/informatori";
+import InformatoreDashboard from "./pages/informatore-dashboard";
 
 // Utils
 import { queryClient } from "./lib/queryClient";
@@ -161,6 +162,16 @@ function AppContent() {
             component={InformatoriPage} 
             title="Informatori" 
             subtitle="Gestione ISF e rappresentanti" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/informatore-dashboard" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={InformatoreDashboard} 
+            title="Dashboard ISF" 
+            subtitle="Dashboard personale informatore" 
           />
         )} 
       />

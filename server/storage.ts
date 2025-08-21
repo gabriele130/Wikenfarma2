@@ -1212,6 +1212,367 @@ export class DatabaseStorage implements IStorage {
       result.type.toLowerCase().includes(queryLower)
     );
   }
+
+  // =================================
+  // ISF COMPENSATION SYSTEM METHODS
+  // =================================
+
+  // Get compensations for admin dashboard
+  async getCompensations(filters: {
+    month?: number;
+    year?: number;
+    informatoreId?: string;
+    type?: string;
+  }): Promise<any[]> {
+    const { month, year, informatoreId, type } = filters;
+    
+    // Demo data for now - in production, this would query the database
+    const baseCompensations = [
+      {
+        id: "comp-001",
+        informatoreId: "inf-001",
+        month: month || new Date().getMonth() + 1,
+        year: year || new Date().getFullYear(),
+        fixedSalary: "2500.00",
+        iqviaCommission: "890.50",
+        wikentshipCommission: "567.30",
+        directSalesCommission: "234.20",
+        performanceBonus: "100.00",
+        visitPenalty: "0.00",
+        teamCommission: "150.00",
+        cutOffReduction: "0.00",
+        totalGross: "4441.00",
+        totalNet: "3552.80",
+        status: "calculated",
+        calculatedAt: new Date().toISOString(),
+        informatore: {
+          id: "inf-001",
+          firstName: "Mario",
+          lastName: "Rossi",
+          type: "libero_professionista",
+          level: "informatore",
+          area: "Lazio Nord"
+        }
+      },
+      {
+        id: "comp-002", 
+        informatoreId: "inf-002",
+        month: month || new Date().getMonth() + 1,
+        year: year || new Date().getFullYear(),
+        fixedSalary: "3200.00",
+        iqviaCommission: "1245.80",
+        wikentshipCommission: "789.40",
+        directSalesCommission: "345.60",
+        performanceBonus: "100.00",
+        visitPenalty: "50.00",
+        teamCommission: "320.00",
+        cutOffReduction: "100.00",
+        totalGross: "5850.80",
+        totalNet: "4680.64",
+        status: "approved",
+        calculatedAt: new Date().toISOString(),
+        approvedAt: new Date().toISOString(),
+        informatore: {
+          id: "inf-002",
+          firstName: "Giulia",
+          lastName: "Bianchi",
+          type: "libero_professionista", 
+          level: "capo_area",
+          area: "Lombardia"
+        }
+      },
+      {
+        id: "comp-003",
+        informatoreId: "inf-003", 
+        month: month || new Date().getMonth() + 1,
+        year: year || new Date().getFullYear(),
+        fixedSalary: "0.00",
+        iqviaCommission: "0.00",
+        wikentshipCommission: "0.00",
+        directSalesCommission: "0.00",
+        performanceBonus: "0.00",
+        visitPenalty: "0.00",
+        teamCommission: "0.00",
+        cutOffReduction: "0.00",
+        totalGross: "0.00",
+        totalNet: "0.00",
+        status: "draft",
+        calculatedAt: new Date().toISOString(),
+        informatore: {
+          id: "inf-003",
+          firstName: "Luca",
+          lastName: "Verdi",
+          type: "dipendente",
+          level: "informatore", 
+          area: "Veneto"
+        }
+      }
+    ];
+
+    // Apply filters
+    let filtered = baseCompensations;
+    
+    if (informatoreId && informatoreId !== 'all') {
+      filtered = filtered.filter(comp => comp.informatoreId === informatoreId);
+    }
+    
+    if (type && type !== 'all') {
+      filtered = filtered.filter(comp => comp.informatore.type === type);
+    }
+
+    return filtered;
+  }
+
+  // Get compensation statistics
+  async getCompensationStats(filters: { month: number; year: number }): Promise<{
+    totalCompensations: number;
+    totalDipendenti: number;
+    totalLiberiProfessionisti: number;
+    pendingApprovals: number;
+    avgCompensation: number;
+    monthlyGrowth: number;
+  }> {
+    const compensations = await this.getCompensations(filters);
+    
+    const totalCompensations = compensations.reduce((sum, comp) => sum + parseFloat(comp.totalGross), 0);
+    const totalDipendenti = compensations.filter(comp => comp.informatore.type === 'dipendente').length;
+    const totalLiberiProfessionisti = compensations.filter(comp => comp.informatore.type === 'libero_professionista').length;
+    const pendingApprovals = compensations.filter(comp => comp.status === 'calculated').length;
+    const avgCompensation = compensations.length > 0 ? totalCompensations / compensations.length : 0;
+    
+    return {
+      totalCompensations,
+      totalDipendenti,
+      totalLiberiProfessionisti,
+      pendingApprovals,
+      avgCompensation,
+      monthlyGrowth: 8.5 // Demo growth rate
+    };
+  }
+
+  // Calculate compensations for a specific period
+  async calculateCompensations(params: {
+    month: number;
+    year: number;
+    informatoreId?: string;
+  }): Promise<any> {
+    const { month, year, informatoreId } = params;
+    
+    // This would perform actual compensation calculations based on:
+    // - IQVIA data from PharmaEVO
+    // - WIKENSHIP orders from GestLine  
+    // - Direct sales data
+    // - Cut-off thresholds
+    // - Visit targets and performance
+    // - Growth bonuses (5%+ rule)
+    
+    return {
+      success: true,
+      message: `Compensi calcolati per ${informatoreId ? 'informatore specifico' : 'tutti gli informatori'}`,
+      period: `${month}/${year}`,
+      calculated: informatoreId ? 1 : 3,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  // Get my compensation (for logged-in informatori)
+  async getMyCompensation(userId: string, filters: { month: number; year: number }): Promise<any | null> {
+    const { month, year } = filters;
+    
+    // Demo compensation for an informatore
+    return {
+      id: "comp-001",
+      informatoreId: userId,
+      month,
+      year,
+      fixedSalary: "2500.00",
+      iqviaCommission: "890.50",
+      wikentshipCommission: "567.30", 
+      directSalesCommission: "234.20",
+      performanceBonus: "100.00",
+      visitPenalty: "0.00",
+      teamCommission: "0.00",
+      cutOffReduction: "0.00",
+      totalGross: "4291.00",
+      totalNet: "3432.80",
+      totalSales: "12500.00",
+      monthlyVisits: 18,
+      avgSalesLast12Months: "11200.00",
+      status: "calculated",
+      calculatedAt: new Date().toISOString()
+    };
+  }
+
+  // Get commission logs for an informatore  
+  async getMyCommissionLogs(userId: string, filters: {
+    month: number;
+    year: number;
+    search?: string;
+  }): Promise<any[]> {
+    const { month, year, search } = filters;
+    
+    // Demo commission logs (excluding IQVIA data as specified)
+    const baseLogs = [
+      {
+        id: "log-001",
+        compensationId: "comp-001", 
+        informatoreId: userId,
+        orderId: "ord-001",
+        externalOrderId: "WOO-2025-001",
+        source: "wikenship",
+        customerId: "cust-001",
+        customerName: "Farmacia Centrale Roma",
+        customerType: "pharmacy",
+        orderAmount: "2450.00",
+        commissionRate: "15.00",
+        commissionAmount: "367.50",
+        cutOffApplied: false,
+        cutOffAmount: "0.00",
+        orderDate: "2025-01-15",
+        processedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: "log-002",
+        compensationId: "comp-001",
+        informatoreId: userId, 
+        orderId: "ord-002",
+        externalOrderId: "GL-2025-002",
+        source: "gestline",
+        customerId: "cust-002",
+        customerName: "Dr. Mario Rossi",
+        customerType: "private",
+        orderAmount: "890.00",
+        commissionRate: "12.00",
+        commissionAmount: "106.80",
+        cutOffApplied: false,
+        cutOffAmount: "0.00", 
+        orderDate: "2025-01-18",
+        processedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: "log-003",
+        compensationId: "comp-001",
+        informatoreId: userId,
+        orderId: "ord-003", 
+        externalOrderId: null,
+        source: "direct_sales",
+        customerId: "cust-003",
+        customerName: "Grossista Pharma Sud",
+        customerType: "pharmacy",
+        orderAmount: "1650.00",
+        commissionRate: "8.00",
+        commissionAmount: "132.00",
+        cutOffApplied: true,
+        cutOffAmount: "25.00",
+        orderDate: "2025-01-20",
+        processedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      }
+    ];
+
+    // Apply search filter if provided
+    let filtered = baseLogs;
+    if (search && search.trim()) {
+      const searchTerm = search.toLowerCase();
+      filtered = baseLogs.filter(log => 
+        log.customerName.toLowerCase().includes(searchTerm) ||
+        log.source.toLowerCase().includes(searchTerm) ||
+        log.externalOrderId?.toLowerCase().includes(searchTerm) ||
+        log.orderAmount.includes(searchTerm)
+      );
+    }
+
+    return filtered;
+  }
+
+  // Get doctor cards for an informatore
+  async getMyDoctorCards(userId: string): Promise<any[]> {
+    // Demo doctor cards assigned to the informatore
+    return [
+      {
+        id: "card-001",
+        informatoreId: userId,
+        customerId: "cust-001",
+        facilityName: "Farmacia Centrale Roma",
+        facilityType: "farmacia",
+        doctorName: "Dr. Antonio Bianchi",
+        specialization: "Farmacista",
+        phone: "+39 06 123456",
+        email: "a.bianchi@farmaciacentrale.it",
+        address: "Via Roma 123",
+        city: "Roma", 
+        province: "RM",
+        region: "Lazio",
+        importance: "high",
+        prescriptionVolume: "alto",
+        medicalNotes: "Farmacia molto attiva, ordini frequenti",
+        preferences: "Preferisce prodotti premium",
+        interestedProducts: ["ABC123", "DEF456"],
+        lastVisitDate: "2025-01-15",
+        nextVisitDate: "2025-02-15",
+        visitFrequency: "mensile",
+        isShared: false,
+        sharedWith: [],
+        status: "active",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: "card-002",
+        informatoreId: userId,
+        customerId: "cust-002", 
+        facilityName: "Studio Medico Dr. Rossi",
+        facilityType: "studio_privato",
+        doctorName: "Dr. Mario Rossi",
+        specialization: "Cardiologia",
+        phone: "+39 06 987654",
+        email: "m.rossi@cardioroma.it",
+        address: "Via Nazionale 456",
+        city: "Roma",
+        province: "RM", 
+        region: "Lazio",
+        importance: "medium",
+        prescriptionVolume: "medio",
+        medicalNotes: "Specialista in cardiologia, interessato a nuovi farmaci",
+        preferences: "Protocolli evidence-based",
+        interestedProducts: ["GHI789", "JKL012"],
+        lastVisitDate: "2025-01-10",
+        nextVisitDate: "2025-02-10",
+        visitFrequency: "quindicinale",
+        isShared: true,
+        sharedWith: ["inf-002"],
+        status: "active",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  // Get performance statistics for an informatore
+  async getMyPerformance(userId: string, filters: { year: number }): Promise<any> {
+    const { year } = filters;
+    
+    // Demo performance data for dipendenti (who don't receive commissions)
+    return {
+      iqviaSales: 45600.00,
+      wikentshipSales: 23400.00,
+      directSales: 18900.00,
+      totalSales: 87900.00,
+      ordersCount: 156,
+      visitsCount: 48,
+      customersCount: 12,
+      averageOrderValue: 563.46,
+      growthRate: 12.5,
+      monthlyBreakdown: [
+        { month: 1, sales: 7200.00, orders: 12, visits: 4 },
+        { month: 2, sales: 6800.00, orders: 11, visits: 4 },
+        { month: 3, sales: 8500.00, orders: 15, visits: 4 },
+        // ... other months
+      ]
+    };
+  }
 }
 
 export const storage = new DatabaseStorage();

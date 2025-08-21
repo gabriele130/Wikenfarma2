@@ -159,17 +159,154 @@ export const integrations = pgTable("integrations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Informatori (Medical Representatives)
+// Informatori (Medical Representatives) - Extended for compensation system
 export const informatori = pgTable("informatori", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   firstName: varchar("first_name").notNull(),
   lastName: varchar("last_name").notNull(),
   email: varchar("email").unique().notNull(),
   phone: varchar("phone"),
+  
+  // Tipo contratto e livello
+  type: varchar("type").notNull().default("dipendente"), // 'dipendente' | 'libero_professionista'
+  level: varchar("level").notNull().default("informatore"), // 'informatore' | 'capo_area'
+  
+  // Configurazione economica per liberi professionisti
+  fixedMonthlySalary: decimal("fixed_monthly_salary", { precision: 10, scale: 2 }).default("0"),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).default("0"),
+  cutOffThreshold: decimal("cut_off_threshold", { precision: 10, scale: 2 }).default("0"),
+  monthlyVisitTarget: integer("monthly_visit_target").default(0),
+  
+  // Territorio e gerarchia
   area: varchar("area"), // Area geografica di competenza
+  supervisorId: varchar("supervisor_id"),
+  
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Compensi mensili ISF
+export const isfCompensations = pgTable("isf_compensations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  informatoreId: varchar("informatore_id").references(() => informatori.id).notNull(),
+  
+  // Periodo
+  month: integer("month").notNull(), // 1-12
+  year: integer("year").notNull(),
+  
+  // Compensi base
+  fixedSalary: decimal("fixed_salary", { precision: 10, scale: 2 }).default("0"),
+  
+  // Provvigioni da fonti diverse
+  iqviaCommission: decimal("iqvia_commission", { precision: 10, scale: 2 }).default("0"), // Da PharmaEVO/IQVIA
+  wikentshipCommission: decimal("wikenship_commission", { precision: 10, scale: 2 }).default("0"), // Da WIKENSHIP/GestLine
+  directSalesCommission: decimal("direct_sales_commission", { precision: 10, scale: 2 }).default("0"), // Vendite dirette
+  
+  // Bonus e penalità
+  performanceBonus: decimal("performance_bonus", { precision: 10, scale: 2 }).default("0"), // 100€ per +5% crescita
+  visitPenalty: decimal("visit_penalty", { precision: 10, scale: 2 }).default("0"), // Penalità mancate visite
+  teamCommission: decimal("team_commission", { precision: 10, scale: 2 }).default("0"), // Provvigioni Capo Area
+  
+  // Cut-off applicati
+  cutOffReduction: decimal("cut_off_reduction", { precision: 10, scale: 2 }).default("0"),
+  
+  // Totali
+  totalGross: decimal("total_gross", { precision: 10, scale: 2 }).notNull(),
+  totalNet: decimal("total_net", { precision: 10, scale: 2 }).notNull(),
+  
+  // Metriche performance
+  totalSales: decimal("total_sales", { precision: 10, scale: 2 }).default("0"),
+  monthlyVisits: integer("monthly_visits").default(0),
+  avgSalesLast12Months: decimal("avg_sales_last_12_months", { precision: 10, scale: 2 }).default("0"),
+  
+  // Stato calcolo
+  status: varchar("status").notNull().default("calculated"), // draft, calculated, approved, paid
+  calculatedAt: timestamp("calculated_at").defaultNow(),
+  approvedAt: timestamp("approved_at"),
+  approvedBy: varchar("approved_by").references(() => users.id),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Log dettagliato provvigioni per ordine (visibile agli ISF)
+export const commissionLogs = pgTable("commission_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  compensationId: varchar("compensation_id").references(() => isfCompensations.id),
+  informatoreId: varchar("informatore_id").references(() => informatori.id).notNull(),
+  
+  // Riferimenti ordini
+  orderId: varchar("order_id").references(() => orders.id),
+  externalOrderId: varchar("external_order_id"), // ID esterno da WIKENSHIP/PharmaEVO
+  source: varchar("source").notNull(), // 'wikenship', 'gestline', 'direct_sales', 'iqvia'
+  
+  // Dettagli cliente
+  customerId: varchar("customer_id").references(() => customers.id),
+  customerName: varchar("customer_name"),
+  customerType: varchar("customer_type"), // 'pharmacy', 'private'
+  
+  // Calcolo provvigione
+  orderAmount: decimal("order_amount", { precision: 10, scale: 2 }).notNull(),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 2 }).notNull(),
+  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }).notNull(),
+  cutOffApplied: boolean("cut_off_applied").default(false),
+  cutOffAmount: decimal("cut_off_amount", { precision: 10, scale: 2 }).default("0"),
+  
+  // Date
+  orderDate: date("order_date").notNull(),
+  processedAt: timestamp("processed_at").defaultNow(),
+  
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Schede medico/farmacia per ISF (sola lettura per ISF, modificabili solo da admin)
+export const doctorCards = pgTable("doctor_cards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  informatoreId: varchar("informatore_id").references(() => informatori.id).notNull(),
+  customerId: varchar("customer_id").references(() => customers.id).notNull(),
+  
+  // Informazioni struttura
+  facilityName: varchar("facility_name"),
+  facilityType: varchar("facility_type"), // 'ospedale', 'clinica', 'farmacia', 'studio_privato'
+  doctorName: varchar("doctor_name"),
+  specialization: varchar("specialization"),
+  
+  // Contatti
+  phone: varchar("phone"),
+  email: varchar("email"),
+  
+  // Localizzazione
+  address: text("address"),
+  city: varchar("city"),
+  province: varchar("province"),
+  region: varchar("region"),
+  
+  // Classificazione
+  importance: varchar("importance").default("medium"), // 'high', 'medium', 'low'
+  prescriptionVolume: varchar("prescription_volume"), // 'alto', 'medio', 'basso'
+  
+  // Note mediche (solo admin può modificare)
+  medicalNotes: text("medical_notes"),
+  preferences: text("preferences"),
+  interestedProducts: text("interested_products").array(),
+  
+  // Pianificazione visite
+  lastVisitDate: date("last_visit_date"),
+  nextVisitDate: date("next_visit_date"),
+  visitFrequency: varchar("visit_frequency"), // 'settimanale', 'quindicinale', 'mensile'
+  
+  // Condivisione
+  isShared: boolean("is_shared").default(false), // Se condivisa con altri ISF
+  sharedWith: text("shared_with").array(), // Array di ID informatori
+  
+  // Status
+  status: varchar("status").default("active"), // 'active', 'inactive', 'potential'
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  lastModifiedBy: varchar("last_modified_by").references(() => users.id),
 });
 
 // Activity logs
@@ -301,6 +438,26 @@ export const insertInformatoreSchema = createInsertSchema(informatori).omit({
   updatedAt: true,
 });
 
+export const insertIsfCompensationSchema = createInsertSchema(isfCompensations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  calculatedAt: true,
+  approvedAt: true,
+});
+
+export const insertCommissionLogSchema = createInsertSchema(commissionLogs).omit({
+  id: true,
+  createdAt: true,
+  processedAt: true,
+});
+
+export const insertDoctorCardSchema = createInsertSchema(doctorCards).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({ 
   id: true, 
   createdAt: true, 
@@ -344,6 +501,12 @@ export type ActivityLog = typeof activityLogs.$inferSelect;
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 export type Informatore = typeof informatori.$inferSelect;
 export type InsertInformatore = z.infer<typeof insertInformatoreSchema>;
+export type IsfCompensation = typeof isfCompensations.$inferSelect;
+export type InsertIsfCompensation = z.infer<typeof insertIsfCompensationSchema>;
+export type CommissionLog = typeof commissionLogs.$inferSelect;
+export type InsertCommissionLog = z.infer<typeof insertCommissionLogSchema>;
+export type DoctorCard = typeof doctorCards.$inferSelect;
+export type InsertDoctorCard = z.infer<typeof insertDoctorCardSchema>;
 
 // WIKENSHIP frontier table for GestLine integration
 export const wikenshipOrders = pgTable("wikenship_orders", {

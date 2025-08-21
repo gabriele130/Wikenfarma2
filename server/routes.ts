@@ -550,6 +550,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // =================================
+  // EXTENDED ISF COMPENSATION ROUTES  
+  // =================================
+
+  // Compensation stats for admin dashboard
+  app.get("/api/compensations/stats", authenticateToken, async (req, res) => {
+    try {
+      const { month, year } = req.query;
+      const stats = await storage.getCompensationStats({
+        month: month ? parseInt(month as string) : new Date().getMonth() + 1,
+        year: year ? parseInt(year as string) : new Date().getFullYear(),
+      });
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching compensation stats:", error);
+      res.status(500).json({ error: "Failed to fetch compensation stats" });
+    }
+  });
+
+  // Middleware per verificare il tipo di utente
+  function requireUserType(userType: string) {
+    return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+      const user = req.user as any;
+      if (!user || user.userType !== userType) {
+        return res.status(403).json({ message: 'Accesso negato per questo tipo di utente' });
+      }
+      next();
+    };
+  }
+
+  // My compensation for logged-in informatori  
+  app.get("/api/informatori/my-compensation", authenticateToken, requireUserType('informatore'), async (req, res) => {
+    try {
+      const { month, year } = req.query;
+      const compensation = await storage.getMyCompensation((req.user as any)?.id, {
+        month: month ? parseInt(month as string) : new Date().getMonth() + 1,
+        year: year ? parseInt(year as string) : new Date().getFullYear(),
+      });
+      res.json(compensation);
+    } catch (error) {
+      console.error("Error fetching my compensation:", error);
+      res.status(500).json({ error: "Failed to fetch compensation" });
+    }
+  });
+
+  // My commission logs for informatori
+  app.get("/api/informatori/commission-logs", authenticateToken, requireUserType('informatore'), async (req, res) => {
+    try {
+      const { month, year, search } = req.query;
+      const logs = await storage.getMyCommissionLogs((req.user as any)?.id, {
+        month: month ? parseInt(month as string) : new Date().getMonth() + 1,
+        year: year ? parseInt(year as string) : new Date().getFullYear(),
+        search: search as string,
+      });
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching commission logs:", error);
+      res.status(500).json({ error: "Failed to fetch commission logs" });
+    }
+  });
+
+  // My doctor cards for informatori
+  app.get("/api/informatori/doctor-cards", authenticateToken, requireUserType('informatore'), async (req, res) => {
+    try {
+      const cards = await storage.getMyDoctorCards((req.user as any)?.id);
+      res.json(cards);
+    } catch (error) {
+      console.error("Error fetching doctor cards:", error);
+      res.status(500).json({ error: "Failed to fetch doctor cards" });
+    }
+  });
+
+  // My performance stats for informatori
+  app.get("/api/informatori/performance", authenticateToken, requireUserType('informatore'), async (req, res) => {
+    try {
+      const { year } = req.query;
+      const performance = await storage.getMyPerformance((req.user as any)?.id, {
+        year: year ? parseInt(year as string) : new Date().getFullYear(),
+      });
+      res.json(performance);
+    } catch (error) {
+      console.error("Error fetching performance:", error);
+      res.status(500).json({ error: "Failed to fetch performance" });
+    }
+  });
+
   // ISF Dashboard - Shareable read-only access
   app.get("/api/informatori/:informatoreId/dashboard", async (req, res) => {
     try {
