@@ -3,20 +3,17 @@ import { useAuth } from "@/hooks/use-auth";
 import { 
   LayoutDashboard, 
   Users, 
-  Package, 
   ShoppingCart, 
   BarChart3, 
   FileText, 
   Percent, 
   Plug, 
-  Truck, 
   UserCheck, 
   Settings, 
   LogOut,
   ChevronDown,
   Building2,
   Pill,
-  Stethoscope,
   Bell,
   User,
   HelpCircle,
@@ -47,16 +44,8 @@ const menuItems = [
     icon: Users, 
     label: "Clienti", 
     section: "main",
-    description: "Farmacie, grossisti, medici",
+    description: "Privati e farmacie",
     badge: null
-  },
-  { 
-    path: "/inventory", 
-    icon: Package, 
-    label: "Inventario", 
-    section: "main",
-    description: "Prodotti e scorte",
-    badge: "12"
   },
   { 
     path: "/orders", 
@@ -93,19 +82,20 @@ const menuItems = [
   },
   
   { 
+    path: "/business-intelligence", 
+    icon: BarChart3, 
+    label: "Business Intelligence", 
+    section: "business",
+    description: "Analisi avanzate",
+    badge: null
+  },
+  
+  { 
     path: "/integrations", 
     icon: Plug, 
     label: "Integrazioni", 
     section: "system",
-    description: "eBay, Gestline, PharmaEVO",
-    badge: null
-  },
-  { 
-    path: "/shipping", 
-    icon: Truck, 
-    label: "Spedizioni", 
-    section: "system",
-    description: "Logistica e tracking",
+    description: "eBay, GestLine, PharmaEVO",
     badge: null
   },
   { 
@@ -114,6 +104,14 @@ const menuItems = [
     label: "Informatori", 
     section: "system",
     description: "Gestione ISF",
+    badge: null
+  },
+  { 
+    path: "/system", 
+    icon: Settings, 
+    label: "Sistema", 
+    section: "system",
+    description: "Configurazione",
     badge: null
   },
 ];
