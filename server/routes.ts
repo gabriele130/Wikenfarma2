@@ -571,7 +571,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Middleware per verificare il tipo di utente
   function requireUserType(userType: string) {
-    return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    return (req: any, res: any, next: any) => {
       const user = req.user as any;
       if (!user || user.userType !== userType) {
         return res.status(403).json({ message: 'Accesso negato per questo tipo di utente' });
@@ -643,6 +643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { shareToken } = req.query;
       
       // Verify share token or authentication
+      // For now, allow public access to dashboard demo
       const isValid = shareToken 
         ? await storage.validateShareToken(informatoreId, shareToken as string)
         : req.authenticateToken();
@@ -685,6 +686,115 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Search error:', error);
       res.status(500).json({ error: 'Errore durante la ricerca' });
+    }
+  });
+
+  // ===== ANALYTICS ROUTES =====
+
+  // Analytics fatturato generale
+  app.get("/api/analytics/revenue", authenticateToken, async (req, res) => {
+    try {
+      const { period = 'month', month, year, quarter, productCode, isfId, myData } = req.query;
+      const user = req.user as any;
+      
+      let analyticsData = {
+        totalRevenue: 0,
+        revenueChange: 0,
+        topProducts: [] as any[],
+        topISF: [] as any[],
+        productTrends: [],
+        monthlyTrends: [],
+        quarterlyTrends: [],
+        allTimeStats: {
+          maxRevenue: 0,
+          minRevenue: 0,
+          avgRevenue: 0,
+          totalOrders: 0
+        }
+      };
+
+      // Simulazione dati analytics basati su criteri realistici
+      if (period === 'month') {
+        analyticsData.totalRevenue = 125000 + (Math.random() * 50000);
+        analyticsData.revenueChange = (Math.random() - 0.5) * 20;
+        analyticsData.topProducts = [
+          { code: 'WF001', name: 'Paracetamolo 500mg', revenue: 35000, change: 12.5, maxRevenue: 40000, minRevenue: 25000 },
+          { code: 'WF002', name: 'Aspirina 100mg', revenue: 28000, change: -5.2, maxRevenue: 35000, minRevenue: 20000 },
+          { code: 'WF003', name: 'Ibuprofene 400mg', revenue: 22000, change: 8.7, maxRevenue: 30000, minRevenue: 15000 },
+          { code: 'WF004', name: 'Amoxicillina 1g', revenue: 18000, change: -2.1, maxRevenue: 25000, minRevenue: 12000 },
+          { code: 'WF005', name: 'Omeprazolo 20mg', revenue: 15000, change: 15.3, maxRevenue: 20000, minRevenue: 10000 }
+        ];
+      }
+
+      if (!myData || user.userType !== 'informatore') {
+        analyticsData.topISF = [
+          { id: '1', firstName: 'Marco', lastName: 'Rossi', area: 'Nord Italia', revenue: 45000, change: 12.5, maxRevenue: 50000, minRevenue: 35000, totalOrders: 45, userType: 'freelancer' },
+          { id: '2', firstName: 'Laura', lastName: 'Bianchi', area: 'Centro Italia', revenue: 38000, change: 8.2, maxRevenue: 45000, minRevenue: 30000, totalOrders: 38, userType: 'employee' },
+          { id: '3', firstName: 'Giuseppe', lastName: 'Verdi', area: 'Sud Italia', revenue: 32000, change: -3.1, maxRevenue: 40000, minRevenue: 25000, totalOrders: 32, userType: 'freelancer' }
+        ];
+      }
+
+      analyticsData.allTimeStats = {
+        maxRevenue: 180000,
+        minRevenue: 95000,
+        avgRevenue: 125000,
+        totalOrders: 456
+      };
+
+      res.json(analyticsData);
+    } catch (error) {
+      console.error("Error fetching analytics revenue:", error);
+      res.status(500).json({ error: "Failed to fetch analytics revenue" });
+    }
+  });
+
+  // Codici prodotto per filtri
+  app.get("/api/analytics/product-codes", authenticateToken, async (req, res) => {
+    try {
+      const productCodes = [
+        { id: '1', code: 'WF001', name: 'Paracetamolo 500mg' },
+        { id: '2', code: 'WF002', name: 'Aspirina 100mg' },
+        { id: '3', code: 'WF003', name: 'Ibuprofene 400mg' },
+        { id: '4', code: 'WF004', name: 'Amoxicillina 1g' },
+        { id: '5', code: 'WF005', name: 'Omeprazolo 20mg' },
+        { id: '6', code: 'WF006', name: 'Simvastatina 20mg' },
+        { id: '7', code: 'WF007', name: 'Metformina 850mg' },
+        { id: '8', code: 'WF008', name: 'Enalapril 10mg' },
+        { id: '9', code: 'WF009', name: 'Amlodipina 5mg' },
+        { id: '10', code: 'WF010', name: 'Losartan 50mg' }
+      ];
+
+      res.json(productCodes);
+    } catch (error) {
+      console.error("Error fetching product codes:", error);
+      res.status(500).json({ error: "Failed to fetch product codes" });
+    }
+  });
+
+  // Confronto periodi  
+  app.get("/api/analytics/comparison", authenticateToken, async (req, res) => {
+    try {
+      const { currentPeriod, comparisonPeriod, month, year, productCode, isfId, myData } = req.query;
+      
+      const comparisonData = {
+        revenueChange: (Math.random() - 0.5) * 30,
+        previousRevenue: 110000 + (Math.random() * 40000),
+        topGrowthProducts: [
+          { code: 'WF005', name: 'Omeprazolo 20mg', growth: 25.4, revenue: 15000 },
+          { code: 'WF001', name: 'Paracetamolo 500mg', growth: 18.2, revenue: 35000 },
+          { code: 'WF009', name: 'Amlodipina 5mg', growth: 15.7, revenue: 12000 }
+        ],
+        topDeclineProducts: [
+          { code: 'WF002', name: 'Aspirina 100mg', decline: -12.8, revenue: 28000 },
+          { code: 'WF008', name: 'Enalapril 10mg', decline: -8.4, revenue: 6000 },
+          { code: 'WF004', name: 'Amoxicillina 1g', decline: -5.2, revenue: 18000 }
+        ]
+      };
+
+      res.json(comparisonData);
+    } catch (error) {
+      console.error("Error fetching comparison data:", error);
+      res.status(500).json({ error: "Failed to fetch comparison data" });
     }
   });
 

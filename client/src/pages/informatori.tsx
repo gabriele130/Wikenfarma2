@@ -554,9 +554,9 @@ export default function InformatoriPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Tutte le aree</SelectItem>
-                      {uniqueAreas.map((area) => (
-                        <SelectItem key={area} value={area}>
-                          {area}
+                      {uniqueAreas.map((area, index) => (
+                        <SelectItem key={`${area}-${index}`} value={area as string}>
+                          {area as string}
                         </SelectItem>
                       ))}
                     </SelectContent>
