@@ -178,14 +178,23 @@ export class DatabaseStorage implements IStorage {
     let whereConditions = [];
 
     if (search) {
-      whereConditions.push(
-        or(
-          ilike(customers.firstName, `%${search}%`),
-          ilike(customers.lastName, `%${search}%`),
-          ilike(customers.companyName, `%${search}%`),
-          ilike(customers.email, `%${search}%`)
-        )
-      );
+      const searchConditions = [];
+      
+      // Always search in name field (used for both types)
+      searchConditions.push(ilike(customers.name, `%${search}%`));
+      
+      // Search in firstName/lastName if not null
+      searchConditions.push(ilike(customers.firstName, `%${search}%`));
+      searchConditions.push(ilike(customers.lastName, `%${search}%`));
+      
+      // Search in owner field (pharmacy owner)
+      searchConditions.push(ilike(customers.owner, `%${search}%`));
+      
+      // Search in contact fields
+      searchConditions.push(ilike(customers.email, `%${search}%`));
+      searchConditions.push(ilike(customers.phone, `%${search}%`));
+      
+      whereConditions.push(or(...searchConditions));
     }
 
     if (type && type !== "all") {
@@ -616,6 +625,57 @@ export class DatabaseStorage implements IStorage {
         ]
       };
     }
+  }
+
+  // Customer statistics for dashboard
+  async getCustomerStats(): Promise<{
+    totalPrivates: number;
+    totalPharmacies: number;
+    newThisMonth: number;
+    activeClients: number;
+  }> {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const [
+      totalPrivatesResult,
+      totalPharmaciesResult,
+      newThisMonthResult,
+      activeCustomersResult,
+      totalCustomersResult
+    ] = await Promise.all([
+      // Count private customers
+      db.select({ count: count() }).from(customers).where(eq(customers.type, "private")),
+      
+      // Count pharmacies
+      db.select({ count: count() }).from(customers).where(eq(customers.type, "pharmacy")),
+      
+      // New customers this month
+      db.select({ count: count() }).from(customers).where(
+        and(
+          gte(customers.registrationDate, startOfMonth),
+          eq(customers.isActive, true)
+        )
+      ),
+      
+      // Active customers
+      db.select({ count: count() }).from(customers).where(eq(customers.isActive, true)),
+      
+      // Total customers for percentage calculation
+      db.select({ count: count() }).from(customers)
+    ]);
+
+    const totalActiveCustomers = activeCustomersResult[0]?.count || 0;
+    const totalCustomers = totalCustomersResult[0]?.count || 0;
+    const activeClientPercentage = totalCustomers > 0 ? (totalActiveCustomers / totalCustomers) * 100 : 0;
+
+    return {
+      totalPrivates: totalPrivatesResult[0]?.count || 0,
+      totalPharmacies: totalPharmaciesResult[0]?.count || 0,
+      newThisMonth: newThisMonthResult[0]?.count || 0,
+      activeClients: Math.round(activeClientPercentage * 10) / 10 // Round to 1 decimal
+    };
   }
 
   // Informatori operations

@@ -43,24 +43,35 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Customer types: doctor, pharmacy, wholesaler, private
+// Customer types: private, pharmacy only (removed doctor, wholesaler)
 export const customers = pgTable("customers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  type: varchar("type").notNull(), // doctor, pharmacy, wholesaler, private
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  companyName: varchar("company_name"),
+  type: varchar("type").notNull(), // "private" | "pharmacy"
+  name: varchar("name").notNull(), // Full name for private, company name for pharmacy
+  firstName: varchar("first_name"), // For private customers
+  lastName: varchar("last_name"), // For private customers
+  owner: varchar("owner"), // For pharmacies - owner name
   email: varchar("email"),
   phone: varchar("phone"),
   address: text("address"),
   city: varchar("city"),
   postalCode: varchar("postal_code"),
   province: varchar("province"),
-  vatNumber: varchar("vat_number"),
+  partitaIva: varchar("partita_iva"), // For pharmacies
   fiscalCode: varchar("fiscal_code"),
+  specialization: varchar("specialization"), // For pharmacies
+  
+  // Order statistics (calculated/cached values)
+  totalOrders: integer("total_orders").default(0),
+  totalSpent: decimal("total_spent", { precision: 10, scale: 2 }).default("0"),
+  lastOrderDate: timestamp("last_order_date"),
+  
+  // Status and metadata
+  status: varchar("status").default("active"), // "active" | "inactive" | "premium"
   loyaltyPoints: integer("loyalty_points").default(0),
   informatoreId: varchar("informatore_id").references(() => informatori.id),
   isActive: boolean("is_active").default(true),
+  registrationDate: timestamp("registration_date").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

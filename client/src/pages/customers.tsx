@@ -1,10 +1,14 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "../lib/queryClient";
+import { useToast } from "../hooks/use-toast";
+import CustomerForm from "../components/customers/customer-form";
+import { type Customer } from "@shared/schema";
 import { 
   Users, 
   Building2, 
@@ -20,131 +24,111 @@ import {
   TrendingUp,
   Euro,
   Calendar,
-  Activity
+  Activity,
+  Trash2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
 
 export default function CustomersPage() {
-  // Demo customers data
-  const customersStats = {
-    totalPrivates: 1247,
-    totalPharmacies: 156,
-    newThisMonth: 34,
-    activeClients: 89.5
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("privates");
+
+  // Fetch customer statistics
+  const { data: customersStats = {
+    totalPrivates: 0,
+    totalPharmacies: 0,
+    newThisMonth: 0,
+    activeClients: 0
+  } } = useQuery({
+    queryKey: ["/api/customers/stats"],
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/customers/stats");
+      return response.json();
+    },
+  });
+
+  // Fetch customers based on type and search
+  const { data: customersData, isLoading } = useQuery({
+    queryKey: ["/api/customers", activeTab, searchQuery],
+    queryFn: async () => {
+      const type = activeTab === "privates" ? "private" : activeTab === "pharmacies" ? "pharmacy" : "";
+      const params = new URLSearchParams();
+      if (type) params.set("type", type);
+      if (searchQuery) params.set("search", searchQuery);
+      params.set("limit", "50"); // Get more records for better UX
+      
+      const response = await apiRequest("GET", `/api/customers?${params}`);
+      return response.json();
+    },
+  });
+
+  // Delete customer mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (customerId: string) => {
+      await apiRequest("DELETE", `/api/customers/${customerId}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Cliente eliminato",
+        description: "Il cliente è stato eliminato con successo",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/customers"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/customers/stats"] });
+      setShowDeleteDialog(false);
+      setCustomerToDelete(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Errore",
+        description: error.message || "Si è verificato un errore durante l'eliminazione",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleEditCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setShowForm(true);
   };
 
-  const privateClients = [
-    {
-      id: "1",
-      name: "Mario Rossi",
-      email: "mario.rossi@email.com",
-      phone: "+39 348 123 4567",
-      address: "Via Roma 123, Milano",
-      registrationDate: "2024-03-15",
-      totalOrders: 12,
-      totalSpent: 1250.75,
-      lastOrder: "2025-01-15",
-      status: "Attivo"
-    },
-    {
-      id: "2", 
-      name: "Giulia Verdi",
-      email: "giulia.verdi@gmail.com",
-      phone: "+39 335 987 6543",
-      address: "Corso Italia 45, Roma",
-      registrationDate: "2024-01-10",
-      totalOrders: 28,
-      totalSpent: 2890.50,
-      lastOrder: "2025-01-18",
-      status: "Attivo"
-    },
-    {
-      id: "3",
-      name: "Antonio Bianchi", 
-      email: "a.bianchi@libero.it",
-      phone: "+39 329 456 7890",
-      address: "Piazza Garibaldi 12, Napoli",
-      registrationDate: "2023-11-20",
-      totalOrders: 45,
-      totalSpent: 4120.25,
-      lastOrder: "2025-01-10",
-      status: "Premium"
-    },
-    {
-      id: "4",
-      name: "Sara Neri",
-      email: "sara.neri@yahoo.it", 
-      phone: "+39 342 111 2222",
-      address: "Via Dante 78, Firenze",
-      registrationDate: "2024-06-08",
-      totalOrders: 6,
-      totalSpent: 580.00,
-      lastOrder: "2024-12-20",
-      status: "Inattivo"
-    }
-  ];
+  const handleDeleteCustomer = (customer: Customer) => {
+    setCustomerToDelete(customer);
+    setShowDeleteDialog(true);
+  };
 
-  const pharmacies = [
-    {
-      id: "1",
-      name: "Farmacia Centrale",
-      owner: "Dott. Francesco Lombardi",
-      email: "info@farmaciacentrale.it",
-      phone: "+39 02 123 4567",
-      address: "Via Venezia 45, Milano",
-      partitaIva: "12345678901",
-      registrationDate: "2023-08-12",
-      totalOrders: 156,
-      totalSpent: 45750.25,
-      lastOrder: "2025-01-19",
-      status: "Premium",
-      specialization: "Farmacia Generale"
-    },
-    {
-      id: "2",
-      name: "Farmacia San Marco",
-      owner: "Dott.ssa Elena Ricci", 
-      email: "farmacia.sanmarco@email.com",
-      phone: "+39 06 987 6543",
-      address: "Piazza San Marco 12, Roma",
-      partitaIva: "98765432109",
-      registrationDate: "2024-02-05",
-      totalOrders: 89,
-      totalSpent: 28940.75,
-      lastOrder: "2025-01-17",
-      status: "Attivo",
-      specialization: "Dermatologia"
-    },
-    {
-      id: "3",
-      name: "Farmacia Moderna",
-      owner: "Dott. Giuseppe Marino",
-      email: "moderna@farmacie.com",
-      phone: "+39 081 345 6789",
-      address: "Corso Umberto 89, Napoli", 
-      partitaIva: "45678912345",
-      registrationDate: "2023-05-20",
-      totalOrders: 203,
-      totalSpent: 67820.50,
-      lastOrder: "2025-01-18",
-      status: "Premium",
-      specialization: "Pediatrica"
-    },
-    {
-      id: "4",
-      name: "Farmacia del Borgo",
-      owner: "Dott.ssa Anna Ferri",
-      email: "borgo@farmacia.net",
-      phone: "+39 055 222 3333",
-      address: "Via del Borgo 23, Firenze",
-      partitaIva: "67891234567",
-      registrationDate: "2024-09-10",
-      totalOrders: 34,
-      totalSpent: 12650.00,
-      lastOrder: "2025-01-12",
-      status: "Attivo",
-      specialization: "Omeopatica"
+  const confirmDelete = () => {
+    if (customerToDelete) {
+      deleteMutation.mutate(customerToDelete.id);
     }
-  ];
+  };
+
+  const customers = customersData?.customers || [];
+
+  // Filter customers by type
+  const privateCustomers = customers.filter(c => c.type === "private");
+  const pharmacyCustomers = customers.filter(c => c.type === "pharmacy");
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('it-IT', { 
@@ -195,6 +179,10 @@ export default function CustomersPage() {
             <Button 
               variant="secondary" 
               className="bg-white/20 hover:bg-white/30 text-white border-0"
+              onClick={() => {
+                setSelectedCustomer(null);
+                setShowForm(true);
+              }}
             >
               <Plus className="h-4 w-4 mr-2" />
               Nuovo Cliente
@@ -264,182 +252,293 @@ export default function CustomersPage() {
               </CardDescription>
             </div>
             <div className="flex space-x-2">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                  placeholder="Cerca clienti..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
               <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
                 Filtra
-              </Button>
-              <Button variant="outline" size="sm">
-                <Search className="h-4 w-4 mr-2" />
-                Cerca
               </Button>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="privates" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="privates">Clienti Privati</TabsTrigger>
-              <TabsTrigger value="pharmacies">Farmacie</TabsTrigger>
+              <TabsTrigger value="privates">
+                Clienti Privati ({privateCustomers.length})
+              </TabsTrigger>
+              <TabsTrigger value="pharmacies">
+                Farmacie ({pharmacyCustomers.length})
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="privates" className="space-y-4">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-3 px-4 font-medium text-slate-600">Cliente</th>
-                      <th className="text-left py-3 px-4 font-medium text-slate-600">Contatti</th>
-                      <th className="text-right py-3 px-4 font-medium text-slate-600">Ordini</th>
-                      <th className="text-right py-3 px-4 font-medium text-slate-600">Totale Speso</th>
-                      <th className="text-center py-3 px-4 font-medium text-slate-600">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-slate-600">Azioni</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {privateClients.map((client) => (
-                      <tr key={client.id} className="border-b border-slate-100 hover:bg-slate-50/50">
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
-                              {client.name.split(' ').map(n => n[0]).join('')}
-                            </div>
-                            <div>
-                              <p className="font-medium text-slate-800">{client.name}</p>
-                              <p className="text-xs text-slate-500">
-                                Registrato: {formatDate(client.registrationDate)}
-                              </p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="space-y-1">
-                            <div className="flex items-center space-x-2 text-xs text-slate-600">
-                              <Mail className="h-3 w-3" />
-                              <span>{client.email}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-xs text-slate-600">
-                              <Phone className="h-3 w-3" />
-                              <span>{client.phone}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-xs text-slate-500">
-                              <MapPin className="h-3 w-3" />
-                              <span className="truncate max-w-xs">{client.address}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 text-right">
-                          <div className="text-sm font-medium text-slate-800">{client.totalOrders}</div>
-                          <div className="text-xs text-slate-500">Ultimo: {formatDate(client.lastOrder)}</div>
-                        </td>
-                        <td className="py-4 px-4 text-right font-semibold text-slate-800">
-                          {formatCurrency(client.totalSpent)}
-                        </td>
-                        <td className="py-4 px-4 text-center">
-                          <Badge className={getStatusColor(client.status)} variant="secondary">
-                            {client.status}
-                          </Badge>
-                        </td>
-                        <td className="py-4 px-4 text-center">
-                          <div className="flex items-center justify-center space-x-1">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : privateCustomers.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-500">Nessun cliente privato trovato</p>
+                  <Button 
+                    className="mt-4" 
+                    onClick={() => {
+                      setSelectedCustomer(null);
+                      setShowForm(true);
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Aggiungi Cliente Privato
+                  </Button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200">
+                        <th className="text-left py-3 px-4 font-medium text-slate-600">Cliente</th>
+                        <th className="text-left py-3 px-4 font-medium text-slate-600">Contatti</th>
+                        <th className="text-right py-3 px-4 font-medium text-slate-600">Ordini</th>
+                        <th className="text-right py-3 px-4 font-medium text-slate-600">Totale Speso</th>
+                        <th className="text-center py-3 px-4 font-medium text-slate-600">Status</th>
+                        <th className="text-center py-3 px-4 font-medium text-slate-600">Azioni</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {privateCustomers.map((customer) => (
+                        <tr key={customer.id} className="border-b border-slate-100 hover:bg-slate-50/50">
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+                                {((customer.firstName || "") + " " + (customer.lastName || "")).trim().split(' ').map(n => n[0]).join('') || customer.name?.charAt(0) || 'U'}
+                              </div>
+                              <div>
+                                <p className="font-medium text-slate-800">
+                                  {customer.firstName && customer.lastName 
+                                    ? `${customer.firstName} ${customer.lastName}` 
+                                    : customer.name || 'Nome non disponibile'}
+                                </p>
+                                <p className="text-xs text-slate-500">
+                                  Registrato: {formatDate(customer.registrationDate?.toString() || customer.createdAt?.toString() || "")}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="space-y-1">
+                              {customer.email && (
+                                <div className="flex items-center space-x-2 text-xs text-slate-600">
+                                  <Mail className="h-3 w-3" />
+                                  <span>{customer.email}</span>
+                                </div>
+                              )}
+                              {customer.phone && (
+                                <div className="flex items-center space-x-2 text-xs text-slate-600">
+                                  <Phone className="h-3 w-3" />
+                                  <span>{customer.phone}</span>
+                                </div>
+                              )}
+                              {customer.address && (
+                                <div className="flex items-center space-x-2 text-xs text-slate-500">
+                                  <MapPin className="h-3 w-3" />
+                                  <span className="truncate max-w-xs">{customer.address}</span>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <div className="text-sm font-medium text-slate-800">{customer.totalOrders || 0}</div>
+                            {customer.lastOrderDate && (
+                              <div className="text-xs text-slate-500">
+                                Ultimo: {formatDate(customer.lastOrderDate.toString())}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 text-right font-semibold text-slate-800">
+                            {formatCurrency(Number(customer.totalSpent) || 0)}
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <Badge className={getStatusColor(customer.status || "active")} variant="secondary">
+                              {customer.status === "active" ? "Attivo" : 
+                               customer.status === "inactive" ? "Inattivo" : 
+                               customer.status === "premium" ? "Premium" : "Attivo"}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditCustomer(customer)}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Modifica
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  Visualizza
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteCustomer(customer)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Elimina
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="pharmacies" className="space-y-4">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200">
-                      <th className="text-left py-3 px-4 font-medium text-slate-600">Farmacia</th>
-                      <th className="text-left py-3 px-4 font-medium text-slate-600">Titolare</th>
-                      <th className="text-left py-3 px-4 font-medium text-slate-600">Contatti</th>
-                      <th className="text-right py-3 px-4 font-medium text-slate-600">Ordini</th>
-                      <th className="text-right py-3 px-4 font-medium text-slate-600">Fatturato</th>
-                      <th className="text-center py-3 px-4 font-medium text-slate-600">Status</th>
-                      <th className="text-center py-3 px-4 font-medium text-slate-600">Azioni</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pharmacies.map((pharmacy) => (
-                      <tr key={pharmacy.id} className="border-b border-slate-100 hover:bg-slate-50/50">
-                        <td className="py-4 px-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white font-semibold text-lg">
-                              <Building2 className="h-6 w-6" />
-                            </div>
-                            <div>
-                              <p className="font-medium text-slate-800">{pharmacy.name}</p>
-                              <p className="text-xs text-slate-500">{pharmacy.specialization}</p>
-                              <p className="text-xs text-slate-500">P.IVA: {pharmacy.partitaIva}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <p className="font-medium text-slate-800">{pharmacy.owner}</p>
-                          <p className="text-xs text-slate-500">
-                            Dal: {formatDate(pharmacy.registrationDate)}
-                          </p>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="space-y-1">
-                            <div className="flex items-center space-x-2 text-xs text-slate-600">
-                              <Mail className="h-3 w-3" />
-                              <span>{pharmacy.email}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-xs text-slate-600">
-                              <Phone className="h-3 w-3" />
-                              <span>{pharmacy.phone}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 text-xs text-slate-500">
-                              <MapPin className="h-3 w-3" />
-                              <span className="truncate max-w-xs">{pharmacy.address}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 text-right">
-                          <div className="text-sm font-medium text-slate-800">{pharmacy.totalOrders}</div>
-                          <div className="text-xs text-slate-500">Ultimo: {formatDate(pharmacy.lastOrder)}</div>
-                        </td>
-                        <td className="py-4 px-4 text-right font-semibold text-slate-800">
-                          {formatCurrency(pharmacy.totalSpent)}
-                        </td>
-                        <td className="py-4 px-4 text-center">
-                          <Badge className={getStatusColor(pharmacy.status)} variant="secondary">
-                            {pharmacy.status}
-                          </Badge>
-                        </td>
-                        <td className="py-4 px-4 text-center">
-                          <div className="flex items-center justify-center space-x-1">
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </td>
+              {isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : pharmacyCustomers.length === 0 ? (
+                <div className="text-center py-8">
+                  <Building2 className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                  <p className="text-slate-500">Nessuna farmacia trovata</p>
+                  <Button 
+                    className="mt-4" 
+                    onClick={() => {
+                      setSelectedCustomer(null);
+                      setShowForm(true);
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Aggiungi Farmacia
+                  </Button>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200">
+                        <th className="text-left py-3 px-4 font-medium text-slate-600">Farmacia</th>
+                        <th className="text-left py-3 px-4 font-medium text-slate-600">Titolare</th>
+                        <th className="text-left py-3 px-4 font-medium text-slate-600">Contatti</th>
+                        <th className="text-right py-3 px-4 font-medium text-slate-600">Ordini</th>
+                        <th className="text-right py-3 px-4 font-medium text-slate-600">Fatturato</th>
+                        <th className="text-center py-3 px-4 font-medium text-slate-600">Status</th>
+                        <th className="text-center py-3 px-4 font-medium text-slate-600">Azioni</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {pharmacyCustomers.map((pharmacy) => (
+                        <tr key={pharmacy.id} className="border-b border-slate-100 hover:bg-slate-50/50">
+                          <td className="py-4 px-4">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white font-semibold text-lg">
+                                <Building2 className="h-6 w-6" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-slate-800">{pharmacy.name}</p>
+                                {pharmacy.specialization && (
+                                  <p className="text-xs text-slate-500">{pharmacy.specialization}</p>
+                                )}
+                                {pharmacy.partitaIva && (
+                                  <p className="text-xs text-slate-500">P.IVA: {pharmacy.partitaIva}</p>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-4">
+                            <p className="font-medium text-slate-800">{pharmacy.owner || "Non specificato"}</p>
+                            <p className="text-xs text-slate-500">
+                              Dal: {formatDate(pharmacy.registrationDate?.toString() || pharmacy.createdAt?.toString() || "")}
+                            </p>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="space-y-1">
+                              {pharmacy.email && (
+                                <div className="flex items-center space-x-2 text-xs text-slate-600">
+                                  <Mail className="h-3 w-3" />
+                                  <span>{pharmacy.email}</span>
+                                </div>
+                              )}
+                              {pharmacy.phone && (
+                                <div className="flex items-center space-x-2 text-xs text-slate-600">
+                                  <Phone className="h-3 w-3" />
+                                  <span>{pharmacy.phone}</span>
+                                </div>
+                              )}
+                              {pharmacy.address && (
+                                <div className="flex items-center space-x-2 text-xs text-slate-500">
+                                  <MapPin className="h-3 w-3" />
+                                  <span className="truncate max-w-xs">{pharmacy.address}</span>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <div className="text-sm font-medium text-slate-800">{pharmacy.totalOrders || 0}</div>
+                            {pharmacy.lastOrderDate && (
+                              <div className="text-xs text-slate-500">
+                                Ultimo: {formatDate(pharmacy.lastOrderDate.toString())}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 text-right font-semibold text-slate-800">
+                            {formatCurrency(Number(pharmacy.totalSpent) || 0)}
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <Badge className={getStatusColor(pharmacy.status || "active")} variant="secondary">
+                              {pharmacy.status === "active" ? "Attivo" : 
+                               pharmacy.status === "inactive" ? "Inattivo" : 
+                               pharmacy.status === "premium" ? "Premium" : "Attivo"}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4 text-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                  <MoreVertical className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditCustomer(pharmacy)}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Modifica
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Eye className="h-4 w-4 mr-2" />
+                                  Visualizza
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem 
+                                  onClick={() => handleDeleteCustomer(pharmacy)}
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Elimina
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -525,6 +624,47 @@ export default function CustomersPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Customer Form Dialog */}
+      <CustomerForm
+        open={showForm}
+        onOpenChange={setShowForm}
+        customer={selectedCustomer}
+        onSuccess={() => {
+          setSelectedCustomer(null);
+          // Refresh data is handled by the form component
+        }}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Conferma Eliminazione</AlertDialogTitle>
+            <AlertDialogDescription>
+              Sei sicuro di voler eliminare {customerToDelete?.type === "private" 
+                ? `il cliente ${customerToDelete?.firstName} ${customerToDelete?.lastName}` 
+                : `la farmacia ${customerToDelete?.name}`}?
+              <br />
+              <span className="text-red-600 font-medium">
+                Questa azione non può essere annullata.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteMutation.isPending ? "Eliminando..." : "Elimina"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

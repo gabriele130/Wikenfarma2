@@ -54,6 +54,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Customer statistics (must be before parameterized routes)
+  app.get('/api/customers/stats', authenticateToken, async (req, res) => {
+    try {
+      const stats = await storage.getCustomerStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching customer stats:", error);
+      res.status(500).json({ message: "Failed to fetch customer statistics" });
+    }
+  });
+
   app.get('/api/customers/:id', authenticateToken, async (req, res) => {
     try {
       const customer = await storage.getCustomer(req.params.id);
