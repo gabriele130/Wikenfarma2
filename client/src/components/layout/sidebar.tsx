@@ -3,28 +3,24 @@ import { useAuth } from "@/hooks/useAuth";
 
 const menuItems = [
   { path: "/", label: "Dashboard", icon: "fas fa-tachometer-alt", section: "main" },
-  { path: "/orders/private", label: "Ordini Privati", icon: "fas fa-user", section: "orders" },
-  { path: "/orders/pharmacy", label: "Ordini Farmacie", icon: "fas fa-clinic-medical", section: "orders" },
-  { path: "/orders/wholesale", label: "Ordini Grossisti", icon: "fas fa-warehouse", section: "orders" },
+  { path: "/orders", label: "Ordini", icon: "fas fa-shopping-cart", section: "orders" },
   { path: "/customers", label: "Clienti", icon: "fas fa-users", section: "registry" },
-  { path: "/doctors", label: "Medici", icon: "fas fa-user-md", section: "registry" },
   { path: "/informatori", label: "Informatori", icon: "fas fa-id-badge", section: "registry" },
-  { path: "/wikenship", label: "WIKENSHIP", icon: "fas fa-sync-alt", section: "integration" },
-  { path: "/analytics", label: "Analytics", icon: "fas fa-chart-line", section: "integration" },
-  { path: "/inventory", label: "Magazzino", icon: "fas fa-boxes", section: "operations" },
-  { path: "/shipping", label: "Spedizioni", icon: "fas fa-shipping-fast", section: "operations" },
-  { path: "/commissions", label: "Provvigioni", icon: "fas fa-percentage", section: "operations" },
-  { path: "/reports", label: "Report", icon: "fas fa-chart-bar", section: "analysis" },
-  { path: "/integrations", label: "Integrazioni", icon: "fas fa-plug", section: "analysis" },
+  { path: "/business-intelligence", label: "Business Intelligence", icon: "fas fa-brain", section: "intelligence" },
+  { path: "/analytics", label: "Analytics", icon: "fas fa-chart-line", section: "intelligence" },
+  { path: "/reports", label: "Report", icon: "fas fa-chart-bar", section: "intelligence" },
+  { path: "/commissions", label: "Commissioni", icon: "fas fa-percentage", section: "operations" },
+  { path: "/integrations", label: "Integrazioni", icon: "fas fa-plug", section: "operations" },
+  { path: "/system", label: "Sistema", icon: "fas fa-cog", section: "admin" },
 ];
 
 const sections = {
   main: "",
   orders: "Gestione Ordini",
-  registry: "Anagrafiche",
-  integration: "Integrazioni Avanzate",
+  registry: "Anagrafiche", 
+  intelligence: "Business Intelligence",
   operations: "Operazioni",
-  analysis: "Analisi",
+  admin: "Amministrazione",
 };
 
 export default function Sidebar() {
