@@ -12,7 +12,6 @@ import { ModernLayout } from "./components/layout/modern-layout";
 import ModernDashboard from "./pages/modern-dashboard";
 import AuthPage from "./pages/auth-page";
 import CustomersPage from "./pages/customers";
-import ProductsPage from "./pages/inventory";
 import OrdersPage from "./pages/orders/orders-list";
 import OrderDetailsPage from "./pages/orders/order-details";
 import NotFoundPage from "./pages/not-found";
@@ -22,9 +21,7 @@ import AnalyticsPage from "./pages/analytics";
 import ReportsPage from "./pages/reports";
 import CommissionsPage from "./pages/commissions";
 import IntegrationsPage from "./pages/integrations";
-import ShippingPage from "./pages/shipping";
 import InformatoriPage from "./pages/informatori";
-import DoctorsPage from "./pages/doctors";
 
 // Utils
 import { queryClient } from "./lib/queryClient";
@@ -73,17 +70,7 @@ function AppContent() {
           <ProtectedPageWrapper 
             component={CustomersPage} 
             title="Gestione Clienti" 
-            subtitle="Farmacie, grossisti e medici" 
-          />
-        )} 
-      />
-      <ProtectedRoute 
-        path="/inventory" 
-        component={() => (
-          <ProtectedPageWrapper 
-            component={ProductsPage} 
-            title="Inventario" 
-            subtitle="Gestione prodotti e scorte" 
+            subtitle="Clienti privati e farmacie" 
           />
         )} 
       />
@@ -168,32 +155,12 @@ function AppContent() {
         )} 
       />
       <ProtectedRoute 
-        path="/shipping" 
-        component={() => (
-          <ProtectedPageWrapper 
-            component={ShippingPage} 
-            title="Spedizioni" 
-            subtitle="Logistica e tracking" 
-          />
-        )} 
-      />
-      <ProtectedRoute 
         path="/informatori" 
         component={() => (
           <ProtectedPageWrapper 
             component={InformatoriPage} 
             title="Informatori" 
             subtitle="Gestione ISF e rappresentanti" 
-          />
-        )} 
-      />
-      <ProtectedRoute 
-        path="/doctors" 
-        component={() => (
-          <ProtectedPageWrapper 
-            component={DoctorsPage} 
-            title="Medici" 
-            subtitle="Database medici e specialisti" 
           />
         )} 
       />
