@@ -85,6 +85,12 @@ export default function InformatoreDashboard() {
     }).format(num || 0);
   };
 
+  // Alias per compatibilità con il codice esistente
+  const formatCurrency = formatEuro;
+  const statsLoading = performanceLoading;
+  const cardsLoading = doctorCardsLoading;
+  const performanceStats = performance;
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('it-IT');
   };

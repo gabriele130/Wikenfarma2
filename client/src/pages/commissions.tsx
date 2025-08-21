@@ -4,6 +4,14 @@ import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "../lib/queryClient";
+import { useToast } from "../hooks/use-toast";
+import { 
+  useCompensations, 
+  useCompensationStats, 
+  useCalculateCompensations 
+} from "../hooks/use-compensations";
 
 import {
   Select,
@@ -147,6 +155,17 @@ export default function CommissionsPage() {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
+  // Calculate compensation using the new hook
+  const calculateCompensationMutation = useCalculateCompensations();
+
+  const handleCalculateCompensations = () => {
+    calculateCompensationMutation.mutate({
+      month: selectedMonth,
+      year: selectedYear,
+      informatoreId: selectedInformatore !== "all" ? selectedInformatore : undefined
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/40 p-6">
       {/* Header */}
@@ -163,9 +182,11 @@ export default function CommissionsPage() {
               <Button 
                 variant="secondary" 
                 className="bg-white/20 hover:bg-white/30 text-white border-0"
+                onClick={handleCalculateCompensations}
+                disabled={calculateCompensationMutation.isPending}
               >
                 <Calculator className="h-4 w-4 mr-2" />
-                Calcola Compensi
+                {calculateCompensationMutation.isPending ? "Calcolando..." : "Calcola Compensi"}
               </Button>
             </div>
           </div>
