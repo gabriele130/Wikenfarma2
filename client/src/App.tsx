@@ -15,7 +15,7 @@ import CustomersPage from "./pages/customers";
 import OrdersPage from "./pages/orders/orders-list";
 import OrderDetailsPage from "./pages/orders/order-details";
 import NotFoundPage from "./pages/not-found";
-import BusinessIntelligencePage from "./pages/business-intelligence";
+
 import SystemPage from "./pages/system";
 import AnalyticsPage from "./pages/analytics";
 import ReportsPage from "./pages/reports";
@@ -95,16 +95,7 @@ function AppContent() {
           />
         )} 
       />
-      <ProtectedRoute 
-        path="/business-intelligence" 
-        component={() => (
-          <ProtectedPageWrapper 
-            component={BusinessIntelligencePage} 
-            title="Business Intelligence" 
-            subtitle="Analisi avanzate e insights per il business" 
-          />
-        )} 
-      />
+
       <ProtectedRoute 
         path="/system" 
         component={() => (

@@ -81,14 +81,7 @@ const menuItems = [
     badge: null
   },
   
-  { 
-    path: "/business-intelligence", 
-    icon: BarChart3, 
-    label: "Business Intelligence", 
-    section: "business",
-    description: "Analisi avanzate",
-    badge: null
-  },
+
   
   { 
     path: "/integrations", 

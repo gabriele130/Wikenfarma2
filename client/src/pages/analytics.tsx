@@ -44,8 +44,6 @@ import {
   TableHeader,
   TableRow,
 } from "../components/ui/table";
-import { addDays } from "date-fns";
-
 export default function AnalyticsPage() {
   const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("month");
@@ -56,12 +54,6 @@ export default function AnalyticsPage() {
   const [selectedISFFilter, setSelectedISFFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [comparisonPeriod, setComparisonPeriod] = useState("previous_month");
-  
-  // Date range for custom periods
-  const [dateRange, setDateRange] = useState({
-    from: new Date(),
-    to: addDays(new Date(), 30)
-  });
 
   // Get user permissions
   const isAdmin = user?.userType === 'admin';
