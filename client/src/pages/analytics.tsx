@@ -146,19 +146,22 @@ export default function AnalyticsPage() {
   };
 
   // Format percentage helper  
-  const formatPercentage = (value: number) => {
+  const formatPercentage = (value: number | undefined | null) => {
+    if (value === undefined || value === null || isNaN(value)) return '0.0%';
     return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
   };
 
   // Get trend icon
-  const getTrendIcon = (value: number) => {
+  const getTrendIcon = (value: number | undefined | null) => {
+    if (value === undefined || value === null || isNaN(value)) return <Minus className="h-4 w-4 text-gray-400" />;
     if (value > 0) return <ArrowUpRight className="h-4 w-4 text-green-600" />;
     if (value < 0) return <ArrowDownRight className="h-4 w-4 text-red-600" />;
     return <Minus className="h-4 w-4 text-gray-400" />;
   };
 
   // Get trend color
-  const getTrendColor = (value: number) => {
+  const getTrendColor = (value: number | undefined | null) => {
+    if (value === undefined || value === null || isNaN(value)) return "text-gray-400";
     if (value > 0) return "text-green-600";
     if (value < 0) return "text-red-600";
     return "text-gray-400";
