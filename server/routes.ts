@@ -449,49 +449,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analytics Routes - Multi-dimensional reporting
+  // Analytics fatturato generale
   app.get("/api/analytics/revenue", authenticateToken, async (req, res) => {
     try {
-      const { informatoreId, period, productCode, comparison } = req.query;
-      const analytics = await storage.getRevenueAnalytics({
-        informatoreId: informatoreId as string,
-        period: period as string,
-        productCode: productCode as string,
-        comparison: comparison === 'true',
-      });
-      res.json(analytics);
+      const { period = 'month', month, year, quarter, productCode, isfId, myData } = req.query;
+      const user = req.user as any;
+      
+      let analyticsData = {
+        totalRevenue: 0,
+        revenueChange: 0,
+        topProducts: [] as any[],
+        topISF: [] as any[],
+        productTrends: [],
+        monthlyTrends: [],
+        quarterlyTrends: [],
+        allTimeStats: {
+          maxRevenue: 0,
+          minRevenue: 0,
+          avgRevenue: 0,
+          totalOrders: 0
+        }
+      };
+
+      // Mock data generation based on user role and filters
+      if (user?.userType === 'informatore' || myData === 'true') {
+        // ISF vede solo i propri dati
+        analyticsData = {
+          totalRevenue: 12500 + Math.random() * 5000,
+          revenueChange: (Math.random() - 0.5) * 20,
+          topProducts: [
+            { code: 'ABC123', name: 'Prodotto Alpha', revenue: 4500, change: 12.5, maxRevenue: 5200, minRevenue: 3800 },
+            { code: 'DEF456', name: 'Prodotto Beta', revenue: 3200, change: -2.1, maxRevenue: 4100, minRevenue: 2900 },
+            { code: 'GHI789', name: 'Prodotto Gamma', revenue: 2800, change: 8.3, maxRevenue: 3500, minRevenue: 2200 }
+          ],
+          topISF: [],
+          productTrends: [],
+          monthlyTrends: [],
+          quarterlyTrends: [],
+          allTimeStats: {
+            maxRevenue: 18500,
+            minRevenue: 8200,
+            avgRevenue: 13200,
+            totalOrders: 45
+          }
+        };
+      } else {
+        // Admin e area manager vedono tutti i dati
+        analyticsData = {
+          totalRevenue: 125000 + Math.random() * 50000,
+          revenueChange: (Math.random() - 0.5) * 20,
+          topProducts: [
+            { code: 'ABC123', name: 'Prodotto Alpha', revenue: 45000, change: 15.2, maxRevenue: 52000, minRevenue: 38000 },
+            { code: 'DEF456', name: 'Prodotto Beta', revenue: 32000, change: -3.1, maxRevenue: 41000, minRevenue: 29000 },
+            { code: 'GHI789', name: 'Prodotto Gamma', revenue: 28000, change: 8.7, maxRevenue: 35000, minRevenue: 22000 },
+            { code: 'JKL012', name: 'Prodotto Delta', revenue: 25000, change: 12.3, maxRevenue: 31000, minRevenue: 20000 },
+            { code: 'MNO345', name: 'Prodotto Epsilon', revenue: 22000, change: -1.5, maxRevenue: 28000, minRevenue: 19000 }
+          ],
+          topISF: [
+            { id: 1, firstName: 'Marco', lastName: 'Rossi', area: 'Nord Est', revenue: 32000, change: 18.5, maxRevenue: 38000, minRevenue: 25000, totalOrders: 89, userType: 'freelancer' },
+            { id: 2, firstName: 'Laura', lastName: 'Bianchi', area: 'Centro', revenue: 28000, change: 12.1, maxRevenue: 34000, minRevenue: 22000, totalOrders: 76, userType: 'employee' },
+            { id: 3, firstName: 'Giuseppe', lastName: 'Verdi', area: 'Sud', revenue: 25000, change: -2.3, maxRevenue: 31000, minRevenue: 20000, totalOrders: 68, userType: 'freelancer' },
+            { id: 4, firstName: 'Francesca', lastName: 'Neri', area: 'Nord Ovest', revenue: 24000, change: 9.8, maxRevenue: 29000, minRevenue: 19000, totalOrders: 65, userType: 'employee' },
+            { id: 5, firstName: 'Antonio', lastName: 'Blu', area: 'Isole', revenue: 21000, change: 5.7, maxRevenue: 26000, minRevenue: 17000, totalOrders: 58, userType: 'freelancer' }
+          ],
+          productTrends: [],
+          monthlyTrends: [],
+          quarterlyTrends: [],
+          allTimeStats: {
+            maxRevenue: 185000,
+            minRevenue: 82000,
+            avgRevenue: 132000,
+            totalOrders: 1247
+          }
+        };
+      }
+
+      res.json(analyticsData);
     } catch (error) {
       console.error("Failed to fetch revenue analytics:", error);
       res.status(500).json({ message: "Failed to fetch revenue analytics" });
     }
   });
 
-  app.get("/api/analytics/growth", authenticateToken, async (req, res) => {
+  // Analytics product codes
+  app.get("/api/analytics/product-codes", authenticateToken, async (req, res) => {
     try {
-      const { period, type = "revenue" } = req.query;
-      const growthData = await storage.getGrowthAnalytics({
-        period: period as string,
-        type: type as string,
-      });
-      res.json(growthData);
+      const productCodes = [
+        { id: 1, code: 'ABC123', name: 'Prodotto Alpha' },
+        { id: 2, code: 'DEF456', name: 'Prodotto Beta' },
+        { id: 3, code: 'GHI789', name: 'Prodotto Gamma' },
+        { id: 4, code: 'JKL012', name: 'Prodotto Delta' },
+        { id: 5, code: 'MNO345', name: 'Prodotto Epsilon' },
+        { id: 6, code: 'PQR678', name: 'Prodotto Zeta' },
+        { id: 7, code: 'STU901', name: 'Prodotto Eta' }
+      ];
+      res.json(productCodes);
     } catch (error) {
-      console.error("Failed to fetch growth analytics:", error);
-      res.status(500).json({ message: "Failed to fetch growth analytics" });
+      console.error("Failed to fetch product codes:", error);
+      res.status(500).json({ message: "Failed to fetch product codes" });
     }
   });
 
-  app.get("/api/analytics/top-performers", authenticateToken, async (req, res) => {
+  // Analytics comparison data
+  app.get("/api/analytics/comparison", authenticateToken, async (req, res) => {
     try {
-      const { period, metric = "revenue", limit = 10 } = req.query;
-      const topPerformers = await storage.getTopPerformers({
-        period: period as string,
-        metric: metric as string,
-        limit: Number(limit),
-      });
-      res.json(topPerformers);
+      const { currentPeriod, comparisonPeriod, month, year, productCode, isfId, myData } = req.query;
+      
+      const comparisonData = {
+        revenueChange: (Math.random() - 0.5) * 30,
+        topGrowthProducts: [
+          { code: 'ABC123', name: 'Prodotto Alpha', growth: 25.8, revenue: 45000 },
+          { code: 'JKL012', name: 'Prodotto Delta', growth: 18.3, revenue: 25000 },
+          { code: 'GHI789', name: 'Prodotto Gamma', growth: 12.7, revenue: 28000 },
+          { code: 'STU901', name: 'Prodotto Eta', growth: 9.4, revenue: 15000 },
+          { code: 'PQR678', name: 'Prodotto Zeta', growth: 6.2, revenue: 18000 }
+        ],
+        topDeclineProducts: [
+          { code: 'DEF456', name: 'Prodotto Beta', decline: -8.5, revenue: 32000 },
+          { code: 'MNO345', name: 'Prodotto Epsilon', decline: -5.2, revenue: 22000 },
+          { code: 'XYZ999', name: 'Prodotto Obsoleto', decline: -15.3, revenue: 8000 }
+        ]
+      };
+
+      res.json(comparisonData);
     } catch (error) {
-      console.error("Failed to fetch top performers:", error);
-      res.status(500).json({ message: "Failed to fetch top performers" });
+      console.error("Failed to fetch comparison data:", error);
+      res.status(500).json({ message: "Failed to fetch comparison data" });
     }
   });
 
