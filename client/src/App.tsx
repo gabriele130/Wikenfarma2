@@ -14,6 +14,7 @@ import AuthPage from "./pages/auth-page";
 import CustomersPage from "./pages/customers";
 import OrdersPage from "./pages/orders/orders-list";
 import OrderDetailsPage from "./pages/orders/order-details";
+import OrdersManagementPage from "./pages/orders-management";
 import NotFoundPage from "./pages/not-found";
 
 import SystemPage from "./pages/system";
@@ -92,6 +93,16 @@ function AppContent() {
             component={OrderDetailsPage} 
             title="Dettaglio Ordine" 
             subtitle="Informazioni complete ordine" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/orders-management" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={OrdersManagementPage} 
+            title="Gestione Ordini Completa" 
+            subtitle="Sistema completo CRUD per ordini" 
           />
         )} 
       />

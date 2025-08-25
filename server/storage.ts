@@ -873,165 +873,145 @@ export class DatabaseStorage implements IStorage {
     return { success: true, synchronized: 15, timestamp: new Date().toISOString() };
   }
 
-  // Advanced Commission operations
-  async getAdvancedCommissions(informatoreId: string, filters: any): Promise<any[]> {
-    return [
-      {
-        id: "comm-001",
-        informatoreId,
-        month: new Date().getMonth() + 1,
-        year: new Date().getFullYear(),
-        baseSalary: 2500.00,
-        iqviaCommission: 890.00,
-        wikenshipCommission: 567.50,
-        directSalesCommission: 234.00,
-        bonusAmount: 100.00,
-        malusAmount: 0.00,
-        cutOffReduction: 0.00,
-        visitTargetBonus: 150.00,
-        growthBonus: 100.00,
-        totalCommission: 4541.50,
-        calculationData: { growthRate: 8.5, visits: 18 },
-        createdAt: new Date().toISOString()
-      }
-    ];
+  // Dynamic Analytics operations - Real data from database
+  async getAnalyticsRevenue(filters: any, user: any): Promise<any> {
+    try {
+      // Calculate total revenue from orders
+      const revenueQuery = db
+        .select({
+          totalRevenue: sum(orders.total),
+          totalOrders: count(orders.id)
+        })
+        .from(orders);
+
+      const [{ totalRevenue, totalOrders }] = await revenueQuery;
+
+      // Get top products by revenue
+      const topProductsQuery = db
+        .select({
+          code: products.code,
+          name: products.name,
+          revenue: sum(sql<number>`${orderItems.total}`),
+          orders: count(orderItems.id)
+        })
+        .from(orderItems)
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .innerJoin(orders, eq(orderItems.orderId, orders.id))
+        .groupBy(products.id, products.code, products.name)
+        .orderBy(desc(sum(sql<number>`${orderItems.total}`)))
+        .limit(10);
+
+      const topProducts = await topProductsQuery;
+
+      return {
+        totalRevenue: Number(totalRevenue) || 0,
+        revenueChange: 0, // TODO: Calculate change vs previous period
+        topProducts,
+        topISF: [], // TODO: Implement ISF performance data
+        allTimeStats: {
+          maxRevenue: Number(totalRevenue) || 0,
+          minRevenue: 0,
+          avgRevenue: Number(totalRevenue) / Math.max(Number(totalOrders), 1) || 0,
+          totalOrders: Number(totalOrders) || 0
+        }
+      };
+    } catch (error) {
+      console.error('Error getting analytics revenue:', error);
+      return {
+        totalRevenue: 0,
+        revenueChange: 0,
+        topProducts: [],
+        topISF: [],
+        allTimeStats: {
+          maxRevenue: 0,
+          minRevenue: 0,
+          avgRevenue: 0,
+          totalOrders: 0
+        }
+      };
+    }
   }
 
-  async calculateAdvancedCommission(informatoreId: string, year: number, month: number): Promise<any> {
+  async getProductCodes(): Promise<any[]> {
+    try {
+      return await db.select({
+        id: products.id,
+        code: products.code,
+        name: products.name
+      }).from(products).where(eq(products.isActive, true));
+    } catch (error) {
+      console.error('Error getting product codes:', error);
+      return [];
+    }
+  }
+
+  async getAnalyticsComparison(filters: any, user: any): Promise<any> {
+    // TODO: Implement real comparison data
     return {
-      informatoreId,
-      year,
-      month,
-      totalCommission: 4541.50,
-      details: {
-        baseSalary: 2500.00,
-        commissions: 1891.50,
-        bonuses: 250.00,
-        growthBonus: 100.00
-      }
+      revenueChange: 0,
+      topGrowthProducts: [],
+      topDeclineProducts: []
     };
   }
 
-  // Analytics operations
-  async getRevenueAnalytics(filters: any): Promise<any> {
-    return {
-      totalRevenue: 156780.00,
-      orderCount: 234,
-      averageOrderValue: 670.00,
-      growthRate: 8.5,
-      topProducts: [
-        { code: "ABC123", revenue: 45000, count: 89 },
-        { code: "DEF456", revenue: 38000, count: 67 },
-        { code: "GHI789", revenue: 32000, count: 54 }
-      ],
-      periodComparison: {
-        current: { revenue: 156780, orders: 234 },
-        previous: { revenue: 144500, orders: 216 },
-        growth: 8.5
-      }
-    };
+  // Dynamic Order operations - Complete CRUD
+  async updateOrder(id: string, updateData: Partial<InsertOrder>): Promise<Order | undefined> {
+    try {
+      const [updatedOrder] = await db
+        .update(orders)
+        .set({ ...updateData, updatedAt: new Date() })
+        .where(eq(orders.id, id))
+        .returning();
+      
+      return updatedOrder;
+    } catch (error) {
+      console.error('Error updating order:', error);
+      throw error;
+    }
   }
 
-  async getGrowthAnalytics(filters: any): Promise<any> {
-    return [
-      { period: "2024-09", current: 142000, previous: 131000 },
-      { period: "2024-10", current: 148000, previous: 138000 },
-      { period: "2024-11", current: 152000, previous: 142000 },
-      { period: "2024-12", current: 156780, previous: 144500 }
-    ];
+  async deleteOrder(id: string): Promise<boolean> {
+    try {
+      // First delete order items
+      await db.delete(orderItems).where(eq(orderItems.orderId, id));
+      
+      // Then delete shipments
+      await db.delete(shipments).where(eq(shipments.orderId, id));
+      
+      // Then delete commissions
+      await db.delete(commissions).where(eq(commissions.orderId, id));
+      
+      // Finally delete the order
+      const result = await db.delete(orders).where(eq(orders.id, id));
+      
+      return result.rowCount !== undefined && result.rowCount > 0;
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      throw error;
+    }
   }
 
-  async getTopPerformers(filters: any): Promise<any[]> {
-    return [
-      {
-        id: "inf-001",
-        name: "Mario Rossi",
-        revenue: 89450.00,
-        orders: 145,
-        growth: 12.5,
-        type: "informatore"
-      },
-      {
-        id: "inf-002",
-        name: "Giulia Bianchi",
-        revenue: 67230.00,
-        orders: 89,
-        growth: 8.9,
-        type: "informatore"
-      }
-    ];
-  }
+  async getOrderStatistics(): Promise<any> {
+    try {
+      const stats = await db
+        .select({
+          totalOrders: count(orders.id),
+          totalRevenue: sum(orders.total),
+          pendingOrders: count(sql`CASE WHEN ${orders.status} = 'pending' THEN 1 END`),
+          completedOrders: count(sql`CASE WHEN ${orders.status} = 'delivered' THEN 1 END`)
+        })
+        .from(orders);
 
-  // Doctor Points operations
-  async getDoctorPoints(doctorId: string, filters: any): Promise<any[]> {
-    return [
-      {
-        id: "dp-001",
-        doctorId,
-        informatoreId: "inf-001",
-        points: 150.00,
-        pointsType: "order",
-        description: "Ordine ABC123 - €2450",
-        createdAt: new Date().toISOString()
-      }
-    ];
-  }
-
-  async addDoctorPoints(pointsData: any): Promise<any> {
-    return {
-      id: `dp-${Date.now()}`,
-      ...pointsData,
-      createdAt: new Date().toISOString()
-    };
-  }
-
-  // Bonus/Malus operations
-  async getBonusMalus(filters: any): Promise<any[]> {
-    return [
-      {
-        id: "bm-001",
-        informatoreId: "inf-001",
-        type: "bonus",
-        amount: 100.00,
-        description: "Crescita 5%+ mensile",
-        month: new Date().getMonth() + 1,
-        year: new Date().getFullYear(),
-        createdBy: "admin-001",
-        createdAt: new Date().toISOString()
-      }
-    ];
-  }
-
-  async createBonusMalus(bonusMalusData: any): Promise<any> {
-    return {
-      id: `bm-${Date.now()}`,
-      ...bonusMalusData,
-      createdAt: new Date().toISOString()
-    };
-  }
-
-  // Medical Visits operations
-  async getMedicalVisits(filters: any): Promise<any[]> {
-    return [
-      {
-        id: "mv-001",
-        informatoreId: "inf-001",
-        doctorId: "doc-001",
-        visitDate: new Date().toISOString(),
-        notes: "Presentati nuovi prodotti ABC123 e DEF456",
-        productsDiscussed: ["ABC123", "DEF456"],
-        followUpRequired: true,
-        createdAt: new Date().toISOString()
-      }
-    ];
-  }
-
-  async createMedicalVisit(visitData: any): Promise<any> {
-    return {
-      id: `mv-${Date.now()}`,
-      ...visitData,
-      createdAt: new Date().toISOString()
-    };
+      return stats[0];
+    } catch (error) {
+      console.error('Error getting order statistics:', error);
+      return {
+        totalOrders: 0,
+        totalRevenue: 0,
+        pendingOrders: 0,
+        completedOrders: 0
+      };
+    }
   }
 
   // Dashboard operations
