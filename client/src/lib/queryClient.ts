@@ -3,7 +3,7 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 // Domain configuration for wikenship.it
 const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD 
   ? "https://wikenship.it" // Production domain
-  : "http://127.0.0.1:5000"); // Development
+  : "http://127.0.0.1:3100"); // Development
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
