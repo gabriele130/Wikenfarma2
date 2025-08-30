@@ -1,51 +1,18 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { getDomainConfig, isValidDomain } from "./domain-config";
 
 const app = express();
 
-// Trust proxy for domain routing (required for production)
-app.set('trust proxy', true);
+// Trust proxy - importante dietro Nginx
+app.set("trust proxy", 1);
 
-// Domain validation and CORS configuration
-app.use((req, res, next) => {
-  const config = getDomainConfig();
-  const allowedOrigins = [
-    config.baseUrl,
-    `https://www.wikenship.it`,
-    'http://localhost:5000',
-    'http://127.0.0.1:5000'
-  ];
-  
-  const origin = req.headers.origin;
-  const host = req.get('host') || '';
-  
-  // Validate domain
-  if (process.env.NODE_ENV === 'production' && !isValidDomain(host)) {
-    return res.status(403).json({ 
-      message: 'Domain not allowed',
-      allowedDomain: 'wikenship.it'
-    });
-  }
-  
-  // Set CORS headers
-  if (allowedOrigins.includes(origin || '')) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '');
-  }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-    return;
-  }
-  
-  next();
-});
+// CORS configuration per wikenship.it
+app.use(cors({ 
+  origin: "https://wikenship.it", 
+  credentials: true 
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
