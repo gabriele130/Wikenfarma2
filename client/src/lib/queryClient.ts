@@ -1,5 +1,10 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+// Domain configuration for wikenship.it
+const API_BASE_URL = import.meta.env.PROD 
+  ? "https://wikenship.it" // Production domain
+  : "http://127.0.0.1:5000"; // Development
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -14,7 +19,10 @@ export async function apiRequest(
 ): Promise<Response> {
   const token = localStorage.getItem("auth_token");
   
-  const res = await fetch(url, {
+  // Ensure URL is absolute for wikenship.it domain
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+  
+  const res = await fetch(fullUrl, {
     method,
     headers: {
       ...(data ? { "Content-Type": "application/json" } : {}),
@@ -37,7 +45,11 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const token = localStorage.getItem("auth_token");
     
-    const res = await fetch(queryKey.join("/") as string, {
+    // Construct full URL for wikenship.it domain
+    const url = queryKey.join("/") as string;
+    const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+    
+    const res = await fetch(fullUrl, {
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,

@@ -6,6 +6,33 @@ import { insertCustomerSchema, insertProductSchema, insertOrderSchema, insertOrd
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for domain verification
+  app.get('/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'OK', 
+      domain: 'wikenship.it',
+      timestamp: new Date().toISOString(),
+      version: '1.0.0'
+    });
+  });
+
+  // Root redirect for wikenship.it
+  app.get('/', (req, res, next) => {
+    // If it's an API request, let it continue to API routes
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    
+    // For domain requests, serve the app
+    const host = req.get('host');
+    if (host?.includes('wikenship.it')) {
+      // Let Vite or static serve handle the root
+      return next();
+    }
+    
+    next();
+  });
+
   // Custom Auth middleware and routes
   setupCustomAuth(app);
 

@@ -1,8 +1,52 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { getDomainConfig, isValidDomain } from "./domain-config";
 
 const app = express();
+
+// Trust proxy for domain routing (required for production)
+app.set('trust proxy', true);
+
+// Domain validation and CORS configuration
+app.use((req, res, next) => {
+  const config = getDomainConfig();
+  const allowedOrigins = [
+    config.baseUrl,
+    `https://www.wikenship.it`,
+    'http://localhost:5000',
+    'http://127.0.0.1:5000'
+  ];
+  
+  const origin = req.headers.origin;
+  const host = req.get('host') || '';
+  
+  // Validate domain
+  if (process.env.NODE_ENV === 'production' && !isValidDomain(host)) {
+    return res.status(403).json({ 
+      message: 'Domain not allowed',
+      allowedDomain: 'wikenship.it'
+    });
+  }
+  
+  // Set CORS headers
+  if (allowedOrigins.includes(origin || '')) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '');
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+    return;
+  }
+  
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -56,14 +100,17 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Server configuration for wikenship.it domain
   const port = parseInt(process.env.PORT || '5000', 10);
   const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
   
   server.listen(port, host, () => {
-    log(`serving on http://${host}:${port}`);
+    if (process.env.NODE_ENV === 'production') {
+      log(`WikenFarma server running on https://wikenship.it (port ${port})`);
+      log(`API endpoints available at https://wikenship.it/api/*`);
+    } else {
+      log(`Development server running on http://${host}:${port}`);
+      log(`Will be accessible at https://wikenship.it in production`);
+    }
   });
 })();
