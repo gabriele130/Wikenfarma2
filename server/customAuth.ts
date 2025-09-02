@@ -19,13 +19,15 @@ declare global {
 const JWT_SECRET = process.env.JWT_SECRET || 'wikenfarma-secret-key-2025';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'wikenfarma-session-secret';
 
-// PostgreSQL session store optimized for Neon database
+// PostgreSQL session store - detect if local or cloud database
+const isLocalDatabase = process.env.DATABASE_URL?.includes('127.0.0.1') || process.env.DATABASE_URL?.includes('localhost');
+
 const pgPool = new Pool({
   connectionString: process.env.DATABASE_URL,
   connectionTimeoutMillis: 30000,
   idleTimeoutMillis: 30000,
   max: 10,
-  ssl: { rejectUnauthorized: false },
+  ssl: isLocalDatabase ? false : { rejectUnauthorized: false },
 });
 const PostgresSessionStore = connectPgSimple(session);
 

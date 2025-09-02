@@ -12,13 +12,15 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// PostgreSQL connection optimized for Neon database
+// PostgreSQL connection - detect if local or cloud database
+const isLocalDatabase = process.env.DATABASE_URL?.includes('127.0.0.1') || process.env.DATABASE_URL?.includes('localhost');
+
 const client = postgres(process.env.DATABASE_URL, { 
   max: 10,
   idle_timeout: 20,
   max_lifetime: 60 * 30,
   connect_timeout: 30,
-  ssl: 'require',
+  ssl: isLocalDatabase ? false : 'require',
   onnotice: () => {}, // Disable notices to reduce log noise
 });
 
