@@ -1,0 +1,36 @@
+ Se continua a usare porta 5000, ferma e riavvia completamente
+pm2 delete "wikenship.it/"
+cd /home/wikenshipit/apps/wikenfarma
+pm2 start dist/index.js --name "wikenship.it" --cwd /home/wikenshipit/apps/wikenfarma
+
+# Controlla che ora usi porta 3100
+pm2 logs "wikenship.it/" --lines 3
+
+# Verifica che il .env sia corretto
+cat .env | grep PORT
+[PM2] Applying action restartProcessId on app [wikenship.it/](ids: [ 1 ])
+[PM2] [wikenship.it/](1) ✓
+┌────┬────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name               │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 2  │ wikenfarma-prod    │ default     │ 1.0.0   │ fork    │ 2256538  │ 21m    │ 0    │ online    │ 0%       │ 101.5mb  │ wik… │ disabled │
+│ 1  │ wikenship.it/      │ default     │ 1.0.0   │ fork    │ 2273305  │ 0s     │ 168  │ online    │ 0%       │ 18.7mb   │ wik… │ disabled │
+└────┴────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Applying action deleteProcessId on app [wikenship.it/](ids: [ 1 ])
+[PM2] [wikenship.it/](1) ✓
+┌────┬────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name               │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 2  │ wikenfarma-prod    │ default     │ 1.0.0   │ fork    │ 2256538  │ 21m    │ 0    │ online    │ 0%       │ 101.5mb  │ wik… │ disabled │
+└────┴────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Starting /home/wikenshipit/apps/wikenfarma/dist/index.js in fork_mode (1 instance)
+[PM2] Done.
+┌────┬────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name               │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 2  │ wikenfarma-prod    │ default     │ 1.0.0   │ fork    │ 2256538  │ 21m    │ 0    │ online    │ 0%       │ 101.5mb  │ wik… │ disabled │
+│ 3  │ wikenship.it       │ default     │ 1.0.0   │ fork    │ 2273331  │ 0s     │ 0    │ online    │ 0%       │ 30.2mb   │ wik… │ disabled │
+└────┴────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[TAILING] Tailing last 3 lines for [wikenship.it/] process (change the value with --lines option)
+^C
+PORT=3100PORT=3100

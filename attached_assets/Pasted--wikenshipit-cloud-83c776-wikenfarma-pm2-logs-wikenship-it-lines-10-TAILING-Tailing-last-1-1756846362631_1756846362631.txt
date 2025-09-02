@@ -1,0 +1,30 @@
+[wikenshipit@cloud-83c776 wikenfarma]$ pm2 logs "wikenship.it/" --lines 10
+[TAILING] Tailing last 10 lines for [wikenship.it/] process (change the value with --lines option)
+/home/wikenshipit/.pm2/logs/wikenship.it--error.log last 10 lines:
+1|wikenshi |     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+1|wikenshi |     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+1|wikenshi | Error: DATABASE_URL richiesto. Crea un file .env con l'URL del database o configura le variabili d'ambiente.
+1|wikenshi |     at file:///home/wikenshipit/apps/wikenfarma/dist/index.js:618:9
+1|wikenshi |     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+1|wikenshi |     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+1|wikenshi | Error: DATABASE_URL richiesto. Crea un file .env con l'URL del database o configura le variabili d'ambiente.
+1|wikenshi |     at file:///home/wikenshipit/apps/wikenfarma/dist/index.js:618:9
+1|wikenshi |     at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+1|wikenshi |     at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+
+/home/wikenshipit/.pm2/logs/wikenship.it--out.log last 10 lines:
+1|wikenshi | [dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+1|wikenshi | [dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+1|wikenshi | [dotenv@17.2.1] injecting env (0) from .env -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+1|wikenshi | [dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+1|wikenshi | [dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+1|wikenshi | [dotenv@17.2.1] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+1|wikenshi | [dotenv@17.2.1] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+1|wikenshi | [dotenv@17.2.1] injecting env (4) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+1|wikenshi | 10:51:17 PM [express] WikenFarma server running on https://wikenship.it (port 5000)
+1|wikenshi | 10:51:17 PM [express] API endpoints available at https://wikenship.it/api/*
+
+^C
+[wikenshipit@cloud-83c776 wikenfarma]$ # 5. Se ora funziona, testa il login
+curl -X POST https://wikenship.it/api/auth/login -H "Content-Type: application/json" -d '{"username":"admin","password":"password","userType":"standard"}'
+{"message":"Errore durante il login"}[wikenshipit@cloud-83c776 wikenfarma]$ 

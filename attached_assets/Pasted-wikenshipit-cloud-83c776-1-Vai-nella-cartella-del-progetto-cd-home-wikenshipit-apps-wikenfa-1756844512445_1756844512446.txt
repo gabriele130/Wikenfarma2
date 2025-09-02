@@ -1,0 +1,65 @@
+wikenshipit@cloud-83c776 ~]$ # 1. Vai nella cartella del progetto
+cd /home/wikenshipit/apps/wikenfarma
+
+# 2. Controlla se esiste il file .env
+ls -la | grep env
+
+# 3. Se non c'è, controllalo nella cartella superiore
+cat .env
+
+# 4. Copia il .env nella cartella dist se necessario
+cp .env dist/
+
+# 5. Riavvia il server dalla cartella corretta
+pm2 restart "wikenship.it/"
+
+# 6. Controlla i log
+pm2 logs "wikenship.it/" --lines 10
+-rw-r--r--   1 wikenshipit wikenshipit    501 Sep  2 21:58 .env
+# WikenFarma - Configurazione Locale
+# Copia questo file in .env e configura le tue variabili
+
+# Database Neon (inserisci il tuo URL Neon)
+DATABASE_URL="postgresql://wikenshipit_gabriele:Wikiwiki98.@127.0.0.1:5432/wikenshipit_principal"
+# Segreti per autenticazione (genera chiavi sicure per produzione)
+JWT_SECRET=wikenfarma-jwt-secret-key-local-development-2025
+SESSION_SECRET=wikenfarma-session-secret-key-local-development-2025
+
+# Impostazioni di sviluppo
+NODE_ENV=development
+PORT=5000Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [wikenship.it/](ids: [ 1 ])
+[PM2] [wikenship.it/](1) ✓
+┌────┬──────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name             │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1  │ wikenship.it/    │ default     │ 1.0.0   │ fork    │ 2250686  │ 0s     │ 11   │ online    │ 0%       │ 16.9mb   │ wik… │ disabled │
+└────┴──────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[TAILING] Tailing last 10 lines for [wikenship.it/] process (change the value with --lines option)
+/home/wikenshipit/.pm2/logs/wikenship.it--error.log last 10 lines:
+1|wikenshi |     at TLSSocket.onConnectEnd (node:_tls_wrap:1730:19)
+1|wikenshi |     at TLSSocket.emit (node:events:536:35)
+1|wikenshi |     at endReadableNT (node:internal/streams/readable:1698:12)
+1|wikenshi |     at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
+1|wikenshi |   code: 'ECONNRESET',
+1|wikenshi |   path: undefined,
+1|wikenshi |   host: undefined,
+1|wikenshi |   port: undefined,
+1|wikenshi |   localAddress: undefined
+1|wikenshi | }
+
+/home/wikenshipit/.pm2/logs/wikenship.it--out.log last 10 lines:
+1|wikenshi | 10:13:14 PM [express] POST /api/auth/login 500 in 4ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:13:14 PM [express] POST /api/auth/login 500 in 4ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:13:14 PM [express] POST /api/auth/login 500 in 4ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:13:15 PM [express] POST /api/auth/login 500 in 5ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:14:39 PM [express] POST /api/auth/login 500 in 5ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:14:39 PM [express] POST /api/auth/login 500 in 4ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:15:01 PM [express] POST /api/auth/login 500 in 5ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:15:01 PM [express] POST /api/auth/login 500 in 6ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:16:08 PM [express] POST /api/auth/login 500 in 7ms :: {"message":"Errore durante il login"}
+1|wikenshi | 10:16:08 PM [express] POST /api/auth/login 500 in 5ms :: {"message":"Errore durante il login"}
+
+1|wikenship.it/  | [dotenv@17.2.1] injecting env (4) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+1|wikenship.it/  | 10:21:28 PM [express] WikenFarma server running on https://wikenship.it (port 5000)
+1|wikenship.it/  | 10:21:28 PM [express] API endpoints available at https://wikenship.it/api/*
