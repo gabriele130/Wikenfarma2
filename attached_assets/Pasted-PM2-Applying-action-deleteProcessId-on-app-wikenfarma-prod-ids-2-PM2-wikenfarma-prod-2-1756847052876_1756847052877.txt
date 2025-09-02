@@ -1,0 +1,52 @@
+PM2] Applying action deleteProcessId on app [wikenfarma-prod](ids: [ 2 ])
+[PM2] [wikenfarma-prod](2) ✓
+┌────┬─────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name            │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ wikenship.it    │ default     │ 1.0.0   │ fork    │ 0        │ 0      │ 15   │ errored   │ 0%       │ 0b       │ wik… │ disabled │
+└────┴─────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [wikenship.it](ids: [ 3 ])
+[PM2] [wikenship.it](3) ✓
+┌────┬─────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name            │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ wikenship.it    │ default     │ 1.0.0   │ fork    │ 2273630  │ 0s     │ 15   │ online    │ 0%       │ 24.5mb   │ wik… │ disabled │
+└────┴─────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[TAILING] Tailing last 3 lines for [wikenship.it] process (change the value with --lines option)
+/home/wikenshipit/.pm2/logs/wikenship.it-out.log last 3 lines:
+3|wikenshi | [dotenv@17.2.1] injecting env (5) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+3|wikenshi | [dotenv@17.2.1] injecting env (5) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+3|wikenshi | [dotenv@17.2.1] injecting env (5) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+
+/home/wikenshipit/.pm2/logs/wikenship.it-error.log last 3 lines:
+3|wikenshi |   address: '127.0.0.1',
+3|wikenshi |   port: 3100
+3|wikenshi | }
+
+3|wikenship.it  | [dotenv@17.2.1] injecting env (5) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+3|wikenship.it  | 11:02:59 PM [express] Development server running on http://127.0.0.1:3100
+3|wikenship.it  | 11:02:59 PM [express] Will be accessible at https://wikenship.it in production
+3|wikenship.it  | Error: ENOENT: no such file or directory, open '/home/wikenshipit/apps/wikenfarma/client/index.html'
+3|wikenship.it  |     at async open (node:internal/fs/promises:639:25)
+3|wikenship.it  |     at async Object.readFile (node:internal/fs/promises:1246:14)
+3|wikenship.it  |     at async file:///home/wikenshipit/apps/wikenfarma/dist/index.js:2750:22
+3|wikenship.it  | Error: ENOENT: no such file or directory, open '/home/wikenshipit/apps/wikenfarma/client/index.html'
+3|wikenship.it  |     at async open (node:internal/fs/promises:639:25)
+3|wikenship.it  |     at async Object.readFile (node:internal/fs/promises:1246:14)
+3|wikenship.it  |     at async file:///home/wikenshipit/apps/wikenfarma/dist/index.js:2750:22
+3|wikenship.it  | Error: ENOENT: no such file or directory, open '/home/wikenshipit/apps/wikenfarma/client/index.html'
+3|wikenship.it  |     at async open (node:internal/fs/promises:639:25)
+3|wikenship.it  |     at async Object.readFile (node:internal/fs/promises:1246:14)
+3|wikenship.it  |     at async file:///home/wikenshipit/apps/wikenfarma/dist/index.js:2750:22
+3|wikenship.it  | Error: ENOENT: no such file or directory, open '/home/wikenshipit/apps/wikenfarma/client/index.html'
+3|wikenship.it  |     at async open (node:internal/fs/promises:639:25)
+3|wikenship.it  |     at async Object.readFile (node:internal/fs/promises:1246:14)
+3|wikenship.it  |     at async file:///home/wikenshipit/apps/wikenfarma/dist/index.js:2750:22
+3|wikenship.it  | Error: ENOENT: no such file or directory, open '/home/wikenshipit/apps/wikenfarma/client/index.html'
+3|wikenship.it  |     at async open (node:internal/fs/promises:639:25)
+3|wikenship.it  |     at async Object.readFile (node:internal/fs/promises:1246:14)
+3|wikenship.it  |     at async file:///home/wikenshipit/apps/wikenfarma/dist/index.js:2750:22
+^C
+{"user":{"id":"d0b3ae3f-49cb-47a5-9655-f79fc9359dbd","username":"admin","email":"admin@wikenship.it","firstName":"Admin","lastName":"User","profileImageUrl":null,"role":"admin","userType":"standard","isActive":true,"lastLogin":null,"createdAt":"2025-09-02T11:19:19.864Z","updatedAt":"2025-09-02T11:19:19.864Z"},"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkMGIzYWUzZi00OWNiLTQ3YTUtOTY1NS1mNzlmYzkzNTlkYmQiLCJ1c2VybmFtZSI6ImFkbWluIiwidXNlclR5cGUiOiJzdGFuZGFyZCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc1Njg0NzAzMiwiZXhwIjoxNzU3NDUxODMyfQ.Jw9JYW_-qoNxlp6McEsJ4l8npLrSo2kDahznvrfftQQ","message":"Login effettuato con successo"}[wikenshipit@cloud-83c776 wikenfarma]$ ^C
+[wikenshipit@cloud-83c776 wikenfarma]$ 
