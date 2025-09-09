@@ -135,8 +135,8 @@ export function setupCustomAuth(app: Express) {
         });
       }
 
-      // Verify password - TEMPORANEO: confronto diretto per test
-      const isPasswordValid = password === user.password;
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         return res.status(401).json({ message: "Username o password non validi" });
       }
