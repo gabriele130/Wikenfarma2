@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupCustomAuth, authenticateToken, requireRole, requireUserType } from "./customAuth";
 import { insertCustomerSchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertInformatoreSchema } from "@shared/schema";
 import { z } from "zod";
+import { gestlineService, GestLineOrderData } from "./gestlineService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint for domain verification
@@ -534,6 +535,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to sync pharmaevo orders:", error);
       res.status(500).json({ message: "Failed to sync pharmaevo orders" });
+    }
+  });
+
+  // GestLine API Routes - ERP integration
+  app.post("/api/gestline/test", authenticateToken, async (req, res) => {
+    try {
+      console.log("🔄 Testing GestLine API connection...");
+      const result = await gestlineService.testConnection();
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to test GestLine connection:", error);
+      res.status(500).json({ message: "Failed to test GestLine connection" });
+    }
+  });
+
+  app.post("/api/gestline/send-order", authenticateToken, async (req, res) => {
+    try {
+      const orderData = req.body as GestLineOrderData;
+      console.log(`🔄 Sending order ${orderData.orderNumber} to GestLine...`);
+      
+      const result = await gestlineService.sendOrder(orderData);
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: `Order ${orderData.orderNumber} sent to GestLine successfully`,
+          data: result.data
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: result.error,
+          statusCode: result.statusCode
+        });
+      }
+    } catch (error) {
+      console.error("Failed to send order to GestLine:", error);
+      res.status(500).json({ message: "Failed to send order to GestLine" });
+    }
+  });
+
+  app.post("/api/gestline/sync-product", authenticateToken, async (req, res) => {
+    try {
+      const productData = req.body;
+      console.log(`🔄 Syncing product ${productData.code} to GestLine...`);
+      
+      const result = await gestlineService.syncProduct(productData);
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: `Product ${productData.code} synced to GestLine successfully`,
+          data: result.data
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: result.error,
+          statusCode: result.statusCode
+        });
+      }
+    } catch (error) {
+      console.error("Failed to sync product to GestLine:", error);
+      res.status(500).json({ message: "Failed to sync product to GestLine" });
+    }
+  });
+
+  app.post("/api/gestline/batch-orders", authenticateToken, async (req, res) => {
+    try {
+      const { orders } = req.body as { orders: GestLineOrderData[] };
+      console.log(`🔄 Sending ${orders.length} orders to GestLine...`);
+      
+      const results = [];
+      for (const orderData of orders) {
+        const result = await gestlineService.sendOrder(orderData);
+        results.push({
+          orderNumber: orderData.orderNumber,
+          success: result.success,
+          error: result.error,
+          statusCode: result.statusCode
+        });
+      }
+      
+      const successCount = results.filter(r => r.success).length;
+      
+      res.json({
+        success: true,
+        message: `Processed ${orders.length} orders. ${successCount} successful.`,
+        results
+      });
+    } catch (error) {
+      console.error("Failed to send batch orders to GestLine:", error);
+      res.status(500).json({ message: "Failed to send batch orders to GestLine" });
     }
   });
 
