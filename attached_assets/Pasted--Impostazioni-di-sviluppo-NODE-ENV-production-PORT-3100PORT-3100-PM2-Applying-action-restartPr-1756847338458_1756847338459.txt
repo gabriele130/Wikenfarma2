@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Impostazioni di sviluppo
 NODE_ENV=production
 PORT=3100PORT=3100
@@ -71,3 +72,78 @@ PORT=3100PORT=3100
 3|wikenship.it  | 11:08:11 PM [express] GET /api/compensations/stats 401 in 1ms :: {"message":"Token di accesso richies…
 3|wikenship.it  | 11:08:39 PM [express] GET /api/informatori 401 in 2ms :: {"message":"Token di accesso richiesto"}
 3|wikenship.it  | 11:08:39 PM [express] GET /api/compensations/stats 401 in 1ms :: {"message":"Token di accesso richies…
+=======
+# Impostazioni di sviluppo
+NODE_ENV=production
+PORT=3100PORT=3100
+[PM2] Applying action restartProcessId on app [wikenship.it](ids: [ 3 ])
+[PM2] [wikenship.it](3) ✓
+┌────┬─────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name            │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ wikenship.it    │ default     │ 1.0.0   │ fork    │ 2274124  │ 0s     │ 18   │ online    │ 0%       │ 16.9mb   │ wik… │ disabled │
+└────┴─────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[TAILING] Tailing last 5 lines for [wikenship.it] process (change the value with --lines option)
+/home/wikenshipit/.pm2/logs/wikenship.it-error.log last 5 lines:
+3|wikenshi |     at async file:///home/wikenshipit/apps/wikenfarma/dist/index.js:2750:22
+3|wikenshi | Error: ENOENT: no such file or directory, open '/home/wikenshipit/apps/wikenfarma/client/index.html'
+3|wikenshi |     at async open (node:internal/fs/promises:639:25)
+3|wikenshi |     at async Object.readFile (node:internal/fs/promises:1246:14)
+3|wikenshi |     at async file:///home/wikenshipit/apps/wikenfarma/dist/index.js:2750:22
+
+/home/wikenshipit/.pm2/logs/wikenship.it-out.log last 5 lines:
+3|wikenshi | 11:04:42 PM [express] Development server running on http://127.0.0.1:3100
+3|wikenshi | 11:04:42 PM [express] Will be accessible at https://wikenship.it in production
+3|wikenshi | [dotenv@17.2.1] injecting env (5) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+3|wikenshi | 11:05:03 PM [express] Development server running on http://127.0.0.1:3100
+3|wikenshi | 11:05:03 PM [express] Will be accessible at https://wikenship.it in production
+
+3|wikenship.it  | [dotenv@17.2.1] injecting env (5) from .env -- tip: 📡 observe env with Radar: https://dotenvx.com/radar
+3|wikenship.it  | 11:07:12 PM [express] WikenFarma server running on https://wikenship.it (port 3100)
+3|wikenship.it  | 11:07:12 PM [express] API endpoints available at https://wikenship.it/api/*
+3|wikenship.it  | 11:07:16 PM [express] GET /api/auth/user 403 in 2ms :: {"message":"Token non valido"}
+3|wikenship.it  | 11:07:20 PM [express] POST /api/auth/login 200 in 28ms :: {"user":{"id":"d0b3ae3f-49cb-47a5-9655-f79f…
+3|wikenship.it  | 11:07:20 PM [express] GET /api/auth/user 200 in 4ms :: {"id":"d0b3ae3f-49cb-47a5-9655-f79fc9359dbd","…
+3|wikenship.it  | Dashboard metrics error: PostgresError: column "total" does not exist
+3|wikenship.it  |     at ErrorResponse (file:///home/wikenshipit/apps/wikenfarma/node_modules/postgres/src/connection.js:794:26)
+3|wikenship.it  |     at handle (file:///home/wikenshipit/apps/wikenfarma/node_modules/postgres/src/connection.js:480:6)
+3|wikenship.it  |     at Socket.data (file:///home/wikenshipit/apps/wikenfarma/node_modules/postgres/src/connection.js:315:9)
+3|wikenship.it  |     at Socket.emit (node:events:524:28)
+3|wikenship.it  |     at addChunk (node:internal/streams/readable:561:12)
+3|wikenship.it  |     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+3|wikenship.it  |     at Readable.push (node:internal/streams/readable:392:5)
+3|wikenship.it  |     at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+3|wikenship.it  |   severity_local: 'ERROR',
+3|wikenship.it  |   severity: 'ERROR',
+3|wikenship.it  |   code: '42703',
+3|wikenship.it  |   position: '12',
+3|wikenship.it  |   file: 'parse_relation.c',
+3|wikenship.it  |   line: '3647',
+3|wikenship.it  |   routine: 'errorMissingColumn'
+3|wikenship.it  | }
+3|wikenship.it  | 11:07:21 PM [express] GET /api/dashboard/metrics 200 in 6ms :: {"totalRevenue":145820.75,"totalOrders…
+3|wikenship.it  | 11:07:27 PM [express] POST /api/auth/logout 200 in 2ms :: {"message":"Logout effettuato con successo"}
+3|wikenship.it  | 11:07:29 PM [express] POST /api/auth/logout 200 in 2ms :: {"message":"Logout effettuato con successo"}
+3|wikenship.it  | 11:07:31 PM [express] GET /api/customers/stats 401 in 3ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:07:31 PM [express] GET /api/customers 401 in 7ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:07:33 PM [express] GET /api/customers 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:07:33 PM [express] GET /api/customers/stats 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:07:40 PM [express] POST /api/customers 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:07:40 PM [express] GET /api/customers/stats 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:07:40 PM [express] GET /api/customers 401 in 0ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:07:45 PM [express] GET /api/customers 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:07:46 PM [express] GET /api/customers 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:08:00 PM [express] GET /api/analytics/product-codes 401 in 1ms :: {"message":"Token di accesso ric…
+3|wikenship.it  | 11:08:00 PM [express] GET /api/analytics/revenue 401 in 0ms :: {"message":"Token di accesso richiesto…
+3|wikenship.it  | 11:08:00 PM [express] GET /api/informatori 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:08:00 PM [express] GET /api/analytics/comparison 401 in 1ms :: {"message":"Token di accesso richie…
+3|wikenship.it  | 11:08:04 PM [express] GET /api/compensations 200 in 1ms
+3|wikenship.it  | 11:08:04 PM [express] GET /api/informatori 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:08:04 PM [express] GET /api/compensations/stats 401 in 6ms :: {"message":"Token di accesso richies…
+3|wikenship.it  | 11:08:08 PM [express] GET /api/integrations 401 in 2ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:08:08 PM [express] GET /api/products 401 in 2ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:08:11 PM [express] GET /api/informatori 401 in 1ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:08:11 PM [express] GET /api/compensations/stats 401 in 1ms :: {"message":"Token di accesso richies…
+3|wikenship.it  | 11:08:39 PM [express] GET /api/informatori 401 in 2ms :: {"message":"Token di accesso richiesto"}
+3|wikenship.it  | 11:08:39 PM [express] GET /api/compensations/stats 401 in 1ms :: {"message":"Token di accesso richies…
+>>>>>>> 312fa3304dd9c8bb2a8e5461033ff6e0f5af0721

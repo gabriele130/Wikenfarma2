@@ -1,0 +1,219 @@
+Realizzare una webapp modulare e integrata, che gestisca in modo centralizzato ed automatizzato: 
+
+Gestione ordini privati, farmacie e grossisti 
+
+Anagrafiche clienti (medici, farmacie, grossisti) 
+
+Magazzino e spedizioni 
+
+Provvigioni, punti fedeltà e compensi ISF 
+
+Post-vendita, marketing, automazioni e newsletter 
+
+Integrazione con sistemi esterni (Ebay, Gestline, Odoo, GLS, PharmaEVO, Ecommerce, Email, WhatsApp) 
+
+Reportistica avanzata per analisi marketing e controllo gestionale 
+
+ 
+
+2. Flussi Principali (Attuali e Futuri) e Automazione 
+
+2.1. Ordini Privati 
+
+Vecchia procedura: 
+
+Ordine via telefono/cartaceo, sito, eBay 
+
+Inserimento manuale in Gestline, GLS, Magazzino 
+
+Gestione manuale di anagrafiche, spedizione, provvigioni e marketing 
+
+Nuova procedura: 
+
+Ordini da sito web, eBay, telefono/inserimento diretto 
+
+Gestione ordini direttamente da magazzino 
+
+Integrazione automatica tra Gestline, GLS, Odoo, PharmaEVO 
+
+Attribuzione automatica punti e provvigioni (ISF/Wikenship) 
+
+Inserimento automatico dei dati in Odoo e automation di reminder 
+
+COSA RESTA MANUALE: 
+
+Presa ordini telefonica 
+
+Emissione scontrino 
+
+Preparazione pacco 
+
+Generazione borderò 
+
+Invio newsletter 
+
+ 
+
+2.2. Ordini Farmacie 
+
+Vecchia procedura: 
+
+Modulo farmacie Gestline 
+
+Controllo manuale pagamento, emissione fattura, spedizione GLS, inserimento anagrafiche su Odoo 
+
+Nuova procedura: 
+
+Ordini tramite PharmaEVO (gestionale ISF) 
+
+Ordine automatico, fatturazione manuale ed invio automatico 
+
+Condivisione anagrafiche ISF/Gestline 
+
+Integrazione GLS: Ricezione dati da Gestline con creazione di anagrafica, etichetta di vettura e stampa 
+
+Aggiornamento anagrafiche e invio newsletter tramite Odoo 
+
+COSA RESTA MANUALE: 
+
+Inserimento ordini 
+
+Check pagamenti 
+
+Emissione documento 
+
+Preparazione pacco 
+
+Generazione borderò 
+
+Invio newsletter 
+
+ 
+
+2.3. Ordini Grossisti 
+
+Vecchia procedura: 
+
+Ordine via email, inserimento manuale, fatturazione 
+
+Spedizione GLS, magazzino, post-vendita manuale 
+
+Nuova procedura: 
+
+Integrazione con GLS: Ricezione dati da Gestline con creazione di anagrafica, etichetta di vettura e stampa 
+
+Aggiornamento anagrafiche Odoo 
+
+COSA RESTA MANUALE: 
+
+Inserimento ordini 
+
+Check pagamenti 
+
+Emissione documento 
+
+Preparazione pacco 
+
+Generazione borderò 
+
+Invio newsletter 
+
+ 
+
+3. Gestionale ISF e WebApp Wikenship 
+
+Obiettivi e Funzionalità: 
+
+Elaborazione dati IQVIA: 
+
+Import, elaborazione e reportizzazione 
+
+Calcolo compensi ISF, somma bonus e confronti mensili 
+
+Integrazione API: 
+
+Apertura API per export dati su altri sistemi 
+
+Integrazione Gestline/Odoo/GLS: 
+
+Ricezione automatica ordini 
+
+Pro Forma, check pagamenti, fatturazione, invio documenti e spedizioni 
+
+Aggiornamento anagrafiche e automation marketing (benvenuto, newsletter) 
+
+Automazioni Marketing: 
+
+Attribuzione punti Wikenship e provvigioni 
+
+Gestione tag e funnel su Odoo 
+
+Reminder automatici 
+
+ 
+
+4. Integrazioni e Interfacce 
+
+Gestline: Importazione automatica ordini, gestione documenti, allineamento anagrafiche 
+
+Odoo: Sincronizzazione anagrafiche, tag, automazioni, newsletter 
+
+GLS: Creazione etichette spedizione, tracking, stampa documenti 
+
+PharmaEVO: Import dei dati per calcolo bonus e compensi 
+
+eCommerce (sito wikenfarma.com + eBay): 
+
+Download automatico ordini 
+
+Controllo validità dati (check automatici anti-errori su ordini da sito/eBay) 
+
+ 
+
+5. Gestione Magazzino e Delivery 
+
+Stampa elenco prodotti per gestione diretta magazzino 
+
+Gestione GLS + Bartolini 
+
+ 
+
+ 
+
+6. Gestione Marketing, Provvigioni e Punti 
+
+Attribuzione automatica punti ai medici (Wikenship) 
+
+Calcolo automatico provvigioni ISF (con diverse percentuali prodotto-specifiche) 
+
+Gestione/inserimento tag marketing su Odoo 
+
+ 
+
+7. Funzionalità Aggiuntive/Extra 
+
+Gestione errori e revisioni (workflow correzione manuale/automatica) 
+
+Gestione automatica dei bonus, statistiche, controllo discrepanze 
+
+Reportistica avanzata su tutte le fasi operative 
+
+ 
+
+8. Nota sulle Aree Miste Manuale/Automatica 
+
+Alcune attività restano parzialmente manuali per esigenze di controllo o sicurezza, ma devono essere monitorate e tracciate nella webapp (con log, notifiche e supervisione). 
+
+ 
+
+9. Output e Deliverable richiesti 
+
+Webapp responsive (desktop/mobile) 
+
+API RESTful per integrazione sistemi esterni 
+
+Dashboard amministrativa multi-ruolo 
+
+Sistema di logging e tracciamento attività 
+
+Reportistica avanzata esportabile (PDF, Excel) 

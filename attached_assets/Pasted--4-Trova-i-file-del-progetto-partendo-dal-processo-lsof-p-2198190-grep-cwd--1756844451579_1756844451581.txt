@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 4. Trova i file del progetto partendo dal processo
 lsof -p 2198190 | grep cwd
 ┌────┬──────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
@@ -67,4 +68,75 @@ lsof -p 2198190 | grep cwd
 wikensh+ 2198190  0.1  2.7 22555116 110608 ?     S<sl 16:47   0:22 node /home/wikenshipit/apps/wikenfarma/dist/index.js
 wikensh+ 2250593  0.0  0.0   6408  2196 pts/0    S+   22:20   0:00 grep --color=auto node
 node\x20/ 2198190 wikenshipit  cwd       DIR                8,1       75 142700808 /home/wikenshipit/apps/wikenfarma/dist
+=======
+# 4. Trova i file del progetto partendo dal processo
+lsof -p 2198190 | grep cwd
+┌────┬──────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name             │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1  │ wikenship.it/    │ default     │ 1.0.0   │ fork    │ 2198190  │ 5h     │ 10   │ online    │ 0%       │ 108.0mb  │ wik… │ disabled │
+└────┴──────────────────┴─────────────┴─────────┴─────────┴────────���─┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+ Describing process with id 1 - name wikenship.it/ 
+┌───────────────────┬─────────────────────────────────────────────────────┐
+│ status            │ online                                              │
+│ name              │ wikenship.it/                                       │
+│ namespace         │ default                                             │
+│ version           │ 1.0.0                                               │
+│ restarts          │ 10                                                  │
+│ uptime            │ 5h                                                  │
+│ script path       │ /home/wikenshipit/apps/wikenfarma/dist/index.js     │
+│ script args       │ N/A                                                 │
+│ error log path    │ /home/wikenshipit/.pm2/logs/wikenship.it--error.log │
+│ out log path      │ /home/wikenshipit/.pm2/logs/wikenship.it--out.log   │
+│ pid path          │ /home/wikenshipit/.pm2/pids/wikenship.it--1.pid     │
+│ interpreter       │ /usr/bin/node                                       │
+│ interpreter args  │ N/A                                                 │
+│ script id         │ 1                                                   │
+│ exec cwd          │ /home/wikenshipit/apps/wikenfarma/dist              │
+│ exec mode         │ fork_mode                                           │
+│ node.js version   │ 20.19.4                                             │
+│ node env          │ production                                          │
+│ watch & reload    │ ✘                                                   │
+│ unstable restarts │ 9                                                   │
+│ created at        │ 2025-09-02T14:47:37.505Z                            │
+└───────────────────┴─────────────────────────────────────────────────────┘
+ Actions available 
+┌────────────────────────┐
+│ km:heapdump            │
+│ km:cpu:profiling:start │
+│ km:cpu:profiling:stop  │
+│ km:heap:sampling:start │
+│ km:heap:sampling:stop  │
+└────────────────────────┘
+ Trigger via: pm2 trigger wikenship.it/ <action_name>
+
+ Code metrics value 
+┌────────────────────────┬───────────┐
+│ Used Heap Size         │ 27.15 MiB │
+│ Heap Usage             │ 85.43 %   │
+│ Heap Size              │ 31.79 MiB │
+│ Event Loop Latency p95 │ 1.28 ms   │
+│ Event Loop Latency     │ 0.30 ms   │
+│ Active handles         │ 4         │
+│ Active requests        │ 0         │
+│ HTTP                   │ 0 req/min │
+│ HTTP P95 Latency       │ 8 ms      │
+│ HTTP Mean Latency      │ 5 ms      │
+└────────────────────────┴───────────┘
+ Divergent env variables from local env 
+┌──────┬─────────────────────────────────────────┐
+│ PWD  │ /home/wikenshipit/apps/wikenfarma/dist/ │
+│ TERM │ unknown                                 │
+│ PATH │ /sbin:/bin:/usr/sbin:/usr/bin           │
+│ MAIL │ /var/mail/root                          │
+└──────┴─────────────────────────────────────────┘
+
+ Add your own code metrics: http://bit.ly/code-metrics
+ Use `pm2 logs wikenship.it/ [--lines 1000]` to display logs
+ Use `pm2 env 1` to display environment variables
+ Use `pm2 monit` to monitor CPU and Memory usage wikenship.it/
+wikensh+ 2198190  0.1  2.7 22555116 110608 ?     S<sl 16:47   0:22 node /home/wikenshipit/apps/wikenfarma/dist/index.js
+wikensh+ 2250593  0.0  0.0   6408  2196 pts/0    S+   22:20   0:00 grep --color=auto node
+node\x20/ 2198190 wikenshipit  cwd       DIR                8,1       75 142700808 /home/wikenshipit/apps/wikenfarma/dist
+>>>>>>> 312fa3304dd9c8bb2a8e5461033ff6e0f5af0721
 [wikenshipit@cloud-83c776 ~]$ 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Last login: Tue Sep  2 17:09:22 2025 from 217.174.148.83
 [wikenshipit@cloud-83c776 ~]$ pm2 status
 pm2 restart wikenfarma
@@ -89,4 +90,97 @@ wikenshipit_principal-> x
 wikenshipit_principal-> cd
 wikenshipit_principal-> cd..
 wikenshipit_principal-> ^C
+=======
+Last login: Tue Sep  2 17:09:22 2025 from 217.174.148.83
+[wikenshipit@cloud-83c776 ~]$ pm2 status
+pm2 restart wikenfarma
+┌────┬──────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name             │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼──────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1  │ wikenship.it/    │ default     │ 1.0.0   │ fork    │ 2198190  │ 5h     │ 10   │ online    │ 0%       │ 108.2mb  │ wik… │ disabled │
+└────┴──────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+Use --update-env to update environment variables
+[PM2][ERROR] Process or Namespace wikenfarma not found
+[wikenshipit@cloud-83c776 ~]$ npm run db:push
+npm error code ENOENT
+npm error syscall open
+npm error path /home/wikenshipit/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/home/wikenshipit/package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /home/wikenshipit/.npm/_logs/2025-09-02T20_04_12_801Z-debug-0.log
+[wikenshipit@cloud-83c776 ~]$ psql -h 127.0.0.1 -p 5432 -U wikenshipit_gabriele -d wikenshipit_principal
+Password for user wikenshipit_gabriele: 
+psql (14.19)Type "help" for help.
+wikenshipit_principal=> psql -h 127.0.0.1 -p 5432 -U wikenshipit_gabriele -d wikenshipit_principal
+wikenshipit_principal-> INSERT INTO users (username, email, password, first_name, last_name, role, user_type) 
+VALUES ('admin', 'admin@wikenship.it', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin', 'standard');
+ERROR:  syntax error at or near "psql"
+LINE 1: psql -h 127.0.0.1 -p 5432 -U wikenshipit_gabriele -d wikensh...
+        ^
+wikenshipit_principal=> npx drizzle-kit push
+wikenshipit_principal-> CREATE TABLE IF NOT EXISTS users (
+    id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+    username varchar NOT NULL UNIQUE,
+    email varchar NOT NULL,
+    password varchar NOT NULL,
+    first_name varchar,
+    last_name varchar,
+    profile_image_url varchar,
+    role varchar DEFAULT 'user',
+    user_type varchar DEFAULT 'standard',
+    is_active boolean DEFAULT true,
+    last_login timestamp,
+    created_at timestamp DEFAULT now(),
+    updated_at timestamp DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS customers (
+    id varchar PRIMARY KEY DEFAULT gen_random_uuid(),
+    name varchar NOT NULL,
+    email varchar,
+    phone varchar,
+    address varchar,
+    city varchar,
+    postal_code varchar,
+    country varchar DEFAULT 'Italy',
+    is_active boolean DEFAULT true,
+    created_at timestamp DEFAULT now(),
+    updated_at timestamp DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS products (
+d');ES ('admin', 'admin@wikenship.it', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin', 'standar
+ERROR:  syntax error at or near "npx"
+LINE 1: npx drizzle-kit push
+        ^
+NOTICE:  relation "customers" already exists, skipping
+CREATE TABLE
+NOTICE:  relation "products" already exists, skipping
+CREATE TABLE
+NOTICE:  relation "orders" already exists, skipping
+CREATE TABLE
+NOTICE:  relation "order_items" already exists, skipping
+CREATE TABLE
+NOTICE:  relation "informatori" already exists, skipping
+CREATE TABLE
+NOTICE:  relation "commission_logs" already exists, skipping
+CREATE TABLE
+ERROR:  duplicate key value violates unique constraint "users_username_key"
+DETAIL:  Key (username)=(admin) already exists.
+wikenshipit_principal=> INSERT INTO users (username, email, password, first_name, last_name, role, user_type) 
+VALUES ('admin', 'admin@wikenship.it', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin', 'standard');
+ERROR:  duplicate key value violates unique constraint "users_username_key"
+DETAIL:  Key (username)=(admin) already exists.
+wikenshipit_principal=> pm2 status
+pm2 logs wikenfarma
+wikenshipit_principal-> q
+wikenshipit_principal-> /q
+wikenshipit_principal-> XX
+wikenshipit_principal-> x
+wikenshipit_principal-> x
+wikenshipit_principal-> x
+wikenshipit_principal-> cd
+wikenshipit_principal-> cd..
+wikenshipit_principal-> ^C
+>>>>>>> 312fa3304dd9c8bb2a8e5461033ff6e0f5af0721
 wikenshipit_principal=> 

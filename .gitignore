@@ -3,5 +3,9 @@ dist
 .DS_Store
 server/public
 vite.config.ts.*
+<<<<<<< HEAD
 *.tar.gz
 .env
+=======
+*.tar.gz
+>>>>>>> 312fa3304dd9c8bb2a8e5461033ff6e0f5af0721

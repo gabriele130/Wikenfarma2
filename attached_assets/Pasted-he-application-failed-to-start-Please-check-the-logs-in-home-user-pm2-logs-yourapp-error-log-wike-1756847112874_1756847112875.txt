@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 he application failed to start. Please check the logs in /home/user/.pm2/logs/yourapp-error.log[wikenshipit@cloud-83c776 wikenfarma]$ # Verifica dove sono i file del frontend # Verifica dove sono i file del frontend
 ls -la dist/
 ls -la client/
@@ -33,4 +34,41 @@ Use --update-env to update environment variables
 ├────┼─────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
 │ 3  │ wikenship.it    │ default     │ 1.0.0   │ fork    │ 2273939  │ 0s     │ 17   │ online    │ 0%       │ 24.5mb   │ wik… │ disabled │
 └────┴─────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+=======
+he application failed to start. Please check the logs in /home/user/.pm2/logs/yourapp-error.log[wikenshipit@cloud-83c776 wikenfarma]$ # Verifica dove sono i file del frontend # Verifica dove sono i file del frontend
+ls -la dist/
+ls -la client/
+
+# Il server cerca il file sbagliato. Crea un link simbolico temporaneo
+ln -s /home/wikenshipit/apps/wikenfarma/client /home/wikenshipit/apps/wikenfarma/dist/public
+
+# Oppure copia l'index.html nella posizione corretta
+mkdir -p dist/public
+cp client/index.html dist/public/
+
+# Riavvia il server
+pm2 restart wikenship.it
+
+# Testa il login
+curl -X POST https://wikenship.it/api/auth/login -H "Content-Type: application/json" -d '{"username":"admin","password":"password","userType":"standard"}'
+total 112
+drwx--x--x 4 wikenshipit wikenshipit     75 Sep  2 22:58 .
+drwx--x--x 4 wikenshipit wikenshipit     95 Sep  2 23:00 ..
+-rw-r--r-- 1 wikenshipit wikenshipit    175 Sep  2 16:48 app.yml
+drwxr-xr-x 3 wikenshipit wikenshipit     20 Sep  2 16:48 dist
+-rw-r--r-- 1 wikenshipit wikenshipit    501 Sep  2 22:51 .env
+-rw-r--r-- 1 wikenshipit wikenshipit 105522 Sep  2 22:58 index.js
+drwx--x--x 3 wikenshipit wikenshipit     80 Sep  2 23:04 public
+ls: cannot access 'client/': No such file or directory
+ln: failed to create symbolic link '/home/wikenshipit/apps/wikenfarma/dist/public/client': File exists
+cp: cannot stat 'client/index.html': No such file or directory
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [wikenship.it](ids: [ 3 ])
+[PM2] [wikenship.it](3) ✓
+┌────┬─────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name            │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 3  │ wikenship.it    │ default     │ 1.0.0   │ fork    │ 2273939  │ 0s     │ 17   │ online    │ 0%       │ 24.5mb   │ wik… │ disabled │
+└────┴─────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+>>>>>>> 312fa3304dd9c8bb2a8e5461033ff6e0f5af0721
 The application failed to start. Please check the logs in /home/user/.pm2/logs/yourapp-error.log[wikenshipit@cloud-83c776 wikenfarma]$ 
