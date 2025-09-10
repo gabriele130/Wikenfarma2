@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 
 const menuItems = [
   { path: "/", label: "Dashboard", icon: "fas fa-tachometer-alt", section: "main" },
