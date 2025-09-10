@@ -379,19 +379,6 @@ export class DatabaseStorage implements IStorage {
     return this.getOrder(newOrder.id) as Promise<OrderWithDetails>;
   }
 
-  async updateOrder(id: string, order: Partial<InsertOrder>): Promise<Order> {
-    const [updatedOrder] = await db
-      .update(orders)
-      .set({ ...order, updatedAt: new Date() })
-      .where(eq(orders.id, id))
-      .returning();
-    return updatedOrder;
-  }
-
-  async deleteOrder(id: string): Promise<void> {
-    await db.delete(orderItems).where(eq(orderItems.orderId, id));
-    await db.delete(orders).where(eq(orders.id, id));
-  }
 
   async getRecentOrders(limit = 5): Promise<OrderWithDetails[]> {
     return db.query.orders.findMany({
