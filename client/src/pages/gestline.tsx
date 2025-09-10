@@ -20,25 +20,29 @@ export default function GestLinePage() {
   // Query per dati generici
   const { data: gestlineData, isLoading: isLoadingData, error: dataError, refetch: refetchData } = useQuery<GestLineResponse>({
     queryKey: ['/api/gestline/data'],
-    retry: false
+    retry: false,
+    refetchOnWindowFocus: false
   });
 
   // Query per ordini
   const { data: ordersData, isLoading: isLoadingOrders, error: ordersError, refetch: refetchOrders } = useQuery<GestLineResponse>({
     queryKey: ['/api/gestline/orders'],
-    retry: false
+    retry: false,
+    refetchOnWindowFocus: false
   });
 
   // Query per prodotti
   const { data: productsData, isLoading: isLoadingProducts, error: productsError, refetch: refetchProducts } = useQuery<GestLineResponse>({
     queryKey: ['/api/gestline/products'],
-    retry: false
+    retry: false,
+    refetchOnWindowFocus: false
   });
 
   // Query per clienti
   const { data: customersData, isLoading: isLoadingCustomers, error: customersError, refetch: refetchCustomers } = useQuery<GestLineResponse>({
     queryKey: ['/api/gestline/customers'],
-    retry: false
+    retry: false,
+    refetchOnWindowFocus: false
   });
 
   const ResponseCard = ({ 
