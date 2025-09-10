@@ -147,6 +147,10 @@ export default function ModernDashboard() {
     totalOrders: dashboardData?.totalOrders || 0,
     activeCustomers: dashboardData?.activeCustomers || 0,
     activeProducts: dashboardData?.totalProducts || 0,
+    revenueChange: dashboardData?.revenueChange || 0,
+    ordersChange: dashboardData?.ordersChange || 0,
+    customersChange: dashboardData?.customersChange || 0,
+    productsChange: dashboardData?.productsChange || 0,
   };
 
   const recentOrders = dashboardData?.recentOrders || [];
@@ -202,7 +206,12 @@ export default function ModernDashboard() {
               </p>
               <div className="flex items-center space-x-2 mt-4 text-sm text-blue-200">
                 <Calendar className="h-4 w-4" />
-                <span>martedì 19 agosto 2025</span>
+                <span>{new Date().toLocaleDateString('it-IT', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</span>
               </div>
             </div>
             <div className="text-right">
@@ -226,32 +235,34 @@ export default function ModernDashboard() {
         <StatCard 
           title="Fatturato Totale" 
           value={formatCurrency(stats.totalRevenue)}
-          change={12.5}
-          changeType="up"
+          change={Math.abs(stats.revenueChange)}
+          changeType={stats.revenueChange > 0 ? "up" : stats.revenueChange < 0 ? "down" : "neutral"}
           icon={DollarSign}
-          subtitle="+12.5% dal mese scorso"
+          subtitle={`${stats.revenueChange > 0 ? '+' : stats.revenueChange < 0 ? '-' : ''}${Math.abs(stats.revenueChange).toFixed(1)}% dal mese scorso`}
         />
         <StatCard 
           title="Ordini" 
           value={stats.totalOrders.toLocaleString()}
-          change={8.3}
-          changeType="up"
+          change={Math.abs(stats.ordersChange)}
+          changeType={stats.ordersChange > 0 ? "up" : stats.ordersChange < 0 ? "down" : "neutral"}
           icon={ShoppingCart}
-          subtitle="+8.3% dal mese scorso"
+          subtitle={`${stats.ordersChange > 0 ? '+' : stats.ordersChange < 0 ? '-' : ''}${Math.abs(stats.ordersChange).toFixed(1)}% dal mese scorso`}
         />
         <StatCard 
           title="Clienti Attivi" 
           value={stats.activeCustomers.toLocaleString()}
-          change={5.7}
-          changeType="up"
+          change={Math.abs(stats.customersChange)}
+          changeType={stats.customersChange > 0 ? "up" : stats.customersChange < 0 ? "down" : "neutral"}
           icon={Users}
-          subtitle="+5.7% dal mese scorso"
+          subtitle={`${stats.customersChange > 0 ? '+' : stats.customersChange < 0 ? '-' : ''}${Math.abs(stats.customersChange).toFixed(1)}% dal mese scorso`}
         />
         <StatCard 
           title="Prodotti" 
           value={stats.activeProducts.toLocaleString()}
+          change={Math.abs(stats.productsChange)}
+          changeType={stats.productsChange > 0 ? "up" : stats.productsChange < 0 ? "down" : "neutral"}
           icon={Package}
-          subtitle="Prodotti in catalogo"
+          subtitle={`${stats.productsChange > 0 ? '+' : stats.productsChange < 0 ? '-' : ''}${Math.abs(stats.productsChange).toFixed(1)}% dal mese scorso`}
         />
       </div>
 

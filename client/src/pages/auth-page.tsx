@@ -34,20 +34,37 @@ export default function AuthPage() {
     },
     onSuccess: (data) => {
       toast({
-        title: "Login effettuato",
-        description: data.message,
+        title: "✅ Accesso riuscito!",
+        description: `Benvenuto ${data.user?.firstName ? data.user.firstName + ' ' + data.user.lastName : data.user?.username}. Reindirizzamento alla dashboard...`,
+        duration: 3000,
       })
       // Store token in localStorage
       localStorage.setItem("auth_token", data.token)
       // Invalidate user query to refresh user state
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] })
-      setLocation("/")
+      setTimeout(() => setLocation("/"), 1000) // Small delay to show success message
     },
     onError: (error: any) => {
+      // Enhanced error messages based on error type
+      let errorTitle = "❌ Errore di accesso";
+      let errorDescription = "Credenziali non valide. Verifica username e password.";
+      
+      if (error.message?.includes("non autorizzato") || error.message?.includes("informatore")) {
+        errorTitle = "🚫 Accesso non autorizzato";
+        errorDescription = "Il tuo account non è autorizzato per questo tipo di accesso. Contatta l'amministratore.";
+      } else if (error.message?.includes("disattivato") || error.message?.includes("inactive")) {
+        errorTitle = "⚠️ Account disattivato";
+        errorDescription = "Il tuo account è stato disattivato. Contatta l'amministratore per riattivarlo.";
+      } else if (error.message?.includes("network") || error.message?.includes("fetch")) {
+        errorTitle = "🌐 Errore di connessione";
+        errorDescription = "Problema di connessione al server. Riprova tra qualche momento.";
+      }
+      
       toast({
-        title: "Errore di login",
-        description: error.message || "Username o password non validi",
+        title: errorTitle,
+        description: errorDescription,
         variant: "destructive",
+        duration: 5000,
       })
     },
   })
