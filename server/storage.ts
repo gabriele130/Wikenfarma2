@@ -112,6 +112,10 @@ export interface IStorage {
     totalOrders: number;
     activeCustomers: number;
     totalProducts: number;
+    revenueChange: number;
+    ordersChange: number;
+    customersChange: number;
+    productsChange: number;
     recentOrders: any[];
     recentActivities: any[];
     topProducts: any[];
@@ -494,11 +498,23 @@ export class DatabaseStorage implements IStorage {
 
   async getDashboardMetrics() {
     try {
+      // Date calculations for current and previous month
+      const now = new Date();
+      const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
       const [
         totalRevenueResult,
         totalOrdersResult,
         activeCustomersResult,
         totalProductsResult,
+        currentMonthRevenueResult,
+        previousMonthRevenueResult,
+        currentMonthOrdersResult,
+        previousMonthOrdersResult,
+        currentMonthCustomersResult,
+        previousMonthCustomersResult,
         recentOrdersResult
       ] = await Promise.all([
         // Total revenue from all orders
@@ -512,6 +528,30 @@ export class DatabaseStorage implements IStorage {
         
         // Total products count
         db.select({ count: count() }).from(products).where(eq(products.isActive, true)),
+
+        // Current month revenue
+        db.select({ total: sum(orders.total) }).from(orders)
+          .where(gte(orders.orderDate, currentMonthStart)),
+        
+        // Previous month revenue
+        db.select({ total: sum(orders.total) }).from(orders)
+          .where(and(gte(orders.orderDate, previousMonthStart), lte(orders.orderDate, previousMonthEnd))),
+
+        // Current month orders count
+        db.select({ count: count() }).from(orders)
+          .where(gte(orders.orderDate, currentMonthStart)),
+        
+        // Previous month orders count
+        db.select({ count: count() }).from(orders)
+          .where(and(gte(orders.orderDate, previousMonthStart), lte(orders.orderDate, previousMonthEnd))),
+
+        // Current month active customers (total count)
+        db.select({ count: count() }).from(customers)
+          .where(eq(customers.isActive, true)),
+        
+        // Previous month active customers (snapshot at end of previous month)
+        db.select({ count: count() }).from(customers)
+          .where(and(eq(customers.isActive, true), lte(customers.createdAt, previousMonthEnd))),
         
         // Recent orders (last 10)
         db.select({
@@ -520,7 +560,7 @@ export class DatabaseStorage implements IStorage {
           total: orders.total,
           status: orders.status,
           orderDate: orders.orderDate,
-          customerName: sql<string>`COALESCE(${customers.companyName}, CONCAT(${customers.firstName}, ' ', ${customers.lastName}))`
+          customerName: sql<string>`COALESCE(${customers.name}, CONCAT(${customers.firstName}, ' ', ${customers.lastName}))`
         })
         .from(orders)
         .leftJoin(customers, eq(orders.customerId, customers.id))
@@ -528,44 +568,49 @@ export class DatabaseStorage implements IStorage {
         .limit(10)
       ]);
 
-      // Recent activities (mock for now but structure for real data)
-      const recentActivities = [
-        {
-          id: "act-1",
-          type: "order",
-          message: "Nuovo ordine ricevuto da Farmacia Centrale",
-          timestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-          priority: "high"
-        },
-        {
-          id: "act-2", 
-          type: "stock",
-          message: "Stock basso: Aspirina 500mg (23 unità rimaste)",
-          timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-          priority: "medium"
-        },
-        {
-          id: "act-3",
-          type: "shipment",
-          message: "Spedizione completata per ordine ORD-2025-001",
-          timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-          priority: "low"
-        }
-      ];
+      // Get real recent activities from activity logs
+      const recentActivities = await this.getActivityLogs(5);
 
-      // Integration status
-      const integrationStatus = [
-        { name: "GestLine", status: "online", lastSync: new Date(Date.now() - 2 * 60 * 1000).toISOString() },
-        { name: "ODOO", status: "online", lastSync: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
-        { name: "PharmaEVO", status: "warning", lastSync: new Date(Date.now() - 60 * 60 * 1000).toISOString() },
-        { name: "WIKENSHIP", status: "offline", lastSync: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() }
-      ];
+      // Get real integration status
+      const integrationStatus = await this.getIntegrations();
+
+      // Calculate percentage changes
+      const currentRevenue = Number(currentMonthRevenueResult[0]?.total || 0);
+      const previousRevenue = Number(previousMonthRevenueResult[0]?.total || 0);
+      const revenueChange = previousRevenue > 0 ? ((currentRevenue - previousRevenue) / previousRevenue) * 100 : 
+                           currentRevenue > 0 ? 100 : 0;
+
+      const currentOrders = currentMonthOrdersResult[0]?.count || 0;
+      const previousOrders = previousMonthOrdersResult[0]?.count || 0;
+      const ordersChange = previousOrders > 0 ? ((currentOrders - previousOrders) / previousOrders) * 100 : 
+                          currentOrders > 0 ? 100 : 0;
+
+      const currentCustomers = currentMonthCustomersResult[0]?.count || 0;
+      const previousCustomers = previousMonthCustomersResult[0]?.count || 0;
+      const customersChange = previousCustomers > 0 ? ((currentCustomers - previousCustomers) / previousCustomers) * 100 : 
+                             currentCustomers > 0 ? 100 : 0;
+
+      // For products, calculate based on when they were added (as a proxy for growth)
+      const currentMonthProductsResult = await db.select({ count: count() }).from(products)
+        .where(and(eq(products.isActive, true), gte(products.createdAt, currentMonthStart)));
+      const previousMonthProductsResult = await db.select({ count: count() }).from(products)
+        .where(and(eq(products.isActive, true), lte(products.createdAt, previousMonthEnd)));
+      
+      const currentMonthProducts = currentMonthProductsResult[0]?.count || 0;
+      const previousMonthProductsTotal = previousMonthProductsResult[0]?.count || 0;
+      const productsChange = previousMonthProductsTotal > 0 ? 
+        ((totalProductsResult[0]?.count || 0) - previousMonthProductsTotal) / previousMonthProductsTotal * 100 : 
+        (totalProductsResult[0]?.count || 0) > 0 ? 100 : 0;
 
       return {
         totalRevenue: Number(totalRevenueResult[0]?.total || 0),
         totalOrders: totalOrdersResult[0]?.count || 0,
         activeCustomers: activeCustomersResult[0]?.count || 0,
         totalProducts: totalProductsResult[0]?.count || 0,
+        revenueChange,
+        ordersChange,
+        customersChange,
+        productsChange,
         recentOrders: recentOrdersResult,
         recentActivities,
         topProducts: [], // Will be populated with real data when products exist
@@ -579,6 +624,10 @@ export class DatabaseStorage implements IStorage {
         totalOrders: 1247,
         activeCustomers: 342,
         totalProducts: 2156,
+        revenueChange: 12.5,
+        ordersChange: 8.3,
+        customersChange: 5.7,
+        productsChange: 2.1,
         recentOrders: [
           {
             id: "ord-demo-1",
@@ -597,32 +646,12 @@ export class DatabaseStorage implements IStorage {
             customerName: "Dr. Sarah Bianchi"
           }
         ],
-        recentActivities: [
-          {
-            id: "act-1",
-            type: "order",
-            message: "Nuovo ordine #1247 da Farmacia Centrale",
-            timestamp: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
-            priority: "high"
-          },
-          {
-            id: "act-2",
-            type: "stock", 
-            message: "Stock basso Aspirina 500mg (12 rimasti)",
-            timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
-            priority: "medium"
-          }
-        ],
+        recentActivities: [],
         topProducts: [
           { name: "Aspirina 500mg", revenue: 2450, volume: 245 },
           { name: "Paracetamolo 1000mg", revenue: 1890, volume: 189 }
         ],
-        integrationStatus: [
-          { name: "GestLine", status: "online", lastSync: new Date(Date.now() - 2 * 60 * 1000).toISOString() },
-          { name: "ODOO", status: "online", lastSync: new Date(Date.now() - 5 * 60 * 1000).toISOString() },
-          { name: "PharmaEVO", status: "warning", lastSync: new Date(Date.now() - 60 * 60 * 1000).toISOString() },
-          { name: "WIKENSHIP", status: "offline", lastSync: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() }
-        ]
+        integrationStatus: []
       };
     }
   }
