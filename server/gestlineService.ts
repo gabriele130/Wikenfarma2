@@ -149,37 +149,53 @@ export class GestLineService {
    */
   async getData(endpoint: string = ''): Promise<GestLineApiResponse> {
     try {
-      console.log(`🔄 Getting data from GestLine: ${endpoint}`);
+      console.log(`🔄 [GESTLINE] Getting data from GestLine endpoint: ${endpoint || 'root'}`);
+      console.log(`🔐 [GESTLINE] Using credentials: ${this.username}:***`);
       
       const url = endpoint ? `${this.apiUrl}/${endpoint}` : this.apiUrl;
+      console.log(`📡 [GESTLINE] Full URL: ${url}`);
       
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Authorization': this.authHeader,
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'User-Agent': 'WikenFarma/1.0',
+          'Cache-Control': 'no-cache'
         },
         rejectUnauthorized: false
       } as any);
 
       const statusCode = response.status;
+      console.log(`📦 [GESTLINE] Response status: ${statusCode}`);
+      console.log(`📋 [GESTLINE] Response headers:`, Object.fromEntries(response.headers.entries()));
+      
       let responseData;
-
       try {
-        responseData = await response.json();
+        const responseText = await response.text();
+        console.log(`📝 [GESTLINE] Raw response (first 500 chars):`, responseText.substring(0, 500));
+        
+        try {
+          responseData = JSON.parse(responseText);
+          console.log(`✅ [GESTLINE] Successfully parsed JSON response`);
+        } catch (parseError) {
+          console.log(`⚠️ [GESTLINE] Could not parse as JSON, treating as text`);
+          responseData = responseText;
+        }
       } catch (e) {
-        responseData = await response.text();
+        console.error(`❌ [GESTLINE] Error reading response:`, e);
+        responseData = 'Error reading response';
       }
 
       if (response.ok) {
-        console.log(`✅ Data retrieved from GestLine successfully`);
+        console.log(`🎉 [GESTLINE] Data retrieved successfully!`);
         return {
           success: true,
           data: responseData,
           statusCode
         };
       } else {
-        console.error(`❌ GestLine GET error (${statusCode}):`, responseData);
+        console.error(`❌ [GESTLINE] HTTP Error ${statusCode}:`, responseData);
         return {
           success: false,
           error: `GET Error ${statusCode}: ${responseData}`,
@@ -187,7 +203,15 @@ export class GestLineService {
         };
       }
     } catch (error) {
-      console.error('❌ GestLine GET error:', error);
+      console.error('❌ [GESTLINE] Critical GET error:', error);
+      if (error instanceof Error) {
+        console.error('❌ [GESTLINE] Error details:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack?.substring(0, 1000)
+        });
+      }
+      
       return {
         success: false,
         error: `GET error: ${error instanceof Error ? error.message : String(error)}`,

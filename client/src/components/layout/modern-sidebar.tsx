@@ -20,7 +20,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Server
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -89,6 +90,14 @@ const menuItems = [
     label: "Integrazioni", 
     section: "system",
     description: "eBay, GestLine, PharmaEVO",
+    badge: null
+  },
+  { 
+    path: "/gestline", 
+    icon: Server, 
+    label: "GestLine", 
+    section: "system",
+    description: "API ERP GestLine",
     badge: null
   },
   { 
