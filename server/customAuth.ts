@@ -187,6 +187,15 @@ export function setupCustomAuth(app: Express) {
     });
   });
 
+  // Auth status check endpoint
+  app.get('/api/auth/status', authenticateToken, (req, res) => {
+    res.json({ 
+      authenticated: true, 
+      user: req.user,
+      timestamp: new Date().toISOString() 
+    });
+  });
+
   // Get current user endpoint
   app.get('/api/auth/user', authenticateToken, async (req, res) => {
     try {
