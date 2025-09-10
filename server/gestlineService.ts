@@ -145,6 +145,58 @@ export class GestLineService {
   }
 
   /**
+   * Recupera dati da GestLine via GET
+   */
+  async getData(endpoint: string = ''): Promise<GestLineApiResponse> {
+    try {
+      console.log(`🔄 Getting data from GestLine: ${endpoint}`);
+      
+      const url = endpoint ? `${this.apiUrl}/${endpoint}` : this.apiUrl;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': this.authHeader,
+          'Accept': 'application/json'
+        },
+        rejectUnauthorized: false
+      } as any);
+
+      const statusCode = response.status;
+      let responseData;
+
+      try {
+        responseData = await response.json();
+      } catch (e) {
+        responseData = await response.text();
+      }
+
+      if (response.ok) {
+        console.log(`✅ Data retrieved from GestLine successfully`);
+        return {
+          success: true,
+          data: responseData,
+          statusCode
+        };
+      } else {
+        console.error(`❌ GestLine GET error (${statusCode}):`, responseData);
+        return {
+          success: false,
+          error: `GET Error ${statusCode}: ${responseData}`,
+          statusCode
+        };
+      }
+    } catch (error) {
+      console.error('❌ GestLine GET error:', error);
+      return {
+        success: false,
+        error: `GET error: ${error instanceof Error ? error.message : String(error)}`,
+        statusCode: 0
+      };
+    }
+  }
+
+  /**
    * Test della connessione API GestLine
    */
   async testConnection(): Promise<GestLineApiResponse> {

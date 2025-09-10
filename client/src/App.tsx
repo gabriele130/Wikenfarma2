@@ -24,6 +24,7 @@ import CommissionsPage from "./pages/commissions";
 import IntegrationsPage from "./pages/integrations";
 import InformatoriPage from "./pages/informatori";
 import InformatoreDashboard from "./pages/informatore-dashboard";
+import GestLinePage from "./pages/gestline";
 
 // Utils
 import { queryClient } from "./lib/queryClient";
@@ -154,6 +155,16 @@ function AppContent() {
             component={IntegrationsPage} 
             title="Integrazioni" 
             subtitle="eBay, GestLine, PharmaEVO" 
+          />
+        )} 
+      />
+      <ProtectedRoute 
+        path="/gestline" 
+        component={() => (
+          <ProtectedPageWrapper 
+            component={GestLinePage} 
+            title="GestLine ERP" 
+            subtitle="Risultati chiamate GET API GestLine" 
           />
         )} 
       />
