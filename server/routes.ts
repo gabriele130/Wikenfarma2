@@ -539,6 +539,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // GestLine API Routes - ERP integration
+  app.get("/api/gestline/data", authenticateToken, async (req, res) => {
+    try {
+      const endpoint = req.query.endpoint as string;
+      console.log(`🔄 Getting GestLine data from endpoint: ${endpoint || 'root'}`);
+      
+      const result = await gestlineService.getData(endpoint);
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to get GestLine data:", error);
+      res.status(500).json({ message: "Failed to get GestLine data" });
+    }
+  });
+
+  app.get("/api/gestline/orders", authenticateToken, async (req, res) => {
+    try {
+      console.log("🔄 Getting orders from GestLine...");
+      const result = await gestlineService.getData('orders');
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to get GestLine orders:", error);
+      res.status(500).json({ message: "Failed to get GestLine orders" });
+    }
+  });
+
+  app.get("/api/gestline/products", authenticateToken, async (req, res) => {
+    try {
+      console.log("🔄 Getting products from GestLine...");
+      const result = await gestlineService.getData('products');
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to get GestLine products:", error);
+      res.status(500).json({ message: "Failed to get GestLine products" });
+    }
+  });
+
+  app.get("/api/gestline/customers", authenticateToken, async (req, res) => {
+    try {
+      console.log("🔄 Getting customers from GestLine...");
+      const result = await gestlineService.getData('customers');
+      res.json(result);
+    } catch (error) {
+      console.error("Failed to get GestLine customers:", error);
+      res.status(500).json({ message: "Failed to get GestLine customers" });
+    }
+  });
+
   app.post("/api/gestline/test", authenticateToken, async (req, res) => {
     try {
       console.log("🔄 Testing GestLine API connection...");

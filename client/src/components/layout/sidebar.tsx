@@ -11,6 +11,7 @@ const menuItems = [
   { path: "/reports", label: "Report", icon: "fas fa-chart-bar", section: "intelligence" },
   { path: "/commissions", label: "Commissioni", icon: "fas fa-percentage", section: "operations" },
   { path: "/integrations", label: "Integrazioni", icon: "fas fa-plug", section: "operations" },
+  { path: "/gestline", label: "GestLine", icon: "fas fa-server", section: "operations" },
   { path: "/system", label: "Sistema", icon: "fas fa-cog", section: "admin" },
 ];
 
