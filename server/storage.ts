@@ -29,6 +29,7 @@ import {
   type InsertActivityLog,
   type Informatore,
   type InsertInformatore,
+  type OrderWithDetails,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, count, sum, and, gte, lte, ilike, or, sql } from "drizzle-orm";
@@ -127,7 +128,7 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: any;
 
   constructor() {
     // Create the session store for Neon database
@@ -342,7 +343,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrder(id: string): Promise<OrderWithDetails | undefined> {
-    return db.query.orders.findFirst({
+    const result = await db.query.orders.findFirst({
       where: eq(orders.id, id),
       with: {
         customer: true,
@@ -355,6 +356,7 @@ export class DatabaseStorage implements IStorage {
         commission: true
       }
     });
+    return result || undefined;
   }
 
   async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<OrderWithDetails> {
@@ -376,12 +378,16 @@ export class DatabaseStorage implements IStorage {
     await db.insert(orderItems).values(orderItemsWithOrderId);
 
     // Return order with details
-    return this.getOrder(newOrder.id) as Promise<OrderWithDetails>;
+    const orderWithDetails = await this.getOrder(newOrder.id);
+    if (!orderWithDetails) {
+      throw new Error('Failed to retrieve created order');
+    }
+    return orderWithDetails;
   }
 
 
   async getRecentOrders(limit = 5): Promise<OrderWithDetails[]> {
-    return db.query.orders.findMany({
+    const results = await db.query.orders.findMany({
       with: {
         customer: true,
         items: {
@@ -395,6 +401,7 @@ export class DatabaseStorage implements IStorage {
       orderBy: desc(orders.createdAt),
       limit
     });
+    return results;
   }
 
   // Shipment operations
@@ -752,12 +759,10 @@ export class DatabaseStorage implements IStorage {
         status: orders.status,
         total: orders.total,
         customerType: orders.customerType,
-        paymentMethod: orders.paymentMethod,
         notes: orders.notes,
-        informatoreId: orders.informatoreId,
         createdAt: orders.createdAt,
         updatedAt: orders.updatedAt,
-        customerName: customers.companyName,
+        customerName: customers.name,
         customerFirstName: customers.firstName,
         customerLastName: customers.lastName,
         items: orderItems,
@@ -765,7 +770,7 @@ export class DatabaseStorage implements IStorage {
       .from(orders)
       .leftJoin(customers, eq(orders.customerId, customers.id))
       .leftJoin(orderItems, eq(orders.id, orderItems.orderId))
-      .where(eq(orders.informatoreId, informatoreId))
+      .where(eq(customers.informatoreId, informatoreId))
       .orderBy(desc(orders.orderDate));
 
     const doctorOrdersRaw = await doctorOrdersQuery;
@@ -776,12 +781,25 @@ export class DatabaseStorage implements IStorage {
     doctorOrdersRaw.forEach((row) => {
       if (!ordersMap.has(row.id)) {
         ordersMap.set(row.id, {
-          ...row,
+          id: row.id,
+          orderNumber: `ORD-${row.id}`, // Generate a temporary order number
+          customerId: row.customerId,
+          customerType: row.customerType,
+          status: row.status,
+          subtotal: "0", // Default subtotal
+          tax: "0", // Default tax
+          total: row.total,
+          notes: row.notes,
+          orderDate: row.orderDate,
+          shippingDate: null,
+          deliveryDate: null,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt,
           items: []
         });
       }
       if (row.items) {
-        ordersMap.get(row.id)!.items.push(row.items);
+        ordersMap.get(row.id)!.items!.push(row.items);
       }
     });
 
@@ -791,11 +809,11 @@ export class DatabaseStorage implements IStorage {
     const today = new Date();
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     
-    const totalPoints = doctorOrders.reduce((sum, order) => sum + (order.total * 0.01), 0); // 1% of order value as points
+    const totalPoints = doctorOrders.reduce((sum, order) => sum + (Number(order.total) * 0.01), 0); // 1% of order value as points
     
-    const monthlyOrders = doctorOrders.filter(order => new Date(order.orderDate) >= startOfMonth);
-    const monthlyRevenue = monthlyOrders.reduce((sum, order) => sum + order.total, 0);
-    const monthlyPoints = monthlyOrders.reduce((sum, order) => sum + (order.total * 0.01), 0);
+    const monthlyOrders = doctorOrders.filter(order => order.orderDate && new Date(order.orderDate) >= startOfMonth);
+    const monthlyRevenue = monthlyOrders.reduce((sum, order) => sum + Number(order.total), 0);
+    const monthlyPoints = monthlyOrders.reduce((sum, order) => sum + (Number(order.total) * 0.01), 0);
 
     return {
       informatore,
@@ -971,13 +989,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Dynamic Order operations - Complete CRUD
-  async updateOrder(id: string, updateData: Partial<InsertOrder>): Promise<Order | undefined> {
+  async updateOrder(id: string, updateData: Partial<InsertOrder>): Promise<Order> {
     try {
       const [updatedOrder] = await db
         .update(orders)
         .set({ ...updateData, updatedAt: new Date() })
         .where(eq(orders.id, id))
         .returning();
+      
+      if (!updatedOrder) {
+        throw new Error(`Order with id ${id} not found`);
+      }
       
       return updatedOrder;
     } catch (error) {
@@ -986,7 +1008,7 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async deleteOrder(id: string): Promise<boolean> {
+  async deleteOrder(id: string): Promise<void> {
     try {
       // First delete order items
       await db.delete(orderItems).where(eq(orderItems.orderId, id));
@@ -1000,7 +1022,7 @@ export class DatabaseStorage implements IStorage {
       // Finally delete the order
       const result = await db.delete(orders).where(eq(orders.id, id));
       
-      return result.rowCount !== undefined && result.rowCount > 0;
+      // Order deletion completed successfully
     } catch (error) {
       console.error('Error deleting order:', error);
       throw error;
@@ -1055,7 +1077,7 @@ export class DatabaseStorage implements IStorage {
         db.select({
           id: customers.id,
           type: sql<string>`'customer'`,
-          title: sql<string>`COALESCE(${customers.companyName}, CONCAT(${customers.firstName}, ' ', ${customers.lastName}))`,
+          title: sql<string>`COALESCE(${customers.name}, CONCAT(${customers.firstName}, ' ', ${customers.lastName}))`,
           subtitle: sql<string>`COALESCE(${customers.email}, ${customers.phone})`,
           icon: sql<string>`'users'`,
           route: sql<string>`'/customers'`
@@ -1064,7 +1086,7 @@ export class DatabaseStorage implements IStorage {
         .where(or(
           sql`LOWER(${customers.firstName}) LIKE ${searchTerm}`,
           sql`LOWER(${customers.lastName}) LIKE ${searchTerm}`,
-          sql`LOWER(${customers.companyName}) LIKE ${searchTerm}`,
+          sql`LOWER(${customers.name}) LIKE ${searchTerm}`,
           sql`LOWER(${customers.email}) LIKE ${searchTerm}`,
           sql`LOWER(${customers.phone}) LIKE ${searchTerm}`,
           sql`LOWER(${customers.city}) LIKE ${searchTerm}`,

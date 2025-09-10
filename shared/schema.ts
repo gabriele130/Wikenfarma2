@@ -645,12 +645,12 @@ export type PharmaevoOrder = typeof pharmaevoOrders.$inferSelect;
 export type AnalyticsData = typeof analyticsData.$inferSelect;
 export type MedicalVisit = typeof medicalVisits.$inferSelect;
 
-// Order with relations
+// Order with relations - allowing null values from Drizzle queries
 export type OrderWithDetails = Order & {
-  customer?: Customer;
-  items?: (OrderItem & { product?: Product })[];
-  shipment?: Shipment;
-  commission?: Commission;
+  customer?: Customer | null;
+  items?: (OrderItem & { product?: Product | null })[] | null;
+  shipment?: Shipment | null;
+  commission?: Commission | null;
 };
 
 // Advanced order analytics
