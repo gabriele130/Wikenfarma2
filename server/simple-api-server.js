@@ -22,18 +22,18 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Proxy all API calls to main server on port 3100
+// Proxy all API calls to main server on wikenship.it:3100
 app.use('/api/*', async (req, res) => {
   try {
-    const url = `http://localhost:3100${req.originalUrl}`;
-    console.log(`🔄 Proxying ${req.method} ${req.originalUrl} → port 3100`);
+    const url = `https://wikenship.it:3100${req.originalUrl}`;
+    console.log(`🔄 Proxying ${req.method} ${req.originalUrl} → wikenship.it:3100`);
     
     const response = await fetch(url, {
       method: req.method,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': req.headers.authorization || '',
-        'Host': 'localhost'
+        'Host': 'wikenship.it'
       },
       body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined
     });
@@ -72,7 +72,7 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 WikenFarma API Server running on port ${PORT}`);
-  console.log(`📡 Proxying /api/* calls to port 3100`);
+  console.log(`📡 Proxying /api/* calls to wikenship.it:3100`);
   console.log(`🎯 Configure nginx: proxy_pass http://localhost:${PORT}/api/;`);
-  console.log(`✅ Test: curl http://localhost:${PORT}/health`);
+  console.log(`✅ Test: curl https://wikenship.it:${PORT}/health`);
 });

@@ -17,9 +17,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Proxy /api/* to main server on port 3100
+// Proxy /api/* to main server on wikenship.it:3100
 app.use('/api', createProxyMiddleware({
-  target: 'http://localhost:3100',
+  target: 'https://wikenship.it:3100',
   changeOrigin: true,
   secure: false,
   logLevel: 'info',
@@ -34,7 +34,7 @@ app.use('/api', createProxyMiddleware({
 
 // Serve static files for everything else (fallback to main server)
 app.use('*', createProxyMiddleware({
-  target: 'http://localhost:3100',
+  target: 'https://wikenship.it:3100',
   changeOrigin: true,
   secure: false,
   logLevel: 'warn'
@@ -42,6 +42,6 @@ app.use('*', createProxyMiddleware({
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔄 WikenFarma Proxy Server running on port ${PORT}`);
-  console.log(`🎯 Routes /api/* to localhost:3100`);
+  console.log(`🎯 Routes /api/* to wikenship.it:3100`);
   console.log(`📡 Now configure nginx: proxy_pass http://localhost:${PORT}/api/;`);
 });
