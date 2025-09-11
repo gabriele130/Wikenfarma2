@@ -57,7 +57,7 @@ app.use((req, res, next) => {
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
-    throw err;
+    log(`🚨 [ERROR] ${status}: ${message}`);
   });
 
   // importantly only setup vite in development and after
@@ -73,11 +73,13 @@ app.use((req, res, next) => {
     }
   } else {
     // In production, serve static files from dist/public
-    app.use(express.static('dist/public'));
+    const staticPath = path.resolve(import.meta.dirname, '../dist/public');
+    app.use(express.static(staticPath));
     
     // Serve React app for all non-API routes
     app.get('*', (req, res) => {
-      res.sendFile(path.resolve('dist/public/index.html'));
+      if (req.path.startsWith('/api')) return;
+      res.sendFile(path.join(staticPath, 'index.html'));
     });
   }
 
