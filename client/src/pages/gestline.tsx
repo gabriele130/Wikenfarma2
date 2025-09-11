@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, RefreshCw, Database, Package, Users, ShoppingCart, AlertCircle, CheckCircle2 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 interface GestLineResponse {
   success: boolean;
@@ -15,32 +16,57 @@ interface GestLineResponse {
 }
 
 export default function GestLinePage() {
-  const [activeTab, setActiveTab] = useState("data");
+  const [activeTab, setActiveTab] = useState("orders");
 
-  // Query per dati generici
-  const { data: gestlineData, isLoading: isLoadingData, error: dataError, refetch: refetchData } = useQuery<GestLineResponse>({
-    queryKey: ['/api/gestline/data'],
-    retry: false,
-    refetchOnWindowFocus: false
-  });
+  console.log('🔄 [GESTLINE FRONTEND] Initializing GestLine page with POST requests...');
 
-  // Query per ordini
+  // Query per ordini - CORRETTO: POST instead of GET
   const { data: ordersData, isLoading: isLoadingOrders, error: ordersError, refetch: refetchOrders } = useQuery<GestLineResponse>({
     queryKey: ['/api/gestline/orders'],
+    queryFn: async () => {
+      console.log('📡 [GESTLINE FRONTEND] Making POST request to /api/gestline/orders');
+      const response = await apiRequest("POST", "/api/gestline/orders", {});
+      if (!response.ok) {
+        throw new Error(`Failed to fetch orders: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('📦 [GESTLINE FRONTEND] Orders response:', data);
+      return data;
+    },
     retry: false,
     refetchOnWindowFocus: false
   });
 
-  // Query per prodotti
+  // Query per prodotti - CORRETTO: POST instead of GET
   const { data: productsData, isLoading: isLoadingProducts, error: productsError, refetch: refetchProducts } = useQuery<GestLineResponse>({
     queryKey: ['/api/gestline/products'],
+    queryFn: async () => {
+      console.log('📡 [GESTLINE FRONTEND] Making POST request to /api/gestline/products');
+      const response = await apiRequest("POST", "/api/gestline/products", {});
+      if (!response.ok) {
+        throw new Error(`Failed to fetch products: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('📦 [GESTLINE FRONTEND] Products response:', data);
+      return data;
+    },
     retry: false,
     refetchOnWindowFocus: false
   });
 
-  // Query per clienti
+  // Query per clienti - CORRETTO: POST instead of GET
   const { data: customersData, isLoading: isLoadingCustomers, error: customersError, refetch: refetchCustomers } = useQuery<GestLineResponse>({
     queryKey: ['/api/gestline/customers'],
+    queryFn: async () => {
+      console.log('📡 [GESTLINE FRONTEND] Making POST request to /api/gestline/customers');
+      const response = await apiRequest("POST", "/api/gestline/customers", {});
+      if (!response.ok) {
+        throw new Error(`Failed to fetch customers: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log('📦 [GESTLINE FRONTEND] Customers response:', data);
+      return data;
+    },
     retry: false,
     refetchOnWindowFocus: false
   });
@@ -166,11 +192,7 @@ export default function GestLinePage() {
 
       {/* Tabs per diverse sezioni */}
       <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-gestline">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="data" data-testid="tab-data">
-            <Database className="h-4 w-4 mr-2" />
-            Dati Generici
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="orders" data-testid="tab-orders">
             <ShoppingCart className="h-4 w-4 mr-2" />
             Ordini
@@ -184,17 +206,6 @@ export default function GestLinePage() {
             Clienti
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="data" className="space-y-4">
-          <ResponseCard
-            title="Dati Generici"
-            data={gestlineData}
-            isLoading={isLoadingData}
-            error={dataError}
-            onRefresh={refetchData}
-            icon={Database}
-          />
-        </TabsContent>
 
         <TabsContent value="orders" className="space-y-4">
           <ResponseCard

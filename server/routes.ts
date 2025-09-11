@@ -547,24 +547,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // GestLine API Routes - ERP integration
-  app.get("/api/gestline/data", authenticateToken, async (req, res) => {
-    try {
-      const endpoint = req.query.endpoint as string;
-      console.log(`🔄 Getting GestLine data from endpoint: ${endpoint || 'root'}`);
-      
-      const result = await gestlineService.getData(endpoint);
-      res.json(result);
-    } catch (error) {
-      console.error("Failed to get GestLine data:", error);
-      res.status(500).json({ message: "Failed to get GestLine data" });
-    }
-  });
+  // GestLine API Routes - ERP integration CORRETTO: Solo POST con XML
+  
+  // DEPRECATO: Rimosso endpoint generico getData()
+  // Ora usando metodi specifici con POST + XML
 
-  app.get("/api/gestline/orders", authenticateToken, async (req, res) => {
+  app.post("/api/gestline/orders", authenticateToken, async (req, res) => {
     try {
-      console.log("🔄 Getting orders from GestLine...");
-      const result = await gestlineService.getData('orders');
+      console.log("🔄 Getting orders from GestLine using POST + XML...");
+      const result = await gestlineService.getOrders();
       res.json(result);
     } catch (error) {
       console.error("Failed to get GestLine orders:", error);
@@ -572,10 +563,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/gestline/products", authenticateToken, async (req, res) => {
+  app.post("/api/gestline/products", authenticateToken, async (req, res) => {
     try {
-      console.log("🔄 Getting products from GestLine...");
-      const result = await gestlineService.getData('products');
+      console.log("🔄 Getting products from GestLine using POST + XML...");
+      const result = await gestlineService.getProducts();
       res.json(result);
     } catch (error) {
       console.error("Failed to get GestLine products:", error);
@@ -583,10 +574,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/gestline/customers", authenticateToken, async (req, res) => {
+  app.post("/api/gestline/customers", authenticateToken, async (req, res) => {
     try {
-      console.log("🔄 Getting customers from GestLine...");
-      const result = await gestlineService.getData('customers');
+      console.log("🔄 Getting customers from GestLine using POST + XML...");
+      const result = await gestlineService.getCustomers();
       res.json(result);
     } catch (error) {
       console.error("Failed to get GestLine customers:", error);
@@ -596,7 +587,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/gestline/test", authenticateToken, async (req, res) => {
     try {
-      console.log("🔄 Testing GestLine API connection...");
+      console.log("🔄 Testing GestLine API connection using POST + XML...");
       const result = await gestlineService.testConnection();
       res.json(result);
     } catch (error) {
@@ -654,6 +645,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Failed to sync product to GestLine:", error);
       res.status(500).json({ message: "Failed to sync product to GestLine" });
+    }
+  });
+
+  app.post("/api/gestline/sync-customer", authenticateToken, async (req, res) => {
+    try {
+      const customerData = req.body;
+      console.log(`🔄 Syncing customer ${customerData.code || customerData.id} to GestLine using <NuovoTerzo>...`);
+      
+      const result = await gestlineService.syncCustomer(customerData);
+      
+      if (result.success) {
+        res.json({
+          success: true,
+          message: `Customer ${customerData.code || customerData.id} synced to GestLine successfully`,
+          data: result.data
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: result.error,
+          statusCode: result.statusCode
+        });
+      }
+    } catch (error) {
+      console.error("Failed to sync customer to GestLine:", error);
+      res.status(500).json({ message: "Failed to sync customer to GestLine" });
     }
   });
 
