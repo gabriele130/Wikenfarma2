@@ -492,11 +492,18 @@ export class DatabaseStorage implements IStorage {
 
   async getDashboardMetrics() {
     try {
+      console.log('🔄 [STORAGE] getDashboardMetrics - Starting database queries...');
       // Date calculations for current and previous month
       const now = new Date();
       const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
       const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+      
+      console.log('📅 [STORAGE] Date ranges:', {
+        currentMonthStart: currentMonthStart.toISOString(),
+        previousMonthStart: previousMonthStart.toISOString(), 
+        previousMonthEnd: previousMonthEnd.toISOString()
+      });
 
       const [
         totalRevenueResult,
@@ -562,11 +569,21 @@ export class DatabaseStorage implements IStorage {
         .limit(10)
       ]);
 
+      console.log('📊 [STORAGE] Raw database results:', {
+        totalRevenue: totalRevenueResult[0]?.total,
+        totalOrders: totalOrdersResult[0]?.count,
+        activeCustomers: activeCustomersResult[0]?.count,
+        totalProducts: totalProductsResult[0]?.count,
+        recentOrdersCount: recentOrdersResult?.length
+      });
+
       // Get real recent activities from activity logs
       const recentActivities = await this.getActivityLogs(5);
+      console.log('🔄 [STORAGE] Recent activities retrieved:', recentActivities?.length || 'NO DATA');
 
       // Get real integration status
       const integrationStatus = await this.getIntegrations();
+      console.log('⚙️ [STORAGE] Integration status retrieved:', integrationStatus?.length || 'NO DATA');
 
       // Calculate percentage changes
       const currentRevenue = Number(currentMonthRevenueResult[0]?.total || 0);
@@ -596,7 +613,7 @@ export class DatabaseStorage implements IStorage {
         ((totalProductsResult[0]?.count || 0) - previousMonthProductsTotal) / previousMonthProductsTotal * 100 : 
         (totalProductsResult[0]?.count || 0) > 0 ? 100 : 0;
 
-      return {
+      const finalMetrics = {
         totalRevenue: Number(totalRevenueResult[0]?.total || 0),
         totalOrders: totalOrdersResult[0]?.count || 0,
         activeCustomers: activeCustomersResult[0]?.count || 0,
@@ -610,8 +627,26 @@ export class DatabaseStorage implements IStorage {
         topProducts: [], // Will be populated with real data when products exist
         integrationStatus
       };
+      
+      console.log('✅ [STORAGE] Final metrics calculated successfully:', {
+        totalRevenue: finalMetrics.totalRevenue,
+        totalOrders: finalMetrics.totalOrders,
+        activeCustomers: finalMetrics.activeCustomers,
+        recentOrdersCount: finalMetrics.recentOrders?.length,
+        recentActivitiesCount: finalMetrics.recentActivities?.length,
+        isRealData: true
+      });
+      
+      return finalMetrics;
     } catch (error) {
-      console.error('Dashboard metrics error:', error);
+      console.error('❌ [STORAGE] Dashboard metrics error - DATABASE QUERY FAILED:', error);
+      console.error('❌ [STORAGE] Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack trace',
+        name: error instanceof Error ? error.name : 'Unknown error type'
+      });
+      console.warn('⚠️ [STORAGE] FALLBACK: Returning demo data instead of real data!');
+      
       // Return demo data as fallback
       return {
         totalRevenue: 145820.75,

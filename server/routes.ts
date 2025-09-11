@@ -42,10 +42,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard metrics - Dynamic data endpoint
   app.get('/api/dashboard/metrics', async (req, res) => {
     try {
+      console.log('🔄 [SERVER] /api/dashboard/metrics - Starting request...');
       const metrics = await storage.getDashboardMetrics();
+      console.log('📊 [SERVER] Dashboard metrics retrieved:', {
+        totalRevenue: metrics?.totalRevenue || 'UNDEFINED',
+        totalOrders: metrics?.totalOrders || 'UNDEFINED', 
+        activeCustomers: metrics?.activeCustomers || 'UNDEFINED',
+        recentOrdersCount: metrics?.recentOrders?.length || 'NO ARRAY',
+        hasData: !!metrics
+      });
+      console.log('📤 [SERVER] Sending response with metrics:', JSON.stringify(metrics, null, 2));
       res.json(metrics);
     } catch (error) {
-      console.error("Error fetching dashboard metrics:", error);
+      console.error("❌ [SERVER] Error fetching dashboard metrics:", error);
       res.status(500).json({ message: "Failed to fetch dashboard metrics" });
     }
   });

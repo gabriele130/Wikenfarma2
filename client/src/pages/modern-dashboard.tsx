@@ -83,13 +83,31 @@ export default function ModernDashboard() {
   const { data: dashboardData, isLoading, error } = useQuery({
     queryKey: ['/api/dashboard/metrics'],
     queryFn: async () => {
+      console.log('🔄 [DASHBOARD] Fetching metrics from /api/dashboard/metrics...');
       const response = await apiRequest("GET", "/api/dashboard/metrics");
+      console.log('📡 [DASHBOARD] API response status:', response.status);
+      
       if (!response.ok) {
+        console.error('❌ [DASHBOARD] API request failed:', response.status, response.statusText);
         throw new Error("Failed to fetch dashboard metrics");
       }
-      return response.json();
+      
+      const data = await response.json();
+      console.log('📊 [DASHBOARD] Received dashboard data:', data);
+      console.log('💰 [DASHBOARD] Total Revenue:', data?.totalRevenue || 'UNDEFINED');
+      console.log('📦 [DASHBOARD] Total Orders:', data?.totalOrders || 'UNDEFINED');
+      console.log('👥 [DASHBOARD] Active Customers:', data?.activeCustomers || 'UNDEFINED');
+      console.log('🛍️ [DASHBOARD] Recent Orders:', data?.recentOrders?.length || 'NO DATA');
+      
+      return data;
     },
     refetchInterval: 30000, // Refresh every 30 seconds for real-time data
+    onError: (error) => {
+      console.error('❌ [DASHBOARD] Query error:', error);
+    },
+    onSuccess: (data) => {
+      console.log('✅ [DASHBOARD] Query success, data processed successfully');
+    }
   });
 
   // Format currency
@@ -153,10 +171,24 @@ export default function ModernDashboard() {
     productsChange: dashboardData?.productsChange || 0,
   };
 
+  console.log('📈 [DASHBOARD] Processed stats:', {
+    totalRevenue: stats.totalRevenue,
+    totalOrders: stats.totalOrders,
+    activeCustomers: stats.activeCustomers,
+    activeProducts: stats.activeProducts
+  });
+
   const recentOrders = dashboardData?.recentOrders || [];
   const recentActivities = dashboardData?.recentActivities || [];
   const integrationStatus = dashboardData?.integrationStatus || [];
   const topProducts = dashboardData?.topProducts || [];
+  
+  console.log('📋 [DASHBOARD] Data arrays:', {
+    recentOrdersCount: recentOrders.length,
+    recentActivitiesCount: recentActivities.length,
+    integrationStatusCount: integrationStatus.length,
+    topProductsCount: topProducts.length
+  });
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
