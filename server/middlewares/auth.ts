@@ -5,7 +5,7 @@ import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import pkg from "pg";
 const { Pool } = pkg;
-import { storage } from "./storage";
+import { storage } from "../storage";
 import { LoginData, RegisterData, User } from "@shared/schema";
 
 declare global {

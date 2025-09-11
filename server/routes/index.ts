@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 
 // Import existing routes temporarily during migration
-import { registerRoutes as legacyRegisterRoutes } from "../routes";
+import { registerRoutes as legacyRegisterRoutes } from "../routes.legacy";
 
 /**
  * Main route registration function

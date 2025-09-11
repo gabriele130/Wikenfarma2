@@ -31,7 +31,7 @@ import {
   type InsertInformatore,
   type OrderWithDetails,
 } from "@shared/schema";
-import { db } from "./db";
+import { db } from "./config/db";
 import { eq, desc, count, sum, and, gte, lte, ilike, or, sql } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
