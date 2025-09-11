@@ -69,7 +69,7 @@ app.use((req, res, next) => {
       (viteLog ?? log)("🚀 Starting Vite development server...");
       await setupVite(app, server);
     } catch (error) {
-      log("⚠️ Vite setup failed (maybe vite.config.ts issue), serving API only:", error.message);
+      log("⚠️ Vite setup failed (maybe vite.config.ts issue), serving API only:", (error as Error).message);
     }
   } else {
     // In production, serve static files from dist/public
