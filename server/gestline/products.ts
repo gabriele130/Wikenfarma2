@@ -4,8 +4,9 @@ import { gestlineService } from "../gestlineService";
 const router = Router();
 
 /**
- * GET /products -> Lista prodotti da GestLine (SELECT XML)
- * Pattern wikenship.it: POST XML -> JSON response
+ * GET/POST /products -> Lista prodotti da GestLine (SELECT XML)
+ * Pattern wikenship.it: POST XML -> JSON response  
+ * Supporto sia GET che POST per backward compatibility
  */
 router.get("/products", async (_req, res) => {
   try {
@@ -38,11 +39,50 @@ router.get("/products", async (_req, res) => {
   }
 });
 
+// POST alias per backward compatibility
+router.post("/products", async (req, res) => {
+  // Se body vuoto, tratta come richiesta lista (backward compatibility)
+  if (!req.body || Object.keys(req.body).length === 0) {
+    try {
+      console.log("🔄 [WIKENSHIP-PRODUCTS] POST /products (lista mode) - Lista prodotti con SELECT XML");
+      
+      const xml = `
+<GestLine>
+  <Select>
+    <IDRIferimento></IDRIferimento>
+    <Select><![CDATA[
+      select * from articoli limit 50
+    ]]></Select>
+    <NomiRekord></NomiRekord>
+    <ValoreNull></ValoreNull>
+  </Select>
+</GestLine>`;
+
+      const xmlResp = await gestlineService.postGestline(xml);
+      const json = gestlineService.simpleXmlParse(xmlResp);
+      
+      console.log("✅ [WIKENSHIP-PRODUCTS] Lista prodotti recuperata successfully");
+      res.json(json);
+    } catch (e: any) {
+      console.error("❌ [WIKENSHIP-PRODUCTS] gestline_products_select_failed:", e.message);
+      res.status(502).json({ 
+        error: "gestline_products_select_failed", 
+        message: e.message,
+        operation: "GET_PRODUCTS"
+      });
+    }
+    return;
+  }
+  
+  // Se ha body, procedi con creazione prodotto
+  createProductLogic(req, res);
+});
+
 /**
- * POST /products -> Crea nuovo prodotto in GestLine (NuovoArticolo XML)
+ * Logica creazione prodotto estratta per riuso
  * Body: { codice, descrizione, prezzoVendita, categoria, ... }
  */
-router.post("/products", async (req, res) => {
+async function createProductLogic(req: any, res: any) {
   try {
     console.log("🔄 [WIKENSHIP-PRODUCTS] POST /products - Crea prodotto con NuovoArticolo XML");
     const { codice, descrizione, prezzoVendita, categoria, um = "PZ", attivo = true } = req.body;
@@ -86,6 +126,6 @@ router.post("/products", async (req, res) => {
       operation: "CREATE_PRODUCT"
     });
   }
-});
+}
 
 export default router;

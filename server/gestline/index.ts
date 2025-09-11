@@ -2,6 +2,7 @@ import { Router } from "express";
 import ordersRouter from "./orders";
 import productsRouter from "./products";
 import customersRouter from "./customers";
+import legacyRouter from "./legacy";
 
 /**
  * Router principale GestLine - wikenship.it
@@ -24,5 +25,6 @@ gestlineRouter.get("/health", (req, res) => {
 gestlineRouter.use("/", ordersRouter);
 gestlineRouter.use("/", productsRouter);
 gestlineRouter.use("/", customersRouter);
+gestlineRouter.use("/", legacyRouter);  // Endpoint legacy per backward compatibility
 
 export default gestlineRouter;

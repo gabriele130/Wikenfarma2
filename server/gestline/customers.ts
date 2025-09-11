@@ -4,8 +4,9 @@ import { gestlineService } from "../gestlineService";
 const router = Router();
 
 /**
- * GET /customers -> Lista clienti da GestLine (SELECT XML)
+ * GET/POST /customers -> Lista clienti da GestLine (SELECT XML)
  * Pattern wikenship.it: POST XML -> JSON response
+ * Supporto sia GET che POST per backward compatibility
  */
 router.get("/customers", async (_req, res) => {
   try {
@@ -38,11 +39,50 @@ router.get("/customers", async (_req, res) => {
   }
 });
 
+// POST alias per backward compatibility
+router.post("/customers", async (req, res) => {
+  // Se body vuoto, tratta come richiesta lista (backward compatibility)
+  if (!req.body || Object.keys(req.body).length === 0) {
+    try {
+      console.log("🔄 [WIKENSHIP-CUSTOMERS] POST /customers (lista mode) - Lista clienti con SELECT XML");
+      
+      const xml = `
+<GestLine>
+  <Select>
+    <IDRIferimento></IDRIferimento>
+    <Select><![CDATA[
+      select * from terzi where tipologia='CLIENTE' limit 100
+    ]]></Select>
+    <NomiRekord></NomiRekord>
+    <ValoreNull></ValoreNull>
+  </Select>
+</GestLine>`;
+
+      const xmlResp = await gestlineService.postGestline(xml);
+      const json = gestlineService.simpleXmlParse(xmlResp);
+      
+      console.log("✅ [WIKENSHIP-CUSTOMERS] Lista clienti recuperata successfully");
+      res.json(json);
+    } catch (e: any) {
+      console.error("❌ [WIKENSHIP-CUSTOMERS] gestline_customers_select_failed:", e.message);
+      res.status(502).json({ 
+        error: "gestline_customers_select_failed", 
+        message: e.message,
+        operation: "GET_CUSTOMERS"
+      });
+    }
+    return;
+  }
+  
+  // Se ha body, procedi con creazione cliente
+  createCustomerLogic(req, res);
+});
+
 /**
- * POST /customers -> Crea nuovo cliente in GestLine (NuovoTerzo XML)
+ * Logica creazione cliente estratta per riuso
  * Body: { codice, ragioneSociale, partitaIva, codiceFiscale, indirizzo, ... }
  */
-router.post("/customers", async (req, res) => {
+async function createCustomerLogic(req: any, res: any) {
   try {
     console.log("🔄 [WIKENSHIP-CUSTOMERS] POST /customers - Crea cliente con NuovoTerzo XML");
     const { 
@@ -102,6 +142,6 @@ router.post("/customers", async (req, res) => {
       operation: "CREATE_CUSTOMER"
     });
   }
-});
+}
 
 export default router;

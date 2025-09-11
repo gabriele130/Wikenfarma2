@@ -548,148 +548,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // GestLine API Routes - Moduli singoli per wikenship.it
-  app.use("/api/gestline", gestlineRouter);
+  // GestLine API Routes - Moduli singoli per wikenship.it (con autenticazione)
+  app.use("/api/gestline", authenticateToken, gestlineRouter);
 
-  app.post("/api/gestline/products", authenticateToken, async (req, res) => {
-    try {
-      console.log("🔄 Getting products from GestLine using POST + XML...");
-      const result = await gestlineService.getProducts();
-      res.json(result);
-    } catch (error) {
-      console.error("Failed to get GestLine products:", error);
-      res.status(500).json({ message: "Failed to get GestLine products" });
-    }
-  });
 
-  app.post("/api/gestline/customers", authenticateToken, async (req, res) => {
-    try {
-      console.log("🔄 Getting customers from GestLine using POST + XML...");
-      const result = await gestlineService.getCustomers();
-      res.json(result);
-    } catch (error) {
-      console.error("Failed to get GestLine customers:", error);
-      res.status(500).json({ message: "Failed to get GestLine customers" });
-    }
-  });
 
-  app.post("/api/gestline/test", authenticateToken, async (req, res) => {
-    try {
-      console.log("🔄 Testing GestLine API connection using POST + XML...");
-      const result = await gestlineService.testConnection();
-      res.json(result);
-    } catch (error) {
-      console.error("Failed to test GestLine connection:", error);
-      res.status(500).json({ message: "Failed to test GestLine connection" });
-    }
-  });
 
-  app.post("/api/gestline/send-order", authenticateToken, async (req, res) => {
-    try {
-      const orderData = req.body as GestLineOrderData;
-      console.log(`🔄 Sending order ${orderData.orderNumber} to GestLine...`);
-      
-      const result = await gestlineService.sendOrder(orderData);
-      
-      if (result.success) {
-        res.json({
-          success: true,
-          message: `Order ${orderData.orderNumber} sent to GestLine successfully`,
-          data: result.data
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: result.error,
-          statusCode: result.statusCode
-        });
-      }
-    } catch (error) {
-      console.error("Failed to send order to GestLine:", error);
-      res.status(500).json({ message: "Failed to send order to GestLine" });
-    }
-  });
 
-  app.post("/api/gestline/sync-product", authenticateToken, async (req, res) => {
-    try {
-      const productData = req.body;
-      console.log(`🔄 Syncing product ${productData.code} to GestLine...`);
-      
-      const result = await gestlineService.syncProduct(productData);
-      
-      if (result.success) {
-        res.json({
-          success: true,
-          message: `Product ${productData.code} synced to GestLine successfully`,
-          data: result.data
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: result.error,
-          statusCode: result.statusCode
-        });
-      }
-    } catch (error) {
-      console.error("Failed to sync product to GestLine:", error);
-      res.status(500).json({ message: "Failed to sync product to GestLine" });
-    }
-  });
 
-  app.post("/api/gestline/sync-customer", authenticateToken, async (req, res) => {
-    try {
-      const customerData = req.body;
-      console.log(`🔄 Syncing customer ${customerData.code || customerData.id} to GestLine using <NuovoTerzo>...`);
-      
-      const result = await gestlineService.syncCustomer(customerData);
-      
-      if (result.success) {
-        res.json({
-          success: true,
-          message: `Customer ${customerData.code || customerData.id} synced to GestLine successfully`,
-          data: result.data
-        });
-      } else {
-        res.status(400).json({
-          success: false,
-          message: result.error,
-          statusCode: result.statusCode
-        });
-      }
-    } catch (error) {
-      console.error("Failed to sync customer to GestLine:", error);
-      res.status(500).json({ message: "Failed to sync customer to GestLine" });
-    }
-  });
 
-  app.post("/api/gestline/batch-orders", authenticateToken, async (req, res) => {
-    try {
-      const { orders } = req.body as { orders: GestLineOrderData[] };
-      console.log(`🔄 Sending ${orders.length} orders to GestLine...`);
-      
-      const results = [];
-      for (const orderData of orders) {
-        const result = await gestlineService.sendOrder(orderData);
-        results.push({
-          orderNumber: orderData.orderNumber,
-          success: result.success,
-          error: result.error,
-          statusCode: result.statusCode
-        });
-      }
-      
-      const successCount = results.filter(r => r.success).length;
-      
-      res.json({
-        success: true,
-        message: `Processed ${orders.length} orders. ${successCount} successful.`,
-        results
-      });
-    } catch (error) {
-      console.error("Failed to send batch orders to GestLine:", error);
-      res.status(500).json({ message: "Failed to send batch orders to GestLine" });
-    }
-  });
 
   // Advanced Commission System
   app.get("/api/commissions/advanced/:informatoreId", authenticateToken, async (req, res) => {
