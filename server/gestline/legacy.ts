@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { gestlineService } from "../gestlineService";
+import { gestlineService, GestLineService } from "../gestlineService";
 
 const router = Router();
 

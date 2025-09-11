@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { gestlineService } from "../gestlineService";
+import { gestlineService, GestLineService } from "../gestlineService";
 
 const router = Router();
 
@@ -99,13 +99,13 @@ async function createProductLogic(req: any, res: any) {
 <GestLine>
   <NuovoArticolo>
     <IDRIferimento>${Date.now()}</IDRIferimento>
-    <UtenteCreatore>${process.env.GESTLINE_API_USERNAME || "api"}</UtenteCreatore>
+    <UtenteCreatore>${GestLineService.xmlEscape(process.env.GESTLINE_API_USERNAME || "api")}</UtenteCreatore>
     <testata>
-      <Codice>${codice}</Codice>
-      <Descrizione>${descrizione}</Descrizione>
-      ${prezzoVendita ? `<PrezzoVendita>${prezzoVendita}</PrezzoVendita>` : ''}
-      ${categoria ? `<Categoria>${categoria}</Categoria>` : ''}
-      <UnitaMisura>${um}</UnitaMisura>
+      <Codice>${GestLineService.xmlEscape(codice)}</Codice>
+      <Descrizione>${GestLineService.xmlCData(descrizione)}</Descrizione>
+      ${prezzoVendita ? `<PrezzoVendita>${GestLineService.xmlEscape(prezzoVendita)}</PrezzoVendita>` : ''}
+      ${categoria ? `<Categoria>${GestLineService.xmlEscape(categoria)}</Categoria>` : ''}
+      <UnitaMisura>${GestLineService.xmlEscape(um)}</UnitaMisura>
       <Attivo>${attivo ? 1 : 0}</Attivo>
       <TipoArticolo>NORMALE</TipoArticolo>
       <DataInserimento>${new Date().toISOString().split('T')[0]}</DataInserimento>

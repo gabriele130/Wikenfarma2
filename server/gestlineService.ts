@@ -89,12 +89,20 @@ export class GestLineService {
   /**
    * POST XML -> XML text (seguendo pattern wikenship.it)
    * Implementazione esatta come da documento
+   * TLS sicuro di default, insecuro solo con GESTLINE_TLS_INSECURE=true
    */
   async postGestline(xmlBody: string): Promise<string> {
     const https = await import('https');
     
-    // Se il cert è self-signed in LAN (da sistemare in prod)
-    const agent = new https.Agent({ rejectUnauthorized: false });
+    // TLS sicuro di default, insecuro solo con env flag esplicito per dev
+    const tlsInsecure = process.env.GESTLINE_TLS_INSECURE === 'true';
+    const agent = new https.Agent({ 
+      rejectUnauthorized: !tlsInsecure 
+    });
+    
+    if (tlsInsecure && process.env.NODE_ENV === 'production') {
+      console.warn('⚠️ [GESTLINE] TLS insecure mode enabled in production - security risk!');
+    }
     
     const response = await fetch(this.apiUrl, {
       method: "POST",
@@ -113,6 +121,63 @@ export class GestLineService {
       throw new Error(`GestLine ${response.status}: ${text.slice(0,200)}`);
     }
     return text;
+  }
+
+  /**
+   * POST XML -> JSON wrapper che converte la risposta XML in GestLineApiResponse
+   * Usato dai metodi che richiedono una risposta strutturata
+   */
+  private async postXmlToGestLine(xmlPayload: string, operation: string): Promise<GestLineApiResponse> {
+    try {
+      const xmlResponse = await this.postGestline(xmlPayload);
+      const parsedResponse = this.xmlToJson(xmlResponse);
+      
+      // Determina se l'operazione è riuscita
+      const success = !parsedResponse.error && !parsedResponse.parseError;
+      
+      return {
+        success,
+        data: parsedResponse.data || parsedResponse,
+        error: parsedResponse.error || (parsedResponse.parseError ? 'XML parsing failed' : undefined),
+        statusCode: success ? 200 : 400
+      };
+    } catch (error) {
+      console.error(`❌ [GESTLINE] ${operation} failed:`, error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        statusCode: 500
+      };
+    }
+  }
+
+  /**
+   * XML Escaping per prevenire XML injection vulnerability
+   * Critico per sicurezza: mai interpolare valori utente direttamente in XML
+   */
+  static xmlEscape(value: any): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+      .replace(/\//g, '&#x2F;');
+  }
+
+  /**
+   * CDATA wrapper per valori XML contenenti caratteri speciali
+   */
+  static xmlCData(value: any): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    // Escaping di ]]> all'interno di CDATA per evitare breaking
+    const escaped = String(value).replace(/\]\]>/g, ']]&gt;');
+    return `<![CDATA[${escaped}]]>`;
   }
 
   /**
@@ -148,29 +213,30 @@ export class GestLineService {
 
   /**
    * Invia un ordine a GestLine usando XML <NuovoOrdineCliente>
+   * SICUREZZA: Tutti i valori sono protetti da XML injection con xmlEscape/xmlCData
    */
   async sendOrder(orderData: GestLineOrderData): Promise<GestLineApiResponse> {
     const xmlPayload = `
       <GestLine>
         <NuovoOrdineCliente>
-          <NumeroOrdine>${orderData.orderNumber}</NumeroOrdine>
+          <NumeroOrdine>${GestLineService.xmlEscape(orderData.orderNumber)}</NumeroOrdine>
           <Cliente>
-            <Nome>${orderData.customerData.name}</Nome>
-            <Email>${orderData.customerData.email || ''}</Email>
-            <Telefono>${orderData.customerData.phone || ''}</Telefono>
-            <Indirizzo>${orderData.customerData.address || ''}</Indirizzo>
+            <Nome>${GestLineService.xmlCData(orderData.customerData.name)}</Nome>
+            <Email>${GestLineService.xmlEscape(orderData.customerData.email || '')}</Email>
+            <Telefono>${GestLineService.xmlEscape(orderData.customerData.phone || '')}</Telefono>
+            <Indirizzo>${GestLineService.xmlCData(orderData.customerData.address || '')}</Indirizzo>
           </Cliente>
           <Righe>
             ${orderData.items.map(item => `
               <Riga>
-                <CodiceArticolo>${item.productCode}</CodiceArticolo>
-                <Quantita>${item.quantity}</Quantita>
-                <PrezzoUnitario>${item.unitPrice}</PrezzoUnitario>
+                <CodiceArticolo>${GestLineService.xmlEscape(item.productCode)}</CodiceArticolo>
+                <Quantita>${GestLineService.xmlEscape(item.quantity)}</Quantita>
+                <PrezzoUnitario>${GestLineService.xmlEscape(item.unitPrice)}</PrezzoUnitario>
               </Riga>
             `).join('')}
           </Righe>
-          <Totale>${orderData.total}</Totale>
-          <Note>${orderData.notes || ''}</Note>
+          <Totale>${GestLineService.xmlEscape(orderData.total)}</Totale>
+          <Note>${GestLineService.xmlCData(orderData.notes || '')}</Note>
         </NuovoOrdineCliente>
       </GestLine>
     `;
@@ -180,18 +246,19 @@ export class GestLineService {
 
   /**
    * Sincronizza un prodotto con GestLine usando XML
+   * SICUREZZA: Tutti i valori sono protetti da XML injection con xmlEscape/xmlCData
    */
   async syncProduct(productData: any): Promise<GestLineApiResponse> {
     const xmlPayload = `
       <GestLine>
         <NuovoArticolo>
-          <Codice>${productData.code}</Codice>
-          <Nome>${productData.name}</Nome>
-          <Descrizione>${productData.description || ''}</Descrizione>
-          <PrezzoVendita>${productData.price}</PrezzoVendita>
-          <Categoria>${productData.category || ''}</Categoria>
-          <GiacenzaMinima>${productData.minStock || 0}</GiacenzaMinima>
-          <Attivo>${productData.isActive ? 'true' : 'false'}</Attivo>
+          <Codice>${GestLineService.xmlEscape(productData.code)}</Codice>
+          <Nome>${GestLineService.xmlCData(productData.name)}</Nome>
+          <Descrizione>${GestLineService.xmlCData(productData.description || '')}</Descrizione>
+          <PrezzoVendita>${GestLineService.xmlEscape(productData.price)}</PrezzoVendita>
+          <Categoria>${GestLineService.xmlEscape(productData.category || '')}</Categoria>
+          <GiacenzaMinima>${GestLineService.xmlEscape(productData.minStock || 0)}</GiacenzaMinima>
+          <Attivo>${GestLineService.xmlEscape(productData.isActive ? 'true' : 'false')}</Attivo>
         </NuovoArticolo>
       </GestLine>
     `;
@@ -201,24 +268,25 @@ export class GestLineService {
 
   /**
    * Crea/Aggiorna un terzo (cliente/fornitore) su GestLine usando XML <NuovoTerzo>
+   * SICUREZZA: Tutti i valori sono protetti da XML injection con xmlEscape/xmlCData
    */
   async syncCustomer(customerData: any): Promise<GestLineApiResponse> {
     const xmlPayload = `
       <GestLine>
         <NuovoTerzo>
-          <Codice>${customerData.code || customerData.id}</Codice>
-          <RagioneSociale>${customerData.name}</RagioneSociale>
-          <Nome>${customerData.firstName || ''}</Nome>
-          <Cognome>${customerData.lastName || ''}</Cognome>
-          <Email>${customerData.email || ''}</Email>
-          <Telefono>${customerData.phone || ''}</Telefono>
-          <Indirizzo>${customerData.address || ''}</Indirizzo>
-          <Citta>${customerData.city || ''}</Citta>
-          <CAP>${customerData.zipCode || ''}</CAP>
-          <CodiceFiscale>${customerData.fiscalCode || ''}</CodiceFiscale>
-          <PartitaIVA>${customerData.vatNumber || ''}</PartitaIVA>
-          <Tipo>${customerData.type === 'pharmacy' ? 'Farmacia' : 'Cliente'}</Tipo>
-          <Attivo>${customerData.isActive ? 'true' : 'false'}</Attivo>
+          <Codice>${GestLineService.xmlEscape(customerData.code || customerData.id)}</Codice>
+          <RagioneSociale>${GestLineService.xmlCData(customerData.name)}</RagioneSociale>
+          <Nome>${GestLineService.xmlEscape(customerData.firstName || '')}</Nome>
+          <Cognome>${GestLineService.xmlEscape(customerData.lastName || '')}</Cognome>
+          <Email>${GestLineService.xmlEscape(customerData.email || '')}</Email>
+          <Telefono>${GestLineService.xmlEscape(customerData.phone || '')}</Telefono>
+          <Indirizzo>${GestLineService.xmlCData(customerData.address || '')}</Indirizzo>
+          <Citta>${GestLineService.xmlEscape(customerData.city || '')}</Citta>
+          <CAP>${GestLineService.xmlEscape(customerData.zipCode || '')}</CAP>
+          <CodiceFiscale>${GestLineService.xmlEscape(customerData.fiscalCode || '')}</CodiceFiscale>
+          <PartitaIVA>${GestLineService.xmlEscape(customerData.vatNumber || '')}</PartitaIVA>
+          <Tipo>${GestLineService.xmlEscape(customerData.type === 'pharmacy' ? 'Farmacia' : 'Cliente')}</Tipo>
+          <Attivo>${GestLineService.xmlEscape(customerData.isActive ? 'true' : 'false')}</Attivo>
         </NuovoTerzo>
       </GestLine>
     `;

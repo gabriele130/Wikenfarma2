@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { gestlineService } from "../gestlineService";
+import { gestlineService, GestLineService } from "../gestlineService";
 
 const router = Router();
 
@@ -110,18 +110,18 @@ async function createCustomerLogic(req: any, res: any) {
 <GestLine>
   <NuovoTerzo>
     <IDRIferimento>${Date.now()}</IDRIferimento>
-    <UtenteCreatore>${process.env.GESTLINE_API_USERNAME || "api"}</UtenteCreatore>
+    <UtenteCreatore>${GestLineService.xmlEscape(process.env.GESTLINE_API_USERNAME || "api")}</UtenteCreatore>
     <testata>
-      <Codice>${codice}</Codice>
-      <RagioneSociale>${ragioneSociale}</RagioneSociale>
-      ${partitaIva ? `<PartitaIva>${partitaIva}</PartitaIva>` : ''}
-      ${codiceFiscale ? `<CodiceFiscale>${codiceFiscale}</CodiceFiscale>` : ''}
-      ${indirizzo ? `<Indirizzo>${indirizzo}</Indirizzo>` : ''}
-      ${citta ? `<Citta>${citta}</Citta>` : ''}
-      ${cap ? `<CAP>${cap}</CAP>` : ''}
-      ${provincia ? `<Provincia>${provincia}</Provincia>` : ''}
-      ${telefono ? `<Telefono>${telefono}</Telefono>` : ''}
-      ${email ? `<Email>${email}</Email>` : ''}
+      <Codice>${GestLineService.xmlEscape(codice)}</Codice>
+      <RagioneSociale>${GestLineService.xmlCData(ragioneSociale)}</RagioneSociale>
+      ${partitaIva ? `<PartitaIva>${GestLineService.xmlEscape(partitaIva)}</PartitaIva>` : ''}
+      ${codiceFiscale ? `<CodiceFiscale>${GestLineService.xmlEscape(codiceFiscale)}</CodiceFiscale>` : ''}
+      ${indirizzo ? `<Indirizzo>${GestLineService.xmlCData(indirizzo)}</Indirizzo>` : ''}
+      ${citta ? `<Citta>${GestLineService.xmlEscape(citta)}</Citta>` : ''}
+      ${cap ? `<CAP>${GestLineService.xmlEscape(cap)}</CAP>` : ''}
+      ${provincia ? `<Provincia>${GestLineService.xmlEscape(provincia)}</Provincia>` : ''}
+      ${telefono ? `<Telefono>${GestLineService.xmlEscape(telefono)}</Telefono>` : ''}
+      ${email ? `<Email>${GestLineService.xmlEscape(email)}</Email>` : ''}
       <TipoTerzo>CLIENTE</TipoTerzo>
       <Attivo>1</Attivo>
       <DataInserimento>${new Date().toISOString().split('T')[0]}</DataInserimento>

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { gestlineService } from "../gestlineService";
+import { gestlineService, GestLineService } from "../gestlineService";
 
 const router = Router();
 
@@ -95,14 +95,14 @@ async function createOrderLogic(req: any, res: any) {
       });
     }
 
-    // Costruzione righe XML
+    // Costruzione righe XML - SICURO con XML escaping
     const righeXml = (righe || []).map((r: any) => `
       <Riga>
-        <CodiceArticolo>${r.codiceArticolo}</CodiceArticolo>
-        <QNT>${r.qta}</QNT>
-        ${r.prezzoNetto ? `<PrezzoNetto>${r.prezzoNetto}</PrezzoNetto>` : ``}
-        ${r.note ? `<Note>${r.note}</Note>` : ``}
-        ${r.sconto1 ? `<sconto1>${r.sconto1}</sconto1>` : ``}
+        <CodiceArticolo>${GestLineService.xmlEscape(r.codiceArticolo)}</CodiceArticolo>
+        <QNT>${GestLineService.xmlEscape(r.qta)}</QNT>
+        ${r.prezzoNetto ? `<PrezzoNetto>${GestLineService.xmlEscape(r.prezzoNetto)}</PrezzoNetto>` : ``}
+        ${r.note ? `<Note>${GestLineService.xmlCData(r.note)}</Note>` : ``}
+        ${r.sconto1 ? `<sconto1>${GestLineService.xmlEscape(r.sconto1)}</sconto1>` : ``}
       </Riga>
     `).join("");
 
@@ -110,14 +110,14 @@ async function createOrderLogic(req: any, res: any) {
 <GestLine>
   <NuovoOrdineCliente>
     <IDRIferimento>${Date.now()}</IDRIferimento>
-    <UtenteCreatore>${process.env.GESTLINE_API_USERNAME || "api"}</UtenteCreatore>
+    <UtenteCreatore>${GestLineService.xmlEscape(process.env.GESTLINE_API_USERNAME || "api")}</UtenteCreatore>
     <testata>
-      <CodiceTerzo>${codiceTerzo}</CodiceTerzo>
-      <Riferimento>${riferimento || ""}</Riferimento>
-      <DataRiferimento>${dataRif || ""}</DataRiferimento>
-      <DataPrevistaConsegna>${dataConsegna || ""}</DataPrevistaConsegna>
-      <DataPrevistaSpedizione>${dataSped || ""}</DataPrevistaSpedizione>
-      <IDContatto>${idContatto || 0}</IDContatto>
+      <CodiceTerzo>${GestLineService.xmlEscape(codiceTerzo)}</CodiceTerzo>
+      <Riferimento>${GestLineService.xmlCData(riferimento || "")}</Riferimento>
+      <DataRiferimento>${GestLineService.xmlEscape(dataRif || "")}</DataRiferimento>
+      <DataPrevistaConsegna>${GestLineService.xmlEscape(dataConsegna || "")}</DataPrevistaConsegna>
+      <DataPrevistaSpedizione>${GestLineService.xmlEscape(dataSped || "")}</DataPrevistaSpedizione>
+      <IDContatto>${GestLineService.xmlEscape(idContatto || 0)}</IDContatto>
       <ModelloStampa>ORDINECLIENTE_0</ModelloStampa>
       <IDDestinazione>0</IDDestinazione>
     </testata>
