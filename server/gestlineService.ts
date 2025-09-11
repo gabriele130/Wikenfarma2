@@ -87,71 +87,62 @@ export class GestLineService {
 
 
   /**
-   * Chiamata POST generica a GestLine con payload XML
+   * POST XML -> XML text (seguendo pattern wikenship.it)
+   * Implementazione esatta come da documento
    */
-  private async postXmlToGestLine(xmlPayload: string, operation: string): Promise<GestLineApiResponse> {
+  async postGestline(xmlBody: string): Promise<string> {
+    const https = await import('https');
+    
+    // Se il cert è self-signed in LAN (da sistemare in prod)
+    const agent = new https.Agent({ rejectUnauthorized: false });
+    
+    const response = await fetch(this.apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/xml",
+        "Accept": "application/xml",
+        "Authorization": this.authHeader,
+      },
+      // @ts-ignore (node >=18 ha fetch; usiamo agent per TLS)
+      agent,
+      body: xmlBody.trim(),
+    });
+    
+    const text = await response.text();
+    if (!response.ok) {
+      throw new Error(`GestLine ${response.status}: ${text.slice(0,200)}`);
+    }
+    return text;
+  }
+
+  /**
+   * Parsing XML semplice (senza xml2js per evitare package.json issues)
+   */
+  simpleXmlParse(xmlString: string): any {
+    // Parser XML basico per oggetti GestLine
+    const result: any = { rawXml: xmlString };
+    
     try {
-      console.log(`🔄 [GESTLINE] ${operation} - Sending XML to GestLine...`);
-      // Only log payload size in production to avoid PII exposure
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`📝 [GESTLINE] XML Payload:`, xmlPayload.substring(0, 300) + '...');
-      } else {
-        console.log(`📝 [GESTLINE] XML Payload size: ${xmlPayload.length} chars`);
+      // Estrai campi principali
+      const statusMatch = xmlString.match(/<[Ss]tatus[^>]*>(.*?)<\/[Ss]tatus>/);
+      if (statusMatch) result.status = statusMatch[1];
+      
+      const errorMatch = xmlString.match(/<[Ee]rror[^>]*>(.*?)<\/[Ee]rror>/);
+      if (errorMatch) result.error = errorMatch[1];
+      
+      const dataMatch = xmlString.match(/<[Dd]ata[^>]*>(.*?)<\/[Dd]ata>/);
+      if (dataMatch) result.data = dataMatch[1];
+      
+      // Se è una risposta di successo ma senza struttura specifica, 
+      // considera tutto il contenuto come data
+      if (!result.error && !result.data && xmlString.length > 0) {
+        result.success = true;
+        result.data = xmlString;
       }
       
-      const response = await fetch(this.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/xml',
-          'Authorization': this.authHeader,
-          'Accept': '*/*',
-          'User-Agent': 'WikenFarma/1.0'
-        },
-        body: xmlPayload,
-        // Per server interni con certificati self-signed
-      });
-
-      const statusCode = response.status;
-      console.log(`📦 [GESTLINE] Response status: ${statusCode}`);
-      
-      const responseText = await response.text();
-      // Only log response in development to avoid PII exposure  
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`📋 [GESTLINE] Raw XML response (first 300 chars):`, responseText.substring(0, 300) + '...');
-      } else {
-        console.log(`📋 [GESTLINE] Received XML response size: ${responseText.length} chars`);
-      }
-
-      if (response.ok) {
-        // Converti XML risposta in JSON per il frontend
-        const jsonData = this.xmlToJson(responseText);
-        console.log(`✅ [GESTLINE] ${operation} successful, XML converted to JSON`);
-        
-        return {
-          success: true,
-          data: jsonData,
-          statusCode
-        };
-      } else {
-        // Production-safe error logging - no PII exposure
-        if (process.env.NODE_ENV === 'development') {
-          console.error(`❌ [GESTLINE] ${operation} failed (${statusCode}):`, responseText.substring(0, 300) + '...');
-        } else {
-          console.error(`❌ [GESTLINE] ${operation} failed (${statusCode}): Response size ${responseText.length} chars`);
-        }
-        return {
-          success: false,
-          error: `${operation} Error ${statusCode}: ${process.env.NODE_ENV === 'development' ? responseText : 'Server Error'}`,
-          statusCode
-        };
-      }
-    } catch (error) {
-      console.error(`❌ [GESTLINE] ${operation} connection error:`, error);
-      return {
-        success: false,
-        error: `${operation} connection error: ${error instanceof Error ? error.message : String(error)}`,
-        statusCode: 0
-      };
+      return result;
+    } catch (e) {
+      return { rawXml: xmlString, parseError: true };
     }
   }
 

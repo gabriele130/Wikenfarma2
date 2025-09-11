@@ -547,19 +547,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // GestLine API Routes - ERP integration CORRETTO: Solo POST con XML
+  // GestLine API Routes - Pattern CORRETTO per wikenship.it
   
-  // DEPRECATO: Rimosso endpoint generico getData()
-  // Ora usando metodi specifici con POST + XML
-
-  app.post("/api/gestline/orders", authenticateToken, async (req, res) => {
+  // GET /api/gestline/orders -> lista ordini (SELECT)
+  app.get("/api/gestline/orders", async (_req, res) => {
     try {
-      console.log("🔄 Getting orders from GestLine using POST + XML...");
-      const result = await gestlineService.getOrders();
-      res.json(result);
-    } catch (error) {
-      console.error("Failed to get GestLine orders:", error);
-      res.status(500).json({ message: "Failed to get GestLine orders" });
+      console.log("🔄 [WIKENSHIP] GET /api/gestline/orders - Lista ordini con SELECT XML");
+      
+      const xml = `
+<GestLine>
+  <Select>
+    <IDRIferimento></IDRIferimento>
+    <Select><![CDATA[
+      select * from ordini limit 20
+    ]]></Select>
+    <NomiRekord></NomiRekord>
+    <ValoreNull></ValoreNull>
+  </Select>
+</GestLine>`;
+
+      const xmlResp = await gestlineService.postGestline(xml);
+      const json = gestlineService.simpleXmlParse(xmlResp);
+      res.json(json);
+    } catch (e: any) {
+      console.error("❌ [WIKENSHIP] gestline_select_failed:", e.message);
+      res.status(502).json({ error: "gestline_select_failed", message: e.message });
+    }
+  });
+
+  // POST /api/gestline/orders -> crea ordine (NuovoOrdineCliente)  
+  app.post("/api/gestline/orders", async (req, res) => {
+    try {
+      console.log("🔄 [WIKENSHIP] POST /api/gestline/orders - Crea ordine con NuovoOrdineCliente XML");
+      const { codiceTerzo, riferimento, dataRif, dataConsegna, dataSped, idContatto, righe } = req.body;
+
+      const righeXml = (righe || []).map((r: any) => `
+        <Riga>
+          <CodiceArticolo>${r.codiceArticolo}</CodiceArticolo>
+          <QNT>${r.qta}</QNT>
+          ${r.prezzoNetto ? `<PrezzoNetto>${r.prezzoNetto}</PrezzoNetto>` : ``}
+          ${r.note ? `<Note>${r.note}</Note>` : ``}
+          ${r.sconto1 ? `<sconto1>${r.sconto1}</sconto1>` : ``}
+        </Riga>
+      `).join("");
+
+      const xml = `
+<GestLine>
+  <NuovoOrdineCliente>
+    <IDRIferimento>${Date.now()}</IDRIferimento>
+    <UtenteCreatore>${process.env.GESTLINE_API_USERNAME || "api"}</UtenteCreatore>
+    <testata>
+      <CodiceTerzo>${codiceTerzo}</CodiceTerzo>
+      <Riferimento>${riferimento || ""}</Riferimento>
+      <DataRiferimento>${dataRif || ""}</DataRiferimento>
+      <DataPrevistaConsegna>${dataConsegna || ""}</DataPrevistaConsegna>
+      <DataPrevistaSpedizione>${dataSped || ""}</DataPrevistaSpedizione>
+      <IDContatto>${idContatto || 0}</IDContatto>
+      <ModelloStampa>ORDINECLIENTE_0</ModelloStampa>
+      <IDDestinazione>0</IDDestinazione>
+    </testata>
+    <Dettaglio>
+      ${righeXml}
+    </Dettaglio>
+  </NuovoOrdineCliente>
+</GestLine>`;
+
+      const xmlResp = await gestlineService.postGestline(xml);
+      const json = gestlineService.simpleXmlParse(xmlResp);
+      res.json(json);
+    } catch (e: any) {
+      console.error("❌ [WIKENSHIP] gestline_create_order_failed:", e.message);
+      res.status(502).json({ error: "gestline_create_order_failed", message: e.message });
     }
   });
 
