@@ -1,10 +1,10 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupCustomAuth, authenticateToken, requireRole, requireUserType } from "./customAuth";
+import { setupCustomAuth, authenticateToken, requireRole, requireUserType } from "./middlewares/auth";
 import { insertCustomerSchema, insertProductSchema, insertOrderSchema, insertOrderItemSchema, insertInformatoreSchema } from "@shared/schema";
 import { z } from "zod";
-import { gestlineService, GestLineOrderData } from "./gestlineService";
+import { gestlineService, GestLineOrderData } from "./services/gestline.service";
 import gestlineRouter from "./gestline";
 
 export async function registerRoutes(app: Express): Promise<Server> {
