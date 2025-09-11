@@ -1,0 +1,91 @@
+import { Router } from "express";
+import { gestlineService } from "../gestlineService";
+
+const router = Router();
+
+/**
+ * GET /products -> Lista prodotti da GestLine (SELECT XML)
+ * Pattern wikenship.it: POST XML -> JSON response
+ */
+router.get("/products", async (_req, res) => {
+  try {
+    console.log("🔄 [WIKENSHIP-PRODUCTS] GET /products - Lista prodotti con SELECT XML");
+    
+    const xml = `
+<GestLine>
+  <Select>
+    <IDRIferimento></IDRIferimento>
+    <Select><![CDATA[
+      select * from articoli limit 50
+    ]]></Select>
+    <NomiRekord></NomiRekord>
+    <ValoreNull></ValoreNull>
+  </Select>
+</GestLine>`;
+
+    const xmlResp = await gestlineService.postGestline(xml);
+    const json = gestlineService.simpleXmlParse(xmlResp);
+    
+    console.log("✅ [WIKENSHIP-PRODUCTS] Lista prodotti recuperata successfully");
+    res.json(json);
+  } catch (e: any) {
+    console.error("❌ [WIKENSHIP-PRODUCTS] gestline_products_select_failed:", e.message);
+    res.status(502).json({ 
+      error: "gestline_products_select_failed", 
+      message: e.message,
+      operation: "GET_PRODUCTS"
+    });
+  }
+});
+
+/**
+ * POST /products -> Crea nuovo prodotto in GestLine (NuovoArticolo XML)
+ * Body: { codice, descrizione, prezzoVendita, categoria, ... }
+ */
+router.post("/products", async (req, res) => {
+  try {
+    console.log("🔄 [WIKENSHIP-PRODUCTS] POST /products - Crea prodotto con NuovoArticolo XML");
+    const { codice, descrizione, prezzoVendita, categoria, um = "PZ", attivo = true } = req.body;
+
+    // Validazione dati essenziali
+    if (!codice || !descrizione) {
+      return res.status(400).json({ 
+        error: "validation_failed", 
+        message: "codice e descrizione sono obbligatori" 
+      });
+    }
+
+    const xml = `
+<GestLine>
+  <NuovoArticolo>
+    <IDRIferimento>${Date.now()}</IDRIferimento>
+    <UtenteCreatore>${process.env.GESTLINE_API_USERNAME || "api"}</UtenteCreatore>
+    <testata>
+      <Codice>${codice}</Codice>
+      <Descrizione>${descrizione}</Descrizione>
+      ${prezzoVendita ? `<PrezzoVendita>${prezzoVendita}</PrezzoVendita>` : ''}
+      ${categoria ? `<Categoria>${categoria}</Categoria>` : ''}
+      <UnitaMisura>${um}</UnitaMisura>
+      <Attivo>${attivo ? 1 : 0}</Attivo>
+      <TipoArticolo>NORMALE</TipoArticolo>
+      <DataInserimento>${new Date().toISOString().split('T')[0]}</DataInserimento>
+    </testata>
+  </NuovoArticolo>
+</GestLine>`;
+
+    const xmlResp = await gestlineService.postGestline(xml);
+    const json = gestlineService.simpleXmlParse(xmlResp);
+    
+    console.log("✅ [WIKENSHIP-PRODUCTS] Prodotto creato successfully");
+    res.json(json);
+  } catch (e: any) {
+    console.error("❌ [WIKENSHIP-PRODUCTS] gestline_create_product_failed:", e.message);
+    res.status(502).json({ 
+      error: "gestline_create_product_failed", 
+      message: e.message,
+      operation: "CREATE_PRODUCT"
+    });
+  }
+});
+
+export default router;
