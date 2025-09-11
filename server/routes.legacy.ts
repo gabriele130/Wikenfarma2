@@ -381,44 +381,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Shipment routes
-  app.get('/api/shipments', authenticateToken, async (req, res) => {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      
-      const result = await storage.getShipments(page, limit);
-      res.json(result);
-    } catch (error) {
-      console.error("Error fetching shipments:", error);
-      res.status(500).json({ message: "Failed to fetch shipments" });
-    }
-  });
-
-  // Commission routes
-  app.get('/api/commissions', authenticateToken, async (req, res) => {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
-      
-      const result = await storage.getCommissions(page, limit);
-      res.json(result);
-    } catch (error) {
-      console.error("Error fetching commissions:", error);
-      res.status(500).json({ message: "Failed to fetch commissions" });
-    }
-  });
-
-  // Integration routes
-  app.get('/api/integrations', authenticateToken, async (req, res) => {
-    try {
-      const integrations = await storage.getIntegrations();
-      res.json(integrations);
-    } catch (error) {
-      console.error("Error fetching integrations:", error);
-      res.status(500).json({ message: "Failed to fetch integrations" });
-    }
-  });
+  // DUPLICATES REMOVED: shipments, commissions, integrations routes already defined above
+  // This eliminates "headers already sent" errors from double route registration
 
   // Activity log routes
   app.get('/api/activity-logs', authenticateToken, async (req, res) => {
