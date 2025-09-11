@@ -14,3 +14,4 @@ export {
 // DRY middleware utilities
 export { validate, validateQuery, validateParams } from './validation';
 export { normalizeUser, logActivity } from './user-context';
+export { errorHandler, notFoundHandler } from './error-handler';
