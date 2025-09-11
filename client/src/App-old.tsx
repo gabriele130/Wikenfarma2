@@ -5,7 +5,7 @@ import { Pill } from 'lucide-react'
 // Import delle pagine e componenti layout
 import Dashboard from './pages/dashboard'
 import Analytics from './pages/analytics'
-import Sidebar from './components/layout/sidebar'
+import ModernSidebar from './components/layout/modern-sidebar'
 import Header from './components/layout/header'
 
 const queryClient = new QueryClient({
@@ -82,7 +82,7 @@ function Navigation() {
 function NotFound() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Sidebar />
+      <ModernSidebar />
       <main className="flex-1 overflow-y-auto">
         <Header title="Pagina Non Trovata" subtitle="Error 404" />
         <div className="p-6 flex items-center justify-center h-full">
@@ -102,7 +102,7 @@ function NotFound() {
 function WikishipPlaceholder() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Sidebar />
+      <ModernSidebar />
       <main className="flex-1 overflow-y-auto">
         <Header title="WIKENSHIP" subtitle="Integrazione WooCommerce/eBay → GestLine + ODOO" />
         <div className="p-6">
@@ -119,7 +119,7 @@ function WikishipPlaceholder() {
 function PharmaevoPlaceholder() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Sidebar />
+      <ModernSidebar />
       <main className="flex-1 overflow-y-auto">
         <Header title="PharmaEVO" subtitle="Bridge farmacie con dati IQVIA e tagging automatico" />
         <div className="p-6">
@@ -136,7 +136,7 @@ function PharmaevoPlaceholder() {
 function InformatoriPlaceholder() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Sidebar />
+      <ModernSidebar />
       <main className="flex-1 overflow-y-auto">
         <Header title="Gestione ISF" subtitle="Sistema completo Informatori Scientifici con commissioni" />
         <div className="p-6">
@@ -153,7 +153,7 @@ function InformatoriPlaceholder() {
 function CustomersPlaceholder() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Sidebar />
+      <ModernSidebar />
       <main className="flex-1 overflow-y-auto">
         <Header title="Gestione Clienti" subtitle="CRM unificato per privati, farmacie, grossisti e medici" />
         <div className="p-6">
@@ -170,7 +170,7 @@ function CustomersPlaceholder() {
 function AnalyticsWithNav() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      <Sidebar />
+      <ModernSidebar />
       <main className="flex-1 overflow-y-auto">
         <Header title="Analytics" subtitle="Dashboard avanzate e business intelligence" />
         <Analytics />

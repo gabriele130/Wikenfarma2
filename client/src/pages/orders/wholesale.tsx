@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import Sidebar from "@/components/layout/sidebar";
+import ModernSidebar from "@/components/layout/modern-sidebar";
 import Header from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -38,7 +38,7 @@ export default function OrdersWholesale() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar />
+      <ModernSidebar />
       <main className="flex-1 overflow-y-auto">
         <Header title="Ordini Grossisti" subtitle="Gestione ordini grossisti" />
         

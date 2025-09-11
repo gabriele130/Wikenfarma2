@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import Sidebar from "@/components/layout/sidebar";
+import ModernSidebar from "@/components/layout/modern-sidebar";
 import Header from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -111,7 +111,7 @@ export default function PharmaEVO() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar />
+      <ModernSidebar />
       <main className="flex-1 overflow-y-auto">
         <Header title="PharmaEVO" subtitle="Integrazione ordini farmacie → GestLine + ODOO (Tag Farm)" />
         
