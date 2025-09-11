@@ -127,7 +127,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         action: 'create',
         entityType: 'customer',
         entityId: customer.id,
-        description: `Creato nuovo cliente: ${customer.firstName} ${customer.lastName || customer.companyName}`,
+        description: `Creato nuovo cliente: ${customer.firstName || customer.name} ${customer.lastName || ''}`,
       });
       
       res.status(201).json(customer);
@@ -148,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         action: 'update',
         entityType: 'customer',
         entityId: customer.id,
-        description: `Aggiornato cliente: ${customer.firstName} ${customer.lastName || customer.companyName}`,
+        description: `Aggiornato cliente: ${customer.firstName || customer.name} ${customer.lastName || ''}`,
       });
       
       res.json(customer);
@@ -314,11 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Order not found" });
       }
       
-      const deleted = await storage.deleteOrder(id);
-      
-      if (!deleted) {
-        return res.status(500).json({ message: "Failed to delete order" });
-      }
+      await storage.deleteOrder(id);
       
       // Log activity
       await storage.createActivityLog({
@@ -558,7 +554,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Advanced Commission System
+  // TODO: Fix - Advanced Commission System (commented out due to missing storage methods)
+  /*
   app.get("/api/commissions/advanced/:informatoreId", authenticateToken, async (req, res) => {
     try {
       const { informatoreId } = req.params;
@@ -573,7 +570,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch advanced commissions" });
     }
   });
+  */
 
+  // TODO: Fix - Commission calculation (commented out due to missing storage methods)
+  /*
   app.post("/api/commissions/calculate", authenticateToken, async (req, res) => {
     try {
       const { informatoreId, year, month } = req.body;
@@ -584,6 +584,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to calculate commission" });
     }
   });
+  */
 
   // Analytics routes - Dynamic data from database
   app.get("/api/analytics/revenue", authenticateToken, async (req, res) => {
@@ -616,7 +617,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Bonus/Malus Management (Admin only)
+  // TODO: Fix - Bonus/Malus Management (commented out due to missing storage methods)
+  /*
   app.get("/api/bonus-malus", authenticateToken, async (req, res) => {
     try {
       const { informatoreId, year, month } = req.query;
@@ -631,7 +633,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch bonus/malus" });
     }
   });
+  */
 
+  // TODO: Fix - Create bonus/malus (commented out due to missing storage methods and claims property)
+  /*
   app.post("/api/bonus-malus", authenticateToken, async (req, res) => {
     try {
       const userId = req.user?.claims?.sub;
@@ -643,8 +648,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to create bonus/malus" });
     }
   });
+  */
 
-  // Medical Visit Tracking
+  // TODO: Fix - Medical Visit Tracking (commented out due to missing storage methods)
+  /*
   app.get("/api/visits", authenticateToken, async (req, res) => {
     try {
       const { informatoreId, doctorId, startDate, endDate } = req.query;
@@ -660,7 +667,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch medical visits" });
     }
   });
+  */
 
+  // TODO: Fix - Create medical visit (commented out due to missing storage methods)
+  /*
   app.post("/api/visits", authenticateToken, async (req, res) => {
     try {
       const visit = await storage.createMedicalVisit(req.body);
@@ -670,6 +680,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to create medical visit" });
     }
   });
+  */
 
   // =================================
   // EXTENDED ISF COMPENSATION ROUTES  
@@ -767,7 +778,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // For now, allow public access to dashboard demo
       const isValid = shareToken 
         ? await storage.validateShareToken(informatoreId, shareToken as string)
-        : req.authenticateToken();
+        : !!req.user; // Check if user is authenticated
         
       if (!isValid) {
         return res.status(401).json({ message: "Unauthorized access to dashboard" });

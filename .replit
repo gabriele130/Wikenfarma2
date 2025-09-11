@@ -5,3 +5,11 @@ integrations = ["javascript_log_in_with_replit==1.0.0", "javascript_object_stora
 
 [nix]
 channel = "stable-25_05"
+
+[[ports]]
+localPort = 3100
+externalPort = 80
+
+[[ports]]
+localPort = 8080
+externalPort = 8080

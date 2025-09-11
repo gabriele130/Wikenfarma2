@@ -2,7 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
 import path from "path";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+// LAZY IMPORT: vite solo in development per bypassare vite.config.ts corrotto
+const log = (...args: any[]) => console.log(...args);
 
 const app = express();
 
@@ -63,7 +64,13 @@ app.use((req, res, next) => {
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
-    await setupVite(app, server);
+    try {
+      const { setupVite, log: viteLog } = await import("./vite");
+      (viteLog ?? log)("🚀 Starting Vite development server...");
+      await setupVite(app, server);
+    } catch (error) {
+      log("⚠️ Vite setup failed (maybe vite.config.ts issue), serving API only:", error.message);
+    }
   } else {
     // In production, serve static files from dist/public
     app.use(express.static('dist/public'));
