@@ -94,13 +94,15 @@ export class GestLineService {
   async postGestline(xmlBody: string): Promise<string> {
     const https = await import('https');
     
-    // Configurazione SSL ottimizzata per wikenship.it con Let's Encrypt
+    // Configurazione SSL per wikenship.it (supporta sia CA trusted che self-signed)
     const tlsInsecure = process.env.GESTLINE_TLS_INSECURE === 'true';
     const agent = new https.Agent({ 
       rejectUnauthorized: !tlsInsecure,
-      // SSL/TLS configuration for Let's Encrypt certificate
+      // SSL/TLS configuration (compatibile Let's Encrypt e self-signed)
       secureProtocol: 'TLSv1_2_method',
-      ciphers: 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'
+      ciphers: 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256',
+      // Per self-signed certificates se necessario
+      checkServerIdentity: tlsInsecure ? () => undefined : undefined
     });
     
     if (tlsInsecure && process.env.NODE_ENV === 'production') {
