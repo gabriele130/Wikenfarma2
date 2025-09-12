@@ -1,9 +1,7 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
-// Domain configuration for wikenship.it with explicit port 3100
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD 
-  ? "https://wikenship.it:3100" // Production domain with port 3100
-  : "http://127.0.0.1:3100"); // Development
+// Domain configuration per wikenship.it produzione
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://wikenship.it:3100";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {

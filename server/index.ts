@@ -14,9 +14,7 @@ app.set("trust proxy", 1);
 app.use(cors({ 
   origin: [
     "https://wikenship.it",
-    "https://www.wikenship.it", 
-    "http://localhost:3100",   // Development fallback
-    "http://127.0.0.1:3100"    // Local testing
+    "https://www.wikenship.it"
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
