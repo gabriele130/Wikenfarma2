@@ -88,21 +88,26 @@ export class GestLineService {
 
   /**
    * POST XML -> XML text (seguendo pattern wikenship.it)
-   * Implementazione esatta come da documento
-   * TLS sicuro di default, insecuro solo con GESTLINE_TLS_INSECURE=true
+   * Implementazione sicura con certificato SSL Let's Encrypt
+   * wikenship.it certificate: expires 17 November 2025
    */
   async postGestline(xmlBody: string): Promise<string> {
     const https = await import('https');
     
-    // TLS sicuro di default, insecuro solo con env flag esplicito per dev
+    // Configurazione SSL ottimizzata per wikenship.it con Let's Encrypt
     const tlsInsecure = process.env.GESTLINE_TLS_INSECURE === 'true';
     const agent = new https.Agent({ 
-      rejectUnauthorized: !tlsInsecure 
+      rejectUnauthorized: !tlsInsecure,
+      // SSL/TLS configuration for Let's Encrypt certificate
+      secureProtocol: 'TLSv1_2_method',
+      ciphers: 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256'
     });
     
     if (tlsInsecure && process.env.NODE_ENV === 'production') {
       console.warn('⚠️ [GESTLINE] TLS insecure mode enabled in production - security risk!');
     }
+    
+    console.log(`🔐 [GESTLINE] POST to ${this.apiUrl} with SSL certificate support`);
     
     const response = await fetch(this.apiUrl, {
       method: "POST",
@@ -110,6 +115,7 @@ export class GestLineService {
         "Content-Type": "application/xml",
         "Accept": "application/xml",
         "Authorization": this.authHeader,
+        "User-Agent": "WikenFarma/1.0 (wikenship.it)",
       },
       // @ts-ignore (node >=18 ha fetch; usiamo agent per TLS)
       agent,

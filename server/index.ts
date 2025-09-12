@@ -10,10 +10,17 @@ const app = express();
 // Trust proxy - importante dietro Nginx
 app.set("trust proxy", 1);
 
-// CORS configuration per wikenship.it
+// CORS configuration per wikenship.it con certificato SSL Let's Encrypt
 app.use(cors({ 
-  origin: "https://wikenship.it", 
-  credentials: true 
+  origin: [
+    "https://wikenship.it",
+    "https://www.wikenship.it", 
+    "http://localhost:3100",   // Development fallback
+    "http://127.0.0.1:3100"    // Local testing
+  ],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
 
 app.use(express.json());
@@ -92,6 +99,7 @@ app.use((req, res, next) => {
     if (process.env.NODE_ENV === 'production') {
       log(`🚀 WikenFarma server running on https://wikenship.it:${port}`);
       log(`📡 API endpoints available at https://wikenship.it/api/*`);
+      log(`🔐 SSL Certificate: Let's Encrypt (expires 17 November 2025)`);
       log(`🎯 Configure your NodeJS manager to use port ${port}`);
     } else {
       log(`🔧 Development server running on http://${host}:${port}`);
