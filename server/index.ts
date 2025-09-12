@@ -83,57 +83,19 @@ app.use((req, res, next) => {
     });
   }
 
-  // Server configuration for wikenship.it domain
+  // Server configuration - single port from environment
   const port = parseInt(process.env.PORT || '3100', 10);
-  const additionalPort = parseInt(process.env.ADDITIONAL_PORT || '8080', 10);
   const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
   
-  // Start primary server on main port (3100)
+  // Start server on configured port
   server.listen(port, host, () => {
     if (process.env.NODE_ENV === 'production') {
-      log(`🚀 WikenFarma PRIMARY server running on https://wikenship.it (port ${port})`);
+      log(`🚀 WikenFarma server running on https://wikenship.it:${port}`);
       log(`📡 API endpoints available at https://wikenship.it/api/*`);
+      log(`🎯 Configure your NodeJS manager to use port ${port}`);
     } else {
-      log(`🔧 Development PRIMARY server running on http://${host}:${port}`);
+      log(`🔧 Development server running on http://${host}:${port}`);
       log(`📡 Will be accessible at https://wikenship.it in production`);
     }
   });
-
-  // Start additional server on alternative port (8080) for nginx proxy
-  if (process.env.NODE_ENV === 'production') {
-    const additionalApp = express();
-    
-    // Configure additional server with same middleware
-    additionalApp.set("trust proxy", 1);
-    additionalApp.use(cors({ 
-      origin: "https://wikenship.it", 
-      credentials: true 
-    }));
-    additionalApp.use(express.json());
-    additionalApp.use(express.urlencoded({ extended: false }));
-    
-    // Register all the same routes
-    const additionalServer = await registerRoutes(additionalApp);
-    
-    // Copy error handler
-    additionalApp.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-      const status = err.status || err.statusCode || 500;
-      const message = err.message || "Internal Server Error";
-      res.status(status).json({ message });
-      throw err;
-    });
-    
-    // Serve static files from dist/public
-    additionalApp.use(express.static('dist/public'));
-    
-    // Serve React app for all non-API routes
-    additionalApp.get('*', (req, res) => {
-      res.sendFile(path.resolve('dist/public/index.html'));
-    });
-    
-    additionalServer.listen(additionalPort, host, () => {
-      log(`🔄 WikenFarma ADDITIONAL server running on port ${additionalPort} (for nginx proxy)`);
-      log(`🎯 Use this port in nginx: proxy_pass http://localhost:${additionalPort}/api/;`);
-    });
-  }
 })();
