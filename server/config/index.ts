@@ -7,7 +7,7 @@ export const config = {
   server: {
     port: parseInt(process.env.PORT || '3100', 10),
     host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1',
-    additionalPort: parseInt(process.env.ADDITIONAL_PORT || '8080', 10),
+    // additionalPort removed - using only main port 3100
   },
 
   // CORS configuration  

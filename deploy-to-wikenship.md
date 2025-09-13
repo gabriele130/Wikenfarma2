@@ -46,12 +46,12 @@ pm2 logs wikenship.it --lines 50
 
 Se la porta 3100 è bloccata, modifica la variabile ambiente:
 ```bash
-# Usa porta 8080 invece
-pm2 set PM2_ENV_PORT 8080
+# Usa porta 3100 (produzione)
+pm2 set PM2_ENV_PORT 3100
 pm2 restart wikenship.it
 
 # Poi testa su:
-curl https://wikenship.it:8080/api/gestline/orders
+curl https://wikenship.it:3100/api/gestline/orders
 ```
 
 ## 📊 Verificare architettura modulare attiva
